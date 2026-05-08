@@ -1,0 +1,49 @@
+{
+  "month": "2026-05",
+  "payments": [
+    { "item": "IVA + PPM", "amount": 188351, "paid": false, "comment": "Valor aproximado", "company": "EXPRO" },
+    { "item": "Sueldo Damian", "amount": 750000, "paid": false, "comment": "Developer Expande Pro", "company": "EXPRO" },
+    { "item": "Luis Farías", "amount": 80000, "paid": false, "comment": "Contador", "company": "AW,EXPRO" },
+    { "item": "Eduardo Ricci", "amount": 150000, "paid": false, "comment": "Abogado", "company": "EXPRO" },
+    { "item": "Sueldo Juan", "amount": 3500000, "paid": false, "comment": "", "company": "EXPRO,AW" },
+    { "item": "Luis Silva", "amount": 700000, "paid": false, "comment": "Animals Center + Eulufi (150 c/u) Palquim + AW (200 c/u)", "company": "AW" },
+    { "item": "Cuota Fogape", "amount": 531500, "paid": false, "comment": "La mitad del fogape", "company": "AW" },
+    { "item": "Préstamo BCI Celulares", "amount": 185745, "paid": false, "comment": "La mitad del crédito", "company": "AW" },
+    { "item": "Mails de AW", "amount": 30000, "paid": false, "comment": "Mails de Google", "company": "AW" },
+    { "item": "Pagos previsionales", "amount": 250000, "paid": false, "comment": "Estimado Bryan + Juan", "company": "AW" },
+    { "item": "Visa", "amount": 300000, "paid": false, "comment": "Aproximado", "company": "AW" },
+    { "item": "F29", "amount": 1000000, "paid": false, "comment": "Aproximado", "company": "AW" },
+    { "item": "PPM", "amount": 224899, "paid": false, "comment": "Aproximado", "company": "AW" },
+    { "item": "Bryan Cartagena", "amount": 1000000, "paid": false, "comment": "Developer AW", "company": "AW" }
+  ],
+  "invoices": [
+    { "rut": "76.475.415-8", "number": "3", "type": "AFECTA", "counterparty": "CyR", "service": "fee-cyr", "net": 2200000, "iva": 418000, "total": 2618000, "sent": true, "paidAt": null },
+    { "rut": "93.178.000-K", "number": "", "type": "AFECTA", "counterparty": "ICB SA", "service": "", "net": 398417, "iva": 75699, "total": 474116, "sent": false, "paidAt": null },
+    { "rut": "76996894-6", "number": "12-13", "type": "AFECTA", "counterparty": "Agencia Fiel", "service": "Fee mensual web", "net": 630000, "iva": 119700, "total": 749700, "sent": true, "paidAt": null },
+    { "rut": "76.395.303-3", "number": "1195", "type": "AFECTA", "counterparty": "Maxiclima (Mailhosting)", "service": "hosting-mc", "net": 116658, "iva": 22165, "total": 138823, "sent": true, "paidAt": null },
+    { "rut": "76.081.438-5", "number": "1193", "type": "AFECTA", "counterparty": "Coni Anich", "service": "fee-canich", "net": 490767, "iva": 93246, "total": 584013, "sent": true, "paidAt": null },
+    { "rut": "77.427.166-K", "number": "1194", "type": "AFECTA", "counterparty": "Tercera dosis", "service": "fee-td", "net": 181500, "iva": 34485, "total": 215985, "sent": true, "paidAt": null },
+    { "rut": "76.916.520-7", "number": "1196", "type": "AFECTA", "counterparty": "Nicolas Alvarez", "service": "fee-frugamex", "net": 120680, "iva": 22929, "total": 143610, "sent": true, "paidAt": null },
+    { "rut": "96.893.470-8", "number": "1197", "type": "AFECTA", "counterparty": "BATERÍAS TUBULAR S.A.", "service": "fee-tubular", "net": 180000, "iva": 34200, "total": 214200, "sent": true, "paidAt": null },
+    { "rut": "77.079.402-1", "number": "1192", "type": "AFECTA", "counterparty": "Comercializadora Francisca Allende EIRL", "service": "SEO/SEM/Soporte ERP", "net": 321814, "iva": 61145, "total": 382959, "sent": true, "paidAt": null },
+    { "rut": "76.026.121-1", "number": "1190", "type": "AFECTA", "counterparty": "Distribuidora Jose Lira Silva EIRL", "service": "Fee mensual desarrollo web", "net": 1005670, "iva": 191077, "total": 1196747, "sent": true, "paidAt": null },
+    { "rut": "77.757.710-7", "number": "1191", "type": "AFECTA", "counterparty": "Animals Center", "service": "Soporte + RRSS + ventas web + Meta", "net": 419068, "iva": 79623, "total": 498691, "sent": true, "paidAt": null },
+    { "rut": "78.273.401-6", "number": "4", "type": "EXENTA", "counterparty": "Inmobiliaria Eulufi", "service": "Desarrollo web y ERP Eulufi - pago final", "net": 500000, "iva": 0, "total": 500000, "sent": true, "paidAt": null },
+    { "rut": "", "number": "14", "type": "AFECTA", "counterparty": "Solar", "service": "", "net": 226891, "iva": 43109, "total": 270000, "sent": true, "paidAt": null },
+    { "rut": "", "number": "", "type": "EXENTA", "counterparty": "Univazo", "service": "", "net": 550000, "iva": 0, "total": 550000, "sent": false, "paidAt": null }
+  ],
+  "visa": [
+    { "item": "Canva", "amountCLP": 9200, "amountUSD": null },
+    { "item": "Google Workspace Maxiclima", "amountCLP": null, "amountUSD": 57.60 },
+    { "item": "ChatGPT", "amountCLP": null, "amountUSD": 96.00 },
+    { "item": "Claude", "amountCLP": null, "amountUSD": 100.00 },
+    { "item": "Notion", "amountCLP": null, "amountUSD": 24.00 }
+  ],
+  "opportunities": [
+    { "name": "AdOnTheGo", "amount": 12000000, "company": "AW" },
+    { "name": "Casino Dreams", "amount": 8419277, "company": "AW" },
+    { "name": "Bbraun", "amount": 4022679, "company": "AW" },
+    { "name": "Rentabilizar pago 2", "amount": 1200000, "company": "AW" }
+  ],
+  "exchangeRate": { "USD_CLP": 1041 }
+}

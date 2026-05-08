@@ -11,7 +11,7 @@ export class TransactionsService {
     const { companyId, type, status, dateFrom, dateTo } = filters;
     return this.prisma.transaction.findMany({
       where: {
-        ...(companyId && { companyId }),
+        ...(companyId && { allocations: { some: { companyId } } }),
         ...(type && { type }),
         ...(status && { status }),
         ...((dateFrom || dateTo) && {
@@ -26,6 +26,7 @@ export class TransactionsService {
         counterparty: true,
         category: true,
         document: true,
+        account: true,
       },
       orderBy: { date: 'desc' },
     });
@@ -39,6 +40,7 @@ export class TransactionsService {
         counterparty: true,
         category: true,
         document: true,
+        account: true,
       },
     });
     if (!tx) throw new NotFoundException(`Transacción ${id} no encontrada`);

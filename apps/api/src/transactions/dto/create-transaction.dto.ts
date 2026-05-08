@@ -5,8 +5,23 @@ import {
   IsOptional,
   IsDateString,
   IsPositive,
+  ValidateNested,
+  IsArray,
+  Min,
+  Max,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { TransactionType, Currency } from '@aw-finanzas/database';
+
+export class AllocationDto {
+  @IsString()
+  companyId: string;
+
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  percentage: number;
+}
 
 export class CreateTransactionDto {
   @IsString()
@@ -56,4 +71,10 @@ export class CreateTransactionDto {
   @IsOptional()
   @IsString()
   comment?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AllocationDto)
+  allocations?: AllocationDto[];
 }

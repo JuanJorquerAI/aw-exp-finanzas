@@ -47,8 +47,22 @@ export class TransactionsService {
     return tx;
   }
 
-  create(dto: CreateTransactionDto) {
-    return this.prisma.transaction.create({ data: dto });
+  async create(dto: CreateTransactionDto) {
+    const { allocations, ...txData } = dto;
+    const allocs = allocations ?? [{ companyId: txData.companyId, percentage: 100 }];
+
+    return this.prisma.$transaction(async (tx) => {
+      const transaction = await tx.transaction.create({ data: txData });
+      await tx.transactionAllocation.createMany({
+        data: allocs.map((a) => ({
+          transactionId: transaction.id,
+          companyId: a.companyId,
+          percentage: a.percentage,
+          amountCLP: (txData.amountCLP * a.percentage) / 100,
+        })),
+      });
+      return transaction;
+    });
   }
 
   markPaid(id: string) {

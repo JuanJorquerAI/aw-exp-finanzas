@@ -1,0 +1,325 @@
+// ============================================================================
+// aw-finanzas — schema.prisma
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum TransactionType {
+  INCOME      // Ingreso (cobro de factura, venta)
+  EXPENSE     // Egreso (pago a proveedor, sueldo)
+  TRANSFER    // Transferencia entre cuentas propias
+}
+
+enum TransactionStatus {
+  PENDING     // Por pagar / por cobrar
+  PAID        // Pagado / cobrado
+  RECONCILED  // Conciliado contra cartola bancaria
+  CANCELLED   // Anulado
+}
+
+enum TransactionSource {
+  MANUAL          // Capturado manualmente en la app
+  SHEET_IMPORT    // Importado del Google Sheet inicial
+  BANK_CSV        // Importado de cartola bancaria
+  ERP             // Vino de ExpandERP (cuando se integre)
+  SII             // Vino del SII (cuando se integre)
+}
+
+enum DocumentType {
+  AFECTA          // Factura afecta (con IVA)
+  EXENTA          // Factura exenta
+  BOLETA          // Boleta
+  NOTA_CREDITO    // Nota de crédito
+  NOTA_DEBITO     // Nota de débito
+  HONORARIOS      // Boleta de honorarios
+}
+
+enum Currency {
+  CLP
+  USD
+  UF
+  EUR
+}
+
+enum CounterpartyType {
+  CUSTOMER        // Cliente
+  SUPPLIER        // Proveedor
+  EMPLOYEE        // Trabajador (sueldos)
+  GOVERNMENT      // SII, previred, etc.
+  BANK            // Bancos (créditos, comisiones)
+  OTHER
+}
+
+enum AccountType {
+  BANK_CHECKING   // Cuenta corriente
+  BANK_SAVINGS    // Cuenta de ahorro
+  CREDIT_CARD     // Tarjeta de crédito (Visa)
+  CASH            // Caja
+  DIGITAL_WALLET  // MercadoPago, Webpay, etc.
+  LOAN            // Crédito (BCI, Fogape)
+}
+
+enum OpportunityStage {
+  PROSPECTING     // Prospecto inicial
+  PROPOSAL_SENT   // Propuesta enviada
+  NEGOTIATION     // En negociación
+  WON             // Ganado (se convierte en proyecto/factura)
+  LOST            // Perdido
+  ON_HOLD         // En pausa
+}
+
+// ============================================================================
+// CORE ENTITIES
+// ============================================================================
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String   @unique             // "AplicacionesWeb", "Expande PRO"
+  shortCode   String   @unique             // "AW", "EXPRO"
+  rut         String?                       // RUT chileno
+  legalName   String?                       // Razón social completa
+  address     String?
+  email       String?
+  phone       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  accounts        Account[]
+  transactions    Transaction[]
+  allocations     TransactionAllocation[]
+  documents       Document[]
+  opportunities   Opportunity[]
+
+  @@map("companies")
+}
+
+model Account {
+  id            String      @id @default(cuid())
+  companyId     String
+  name          String                          // "Banco Estado CC", "Visa", "Caja"
+  type          AccountType
+  currency      Currency    @default(CLP)
+  bankName      String?                          // "Banco Estado", "BCI"
+  accountNumber String?                          // Últimos 4 dígitos
+  initialBalance Decimal    @default(0) @db.Decimal(18, 2)
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  company       Company     @relation(fields: [companyId], references: [id])
+  transactions  Transaction[]
+
+  @@index([companyId])
+  @@map("accounts")
+}
+
+model Counterparty {
+  id          String           @id @default(cuid())
+  type        CounterpartyType
+  name        String                              // Razón social o nombre
+  rut         String?          @unique             // RUT chileno
+  email       String?
+  phone       String?
+  address     String?
+  externalId  String?                             // ID en ExpandERP (futuro)
+  notes       String?
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  documents       Document[]
+  transactions    Transaction[]
+  opportunities   Opportunity[]
+
+  @@index([rut])
+  @@index([externalId])
+  @@map("counterparties")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String                                  // "Sueldos", "IVA+PPM", "Hosting"
+  type        TransactionType                         // INCOME o EXPENSE
+  parentId    String?                                 // Para jerarquía
+  color       String?                                 // Hex para UI
+  icon        String?                                 // emoji o lucide name
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  transactions Transaction[]
+  rules       CategorizationRule[]
+
+  @@unique([name, parentId])
+  @@index([type])
+  @@map("categories")
+}
+
+model Document {
+  id              String        @id @default(cuid())
+  companyId       String                                  // Empresa que emite o recibe
+  counterpartyId  String?
+  type            DocumentType
+  number          String?                                 // Nro factura
+  issueDate       DateTime?
+  dueDate         DateTime?
+  netAmount       Decimal       @db.Decimal(18, 2)        // Neto
+  ivaAmount       Decimal       @default(0) @db.Decimal(18, 2)
+  totalAmount     Decimal       @db.Decimal(18, 2)        // Total
+  currency        Currency      @default(CLP)
+  description     String?                                 // Glosa SII
+  detail          String?                                 // Detalle interno
+  isSent          Boolean       @default(false)           // "Enviada" en sheet
+  externalId      String?                                 // ID en SII o ExpandERP
+  pdfUrl          String?                                 // Link al PDF si existe
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  company         Company       @relation(fields: [companyId], references: [id])
+  counterparty    Counterparty? @relation(fields: [counterpartyId], references: [id])
+  transactions    Transaction[]                           // Una factura puede tener N pagos (cuotas)
+
+  @@index([companyId])
+  @@index([counterpartyId])
+  @@index([externalId])
+  @@map("documents")
+}
+
+model Transaction {
+  id              String              @id @default(cuid())
+  companyId       String                                          // Empresa "principal" del movimiento
+  accountId       String?                                          // Desde qué cuenta (null si aún no pagado)
+  counterpartyId  String?
+  categoryId      String?
+  documentId      String?                                          // FK a factura asociada
+  type            TransactionType
+  status          TransactionStatus   @default(PENDING)
+  source          TransactionSource   @default(MANUAL)
+
+  // Montos
+  amount          Decimal             @db.Decimal(18, 2)           // En currency original
+  currency        Currency            @default(CLP)
+  exchangeRate    Decimal?            @db.Decimal(18, 4)           // Si != CLP
+  amountCLP       Decimal             @db.Decimal(18, 2)           // Calculado para reportes
+
+  // Fechas
+  date            DateTime                                          // Fecha del movimiento (devengado)
+  dueDate         DateTime?                                         // Fecha vencimiento (CxC/CxP)
+  paidAt          DateTime?                                         // Fecha real de pago
+
+  // Metadata
+  description     String                                          // Item / glosa
+  comment         String?                                         // Comentario libre
+  externalId      String?                                         // ID en ERP/banco
+  attachmentUrl   String?
+
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  company         Company             @relation(fields: [companyId], references: [id])
+  account         Account?            @relation(fields: [accountId], references: [id])
+  counterparty    Counterparty?       @relation(fields: [counterpartyId], references: [id])
+  category        Category?           @relation(fields: [categoryId], references: [id])
+  document        Document?           @relation(fields: [documentId], references: [id])
+  allocations     TransactionAllocation[]
+
+  @@index([companyId])
+  @@index([date])
+  @@index([status])
+  @@index([dueDate])
+  @@index([externalId])
+  @@map("transactions")
+}
+
+// Permite dividir UN movimiento entre VARIAS empresas
+// Ej: Pago al contador $80k → AW 50% / EXPRO 50%
+model TransactionAllocation {
+  id             String      @id @default(cuid())
+  transactionId  String
+  companyId      String
+  percentage     Decimal     @db.Decimal(5, 2)               // 0.00 a 100.00
+  amountCLP      Decimal     @db.Decimal(18, 2)              // Pre-calculado
+
+  transaction    Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  company        Company     @relation(fields: [companyId], references: [id])
+
+  @@unique([transactionId, companyId])
+  @@index([companyId])
+  @@map("transaction_allocations")
+}
+
+// ============================================================================
+// PIPELINE / OPPORTUNITY
+// ============================================================================
+
+model Opportunity {
+  id                 String           @id @default(cuid())
+  companyId          String                                          // Empresa que vendería
+  counterpartyId     String?                                         // Cliente potencial (puede ser null al inicio)
+  name               String                                          // "AdOnTheGo", "Casino Dreams"
+  description        String?
+  stage              OpportunityStage @default(PROSPECTING)
+  estimatedAmount    Decimal          @db.Decimal(18, 2)
+  currency           Currency         @default(CLP)
+  probability        Int              @default(50)                   // 0-100
+  expectedCloseDate  DateTime?
+  actualCloseDate    DateTime?
+  notes              String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  company            Company          @relation(fields: [companyId], references: [id])
+  counterparty       Counterparty?    @relation(fields: [counterpartyId], references: [id])
+
+  @@index([companyId])
+  @@index([stage])
+  @@map("opportunities")
+}
+
+// ============================================================================
+// SUPPORT
+// ============================================================================
+
+// Reglas de categorización automática (regex sobre descripción → categoría)
+// Ej: "TRANSBANK" → categoryId: "Ingresos > Ventas POS"
+model CategorizationRule {
+  id          String   @id @default(cuid())
+  pattern     String                                                // Regex o substring
+  isRegex     Boolean  @default(false)
+  categoryId  String
+  priority    Int      @default(0)                                  // Mayor = se evalúa primero
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  @@map("categorization_rules")
+}
+
+// Tipos de cambio diarios (para reportes históricos)
+model ExchangeRate {
+  id          String   @id @default(cuid())
+  date        DateTime @db.Date
+  fromCurrency Currency
+  toCurrency  Currency
+  rate        Decimal  @db.Decimal(18, 6)
+  source      String?                                                // "SII", "Mindicador", "Manual"
+
+  @@unique([date, fromCurrency, toCurrency])
+  @@index([date])
+  @@map("exchange_rates")
+}

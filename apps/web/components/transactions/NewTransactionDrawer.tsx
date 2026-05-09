@@ -86,8 +86,9 @@ export function NewTransactionDrawer({ open, onOpenChange, defaultCompanyCode = 
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="space-y-1.5">
-            <Label className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Empresa</Label>
+            <Label htmlFor="nt-company" className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Empresa</Label>
             <select
+              id="nt-company"
               value={form.companyCode}
               onChange={(e) => set('companyCode', e.target.value)}
               className={SELECT_CLS}
@@ -99,8 +100,9 @@ export function NewTransactionDrawer({ open, onOpenChange, defaultCompanyCode = 
           </div>
 
           <div className="space-y-1.5">
-            <Label className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Tipo</Label>
+            <Label htmlFor="nt-type" className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Tipo</Label>
             <select
+              id="nt-type"
               value={form.type}
               onChange={(e) => set('type', e.target.value as FormState['type'])}
               className={SELECT_CLS}
@@ -111,8 +113,9 @@ export function NewTransactionDrawer({ open, onOpenChange, defaultCompanyCode = 
           </div>
 
           <div className="space-y-1.5">
-            <Label className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Descripción *</Label>
+            <Label htmlFor="nt-desc" className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Descripción</Label>
             <Input
+              id="nt-desc"
               required
               value={form.description}
               onChange={(e) => set('description', e.target.value)}
@@ -123,8 +126,9 @@ export function NewTransactionDrawer({ open, onOpenChange, defaultCompanyCode = 
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Monto *</Label>
+              <Label htmlFor="nt-amount" className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Monto</Label>
               <Input
+                id="nt-amount"
                 required
                 type="number"
                 min="0"
@@ -136,8 +140,9 @@ export function NewTransactionDrawer({ open, onOpenChange, defaultCompanyCode = 
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Moneda</Label>
+              <Label htmlFor="nt-currency" className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Moneda</Label>
               <select
+                id="nt-currency"
                 value={form.currency}
                 onChange={(e) => set('currency', e.target.value as FormState['currency'])}
                 className={SELECT_CLS}
@@ -152,8 +157,9 @@ export function NewTransactionDrawer({ open, onOpenChange, defaultCompanyCode = 
 
           {form.currency !== 'CLP' && (
             <div className="space-y-1.5">
-              <Label className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Equivalente CLP *</Label>
+              <Label htmlFor="nt-amountclp" className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Equivalente CLP</Label>
               <Input
+                id="nt-amountclp"
                 required
                 type="number"
                 min="0"
@@ -168,8 +174,9 @@ export function NewTransactionDrawer({ open, onOpenChange, defaultCompanyCode = 
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Fecha *</Label>
+              <Label htmlFor="nt-date" className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Fecha</Label>
               <Input
+                id="nt-date"
                 required
                 type="date"
                 value={form.date}
@@ -178,8 +185,9 @@ export function NewTransactionDrawer({ open, onOpenChange, defaultCompanyCode = 
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Vencimiento</Label>
+              <Label htmlFor="nt-due" className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Vencimiento</Label>
               <Input
+                id="nt-due"
                 type="date"
                 value={form.dueDate}
                 onChange={(e) => set('dueDate', e.target.value)}

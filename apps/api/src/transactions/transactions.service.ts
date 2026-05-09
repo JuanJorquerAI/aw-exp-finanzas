@@ -48,8 +48,14 @@ export class TransactionsService {
   }
 
   async create(dto: CreateTransactionDto) {
-    const { allocations, ...txData } = dto;
-    const allocs = allocations ?? [{ companyId: txData.companyId, percentage: 100 }];
+    const { allocations, companyId, date, dueDate, ...rest } = dto;
+    const allocs = allocations ?? [{ companyId, percentage: 100 }];
+    const txData = {
+      ...rest,
+      companyId,
+      date: new Date(date),
+      ...(dueDate && { dueDate: new Date(dueDate) }),
+    };
 
     return this.prisma.$transaction(async (tx) => {
       const transaction = await tx.transaction.create({ data: txData });

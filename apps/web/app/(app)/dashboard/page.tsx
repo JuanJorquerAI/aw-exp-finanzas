@@ -3,6 +3,7 @@ import { useSearchParams } from 'next/navigation';
 import { useTransactions, useCompanies } from '@/lib/queries';
 import { CompanySummaryCard } from '@/components/dashboard/CompanySummaryCard';
 import { MonthTotalBar } from '@/components/dashboard/MonthTotalBar';
+import { useCurrency } from '@/hooks/useCurrency';
 
 function getMonthBounds(ym: string): { dateFrom: string; dateTo: string } {
   const [y, m] = ym.split('-').map(Number);
@@ -23,23 +24,64 @@ export default function DashboardPage() {
   const searchParams = useSearchParams();
   const month = searchParams.get('month') ?? getDefaultMonth();
   const { dateFrom, dateTo } = getMonthBounds(month);
+  const { currency, usdRate, toggle, updateRate } = useCurrency();
 
   const { data: companies = [], isLoading: loadingCo } = useCompanies();
   const { data: transactions = [], isLoading: loadingTx } = useTransactions({ dateFrom, dateTo });
 
   if (loadingCo || loadingTx) {
-    return <div className="p-8 text-sm text-slate-400">Cargando...</div>;
+    return <div className="p-8 text-sm dark:text-slate-600 text-slate-400">Cargando...</div>;
   }
 
   return (
     <div className="space-y-6 p-8">
-      <h2 className="text-lg font-semibold text-slate-800">Dashboard</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold dark:text-slate-100 text-slate-900">Dashboard</h2>
+        <div className="flex items-center gap-3">
+          {currency === 'USD' && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs dark:text-slate-500 text-slate-400">1 USD =</span>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                value={usdRate}
+                onChange={(e) => updateRate(parseFloat(e.target.value) || 1)}
+                className="w-20 rounded border dark:border-slate-700 border-slate-200 dark:bg-slate-900 bg-white dark:text-slate-200 text-slate-800 px-2 py-0.5 text-xs tabular-nums focus:outline-none focus:ring-1 dark:focus:ring-slate-600 focus:ring-slate-300"
+              />
+              <span className="text-xs dark:text-slate-500 text-slate-400">CLP</span>
+            </div>
+          )}
+          <button
+            onClick={toggle}
+            className={`rounded-full px-3 py-1 text-xs font-semibold border transition-colors ${
+              currency === 'USD'
+                ? 'dark:bg-amber-950 bg-amber-50 dark:border-amber-800 border-amber-200 dark:text-amber-400 text-amber-700'
+                : 'dark:bg-slate-800 bg-slate-100 dark:border-slate-700 border-slate-200 dark:text-slate-400 text-slate-600'
+            }`}
+          >
+            {currency === 'CLP' ? 'CLP → USD' : 'USD → CLP'}
+          </button>
+        </div>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         {companies.filter((c) => c.isActive).map((company) => (
-          <CompanySummaryCard key={company.id} company={company} transactions={transactions} />
+          <CompanySummaryCard
+            key={company.id}
+            company={company}
+            transactions={transactions}
+            displayCurrency={currency}
+            usdRate={usdRate}
+          />
         ))}
       </div>
-      <MonthTotalBar transactions={transactions} />
+
+      <MonthTotalBar
+        transactions={transactions}
+        displayCurrency={currency}
+        usdRate={usdRate}
+      />
     </div>
   );
 }

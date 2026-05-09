@@ -1,4 +1,6 @@
 import type { Transaction } from '@/lib/types';
+import type { DisplayCurrency } from '@/hooks/useCurrency';
+import { fmtAmount } from '@/lib/format';
 
 interface Summary {
   income: number;
@@ -22,17 +24,16 @@ function computeSummary(transactions: Transaction[], companyId: string): Summary
   return { income, expense, balance: income - expense, pendingIncome, pendingExpense };
 }
 
-function fmt(n: number): string {
-  return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n);
-}
-
 interface CompanySummaryCardProps {
   company: { id: string; name: string; shortCode: string };
   transactions: Transaction[];
+  displayCurrency: DisplayCurrency;
+  usdRate: number;
 }
 
-export function CompanySummaryCard({ company, transactions }: CompanySummaryCardProps) {
+export function CompanySummaryCard({ company, transactions, displayCurrency, usdRate }: CompanySummaryCardProps) {
   const s = computeSummary(transactions, company.id);
+  const fmt = (n: number) => fmtAmount(n, displayCurrency, usdRate);
 
   return (
     <div className="rounded-xl dark:bg-slate-900 bg-white border dark:border-slate-800 border-slate-200 p-5 dark:shadow-none shadow-sm">

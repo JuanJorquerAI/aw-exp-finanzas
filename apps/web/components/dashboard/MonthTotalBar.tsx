@@ -1,14 +1,14 @@
 import type { Transaction } from '@/lib/types';
-
-function fmt(n: number): string {
-  return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n);
-}
+import type { DisplayCurrency } from '@/hooks/useCurrency';
+import { fmtAmount } from '@/lib/format';
 
 interface MonthTotalBarProps {
   transactions: Transaction[];
+  displayCurrency: DisplayCurrency;
+  usdRate: number;
 }
 
-export function MonthTotalBar({ transactions }: MonthTotalBarProps) {
+export function MonthTotalBar({ transactions, displayCurrency, usdRate }: MonthTotalBarProps) {
   let income = 0, expense = 0;
   for (const tx of transactions) {
     const amount = parseFloat(tx.amountCLP);
@@ -16,6 +16,7 @@ export function MonthTotalBar({ transactions }: MonthTotalBarProps) {
     if (tx.type === 'EXPENSE' && tx.status === 'PAID') expense += amount;
   }
   const balance = income - expense;
+  const fmt = (n: number) => fmtAmount(n, displayCurrency, usdRate);
 
   return (
     <div className="flex items-center gap-6 rounded-lg border dark:border-slate-800 border-slate-200 dark:bg-slate-900/60 bg-white px-6 py-4 shadow-sm">

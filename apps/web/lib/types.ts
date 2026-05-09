@@ -6,6 +6,8 @@ export interface TransactionAllocation {
   amountCLP: string;
 }
 
+export type TransactionDocType = 'FACTURA' | 'BOLETA_HONORARIOS' | 'OTRO';
+
 export interface Transaction {
   id: string;
   companyId: string;
@@ -19,6 +21,8 @@ export interface Transaction {
   paidAt: string | null;
   description: string;
   comment: string | null;
+  docType: TransactionDocType | null;
+  isAfecta: boolean;
   allocations: TransactionAllocation[];
   counterparty: { id: string; name: string; type: string } | null;
   category: { id: string; name: string; color: string | null } | null;
@@ -42,5 +46,26 @@ export interface CreateTransactionInput {
   counterpartyId?: string;
   categoryId?: string;
   dueDate?: string;
+  docType?: TransactionDocType;
+  isAfecta?: boolean;
   allocations?: Array<{ companyId: string; percentage: number }>;
+}
+
+export interface TaxBreakdown {
+  incomeAfecta: number;
+  incomeExenta: number;
+  expenseAfectaFactura: number;
+  ppm: number;
+  ivaDebito: number;
+  ivaCredito: number;
+  ivaNeto: number;
+  retencionHonorarios: number;
+  total: number;
+}
+
+export interface MonthlyTax {
+  year: number;
+  month: number;
+  companyId: string;
+  breakdown: TaxBreakdown;
 }

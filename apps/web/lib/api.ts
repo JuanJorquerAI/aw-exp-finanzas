@@ -1,4 +1,4 @@
-import type { Transaction, Company, CreateTransactionInput } from './types';
+import type { Transaction, Company, CreateTransactionInput, MonthlyTax } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -31,4 +31,12 @@ export function createTransaction(dto: CreateTransactionInput) {
     method: 'POST',
     body: JSON.stringify(dto),
   });
+}
+
+export function getTaxesMonthly(companyId: string, year: number, month: number) {
+  return fetchApi<MonthlyTax>(`/taxes/monthly?companyId=${companyId}&year=${year}&month=${month}`);
+}
+
+export function getTaxesAnnual(companyId: string, year: number) {
+  return fetchApi<MonthlyTax[]>(`/taxes/annual?companyId=${companyId}&year=${year}`);
 }

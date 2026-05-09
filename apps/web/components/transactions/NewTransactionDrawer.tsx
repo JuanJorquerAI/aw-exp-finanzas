@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCompanies, useCreateTransaction } from '@/lib/queries';
+import type { TransactionDocType } from '@/lib/types';
 
 interface FormState {
   companyCode: string;
@@ -15,6 +16,8 @@ interface FormState {
   amountCLP: string;
   date: string;
   dueDate: string;
+  docType: TransactionDocType;
+  isAfecta: boolean;
 }
 
 interface NewTransactionDrawerProps {
@@ -40,6 +43,8 @@ export function NewTransactionDrawer({ open, onOpenChange, defaultCompanyCode = 
     amountCLP: '',
     date: today,
     dueDate: '',
+    docType: 'OTRO',
+    isAfecta: true,
   };
   const [form, setForm] = useState<FormState>(emptyForm);
 
@@ -67,6 +72,8 @@ export function NewTransactionDrawer({ open, onOpenChange, defaultCompanyCode = 
         amountCLP: parseFloat(form.amountCLP || form.amount),
         date: form.date,
         ...(form.dueDate && { dueDate: form.dueDate }),
+        docType: form.docType,
+        isAfecta: form.isAfecta,
       },
       {
         onSuccess: () => {
@@ -195,6 +202,38 @@ export function NewTransactionDrawer({ open, onOpenChange, defaultCompanyCode = 
               />
             </div>
           </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="nt-doctype" className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Tipo Documento</Label>
+            <select
+              id="nt-doctype"
+              value={form.docType}
+              onChange={(e) => set('docType', e.target.value as TransactionDocType)}
+              className={SELECT_CLS}
+            >
+              <option value="FACTURA">Factura</option>
+              <option value="BOLETA_HONORARIOS">Boleta Honorarios</option>
+              <option value="OTRO">Otro / Sin documento</option>
+            </select>
+          </div>
+
+          {form.docType !== 'BOLETA_HONORARIOS' && (
+            <div className="flex items-center justify-between rounded-md dark:bg-slate-900 bg-slate-50 border dark:border-slate-700 border-slate-200 px-3 py-2.5">
+              <div>
+                <p className="text-sm dark:text-slate-200 text-slate-800 font-medium">Afecta a IVA</p>
+                <p className="text-xs dark:text-slate-500 text-slate-400">IVA débito/crédito y PPM</p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={form.isAfecta}
+                onClick={() => set('isAfecta', !form.isAfecta)}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${form.isAfecta ? 'bg-indigo-600' : 'dark:bg-slate-700 bg-slate-300'}`}
+              >
+                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${form.isAfecta ? 'translate-x-4.5' : 'translate-x-0.5'}`} />
+              </button>
+            </div>
+          )}
 
           <Button
             type="submit"

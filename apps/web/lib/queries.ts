@@ -1,11 +1,13 @@
 'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTransactions, getCompanies, markTransactionPaid, createTransaction } from './api';
+import { getTransactions, getCompanies, markTransactionPaid, createTransaction, getTaxesMonthly, getTaxesAnnual } from './api';
 import type { CreateTransactionInput } from './types';
 
 export const queryKeys = {
   companies: ['companies'] as const,
   transactions: (params: Record<string, string>) => ['transactions', params] as const,
+  taxesMonthly: (companyId: string, year: number, month: number) => ['taxes', 'monthly', companyId, year, month] as const,
+  taxesAnnual: (companyId: string, year: number) => ['taxes', 'annual', companyId, year] as const,
 };
 
 export function useCompanies() {
@@ -32,5 +34,21 @@ export function useCreateTransaction() {
   return useMutation({
     mutationFn: (dto: CreateTransactionInput) => createTransaction(dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+  });
+}
+
+export function useTaxesMonthly(companyId: string, year: number, month: number) {
+  return useQuery({
+    queryKey: queryKeys.taxesMonthly(companyId, year, month),
+    queryFn: () => getTaxesMonthly(companyId, year, month),
+    enabled: !!companyId,
+  });
+}
+
+export function useTaxesAnnual(companyId: string, year: number) {
+  return useQuery({
+    queryKey: queryKeys.taxesAnnual(companyId, year),
+    queryFn: () => getTaxesAnnual(companyId, year),
+    enabled: !!companyId,
   });
 }

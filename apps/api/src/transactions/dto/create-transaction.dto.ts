@@ -7,11 +7,12 @@ import {
   IsPositive,
   ValidateNested,
   IsArray,
+  IsBoolean,
   Min,
   Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { TransactionType, Currency } from '@aw-finanzas/database';
+import { TransactionType, Currency, TransactionDocType } from '@aw-finanzas/database';
 
 export class AllocationDto {
   @IsString()
@@ -71,6 +72,14 @@ export class CreateTransactionDto {
   @IsOptional()
   @IsString()
   comment?: string;
+
+  @IsOptional()
+  @IsEnum(TransactionDocType)
+  docType?: TransactionDocType;
+
+  @IsOptional()
+  @IsBoolean()
+  isAfecta?: boolean;
 
   @IsOptional()
   @IsArray()

@@ -21,6 +21,12 @@ enum TransactionType {
   TRANSFER    // Transferencia entre cuentas propias
 }
 
+enum TransactionDocType {
+  FACTURA             // Factura afecta o exenta (IVA crédito/débito)
+  BOLETA_HONORARIOS   // Boleta de honorarios (retención 13.75%)
+  OTRO                // Sin documento tributario relevante
+}
+
 enum TransactionStatus {
   PENDING     // Por pagar / por cobrar
   PAID        // Pagado / cobrado
@@ -209,6 +215,8 @@ model Transaction {
   type            TransactionType
   status          TransactionStatus   @default(PENDING)
   source          TransactionSource   @default(MANUAL)
+  docType         TransactionDocType? @default(OTRO)    // Tipo de documento tributario
+  isAfecta        Boolean             @default(true)    // Afecta a IVA/PPM (false = exenta o no afecta)
 
   // Montos
   amount          Decimal             @db.Decimal(18, 2)           // En currency original

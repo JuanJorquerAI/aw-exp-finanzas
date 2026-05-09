@@ -1,4 +1,3 @@
-import { Card } from '@/components/ui/card';
 import type { Transaction } from '@/lib/types';
 
 interface Summary {
@@ -36,37 +35,36 @@ export function CompanySummaryCard({ company, transactions }: CompanySummaryCard
   const s = computeSummary(transactions, company.id);
 
   return (
-    <Card className="p-5">
-      <div className="mb-4 flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-          {company.shortCode}
-        </span>
-        <span className="text-xs text-slate-400">{company.name}</span>
+    <div className="rounded-xl dark:bg-slate-900 bg-white border dark:border-slate-800 border-slate-200 p-5 dark:shadow-none shadow-sm">
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full dark:bg-indigo-400 bg-indigo-500" />
+          <span className="text-xs font-bold dark:text-slate-300 text-slate-700 uppercase tracking-wider">{company.shortCode}</span>
+        </div>
+        <span className="text-xs dark:text-slate-600 text-slate-400">{company.name}</span>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+
+      <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <p className="text-xs text-slate-400">Ingresos cobrados</p>
-          <p className="text-lg font-semibold text-emerald-600">{fmt(s.income)}</p>
+          <p className="text-xs dark:text-slate-500 text-slate-400 mb-1">Ingresos cobrados</p>
+          <p className="text-xl font-bold text-emerald-500">{fmt(s.income)}</p>
         </div>
         <div>
-          <p className="text-xs text-slate-400">Egresos pagados</p>
-          <p className="text-lg font-semibold text-rose-600">{fmt(s.expense)}</p>
-        </div>
-        <div>
-          <p className="text-xs text-slate-400">CxC pendiente</p>
-          <p className="text-sm font-medium text-slate-600">{fmt(s.pendingIncome)}</p>
-        </div>
-        <div>
-          <p className="text-xs text-slate-400">CxP pendiente</p>
-          <p className="text-sm font-medium text-slate-600">{fmt(s.pendingExpense)}</p>
+          <p className="text-xs dark:text-slate-500 text-slate-400 mb-1">Egresos pagados</p>
+          <p className="text-xl font-bold text-rose-500">{fmt(s.expense)}</p>
         </div>
       </div>
-      <div className="mt-4 border-t pt-3">
-        <p className="text-xs text-slate-400">Resultado del mes</p>
-        <p className={`text-xl font-bold ${s.balance >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
-          {fmt(s.balance)}
-        </p>
+
+      <div className="border-t dark:border-slate-800 border-slate-100 pt-3 grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-xs dark:text-slate-600 text-slate-400 mb-0.5">CxC pendiente</p>
+          <p className="text-sm font-semibold dark:text-slate-300 text-slate-700">{fmt(s.pendingIncome)}</p>
+        </div>
+        <div>
+          <p className="text-xs dark:text-slate-600 text-slate-400 mb-0.5">CxP pendiente</p>
+          <p className="text-sm font-semibold dark:text-slate-300 text-slate-700">{fmt(s.pendingExpense)}</p>
+        </div>
       </div>
-    </Card>
+    </div>
   );
 }

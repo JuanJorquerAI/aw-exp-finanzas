@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { importFromSheet } from '@aw-finanzas/database';
+import { importFromSheet, SheetImportData } from '@aw-finanzas/database';
 import { SheetImportDto } from './dto/sheet-import.dto';
 
 interface AuditContext {
@@ -15,8 +15,9 @@ export class ImportersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async importSheet(dto: SheetImportDto, ctx: AuditContext = {}) {
+    const payload: SheetImportData = dto;
     try {
-      const result = await importFromSheet(dto as any, this.prisma as any);
+      const result = await importFromSheet(payload, this.prisma);
       await this.prisma.auditLog.create({
         data: {
           action: 'IMPORT_SHEET',
@@ -25,7 +26,7 @@ export class ImportersService {
           ipAddress: ctx.ipAddress,
           userAgent: ctx.userAgent,
           status: 'SUCCESS',
-          metadata: result as object,
+          metadata: result,
         },
       });
       return result;

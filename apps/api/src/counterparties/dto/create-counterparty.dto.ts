@@ -6,6 +6,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { CounterpartyType } from '@aw-finanzas/database';
+import { IsRUT } from '@aw-finanzas/shared';
 
 export class CreateCounterpartyDto {
   @IsEnum(CounterpartyType)
@@ -16,7 +17,7 @@ export class CreateCounterpartyDto {
   name: string;
 
   @IsOptional()
-  @IsString()
+  @IsRUT()
   rut?: string;
 
   @IsOptional()

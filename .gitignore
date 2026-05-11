@@ -7,3 +7,12 @@ coverage
 .turbo
 
 .superpowers/
+.claude/
+.agents/
+.continue/
+.kiro/
+.playwright-mcp/
+*.png
+test-results/
+skills-lock.json
+docs/superpowers/

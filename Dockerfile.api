@@ -1,0 +1,23 @@
+FROM node:20-alpine AS base
+RUN npm install -g pnpm@9
+
+WORKDIR /app
+
+# Instalar dependencias (cache layer)
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/database/package.json ./packages/database/
+COPY packages/shared/package.json ./packages/shared/
+COPY apps/api/package.json ./apps/api/
+
+RUN pnpm install --frozen-lockfile
+
+# Copiar código fuente
+COPY packages/ ./packages/
+COPY apps/api/ ./apps/api/
+
+# Build
+RUN pnpm --filter @aw-finanzas/database prisma generate
+RUN pnpm --filter api build
+
+# Producción: migrar DB y arrancar
+CMD ["sh", "-c", "npx prisma migrate deploy --schema packages/database/prisma/schema.prisma && node apps/api/dist/main"]

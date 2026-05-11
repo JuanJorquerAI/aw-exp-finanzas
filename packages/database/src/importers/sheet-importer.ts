@@ -188,7 +188,7 @@ export async function importFromSheet(
       const catName = ITEM_TO_CATEGORY[v.item];
       const category = catName ? categoriesMap[catName] : undefined;
 
-      await tx.transaction.create({
+      const visaTx = await tx.transaction.create({
         data: {
           type: 'EXPENSE',
           status: 'PAID',
@@ -201,6 +201,14 @@ export async function importFromSheet(
           description: v.item,
           companyId: awCompany.id,
           categoryId: category?.id ?? null,
+        },
+      });
+      await tx.transactionAllocation.create({
+        data: {
+          transactionId: visaTx.id,
+          companyId: awCompany.id,
+          percentage: 100,
+          amountCLP,
         },
       });
 

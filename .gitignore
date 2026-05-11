@@ -5,3 +5,5 @@ dist
 *.js.map
 coverage
 .turbo
+
+.superpowers/

@@ -124,8 +124,9 @@ model Account {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
-  company       Company     @relation(fields: [companyId], references: [id])
+  company       Company              @relation(fields: [companyId], references: [id])
   transactions  Transaction[]
+  payments      TransactionPayment[]
 
   @@index([companyId])
   @@map("accounts")
@@ -244,6 +245,8 @@ model Transaction {
   category        Category?           @relation(fields: [categoryId], references: [id])
   document        Document?           @relation(fields: [documentId], references: [id])
   allocations     TransactionAllocation[]
+  payments        TransactionPayment[]
+  auditLogs       TransactionAuditLog[]
 
   @@index([companyId])
   @@index([date])
@@ -296,6 +299,40 @@ model Opportunity {
   @@index([companyId])
   @@index([stage])
   @@map("opportunities")
+}
+
+model TransactionPayment {
+  id            String      @id @default(cuid())
+  transactionId String
+  amount        Decimal     @db.Decimal(18, 2)
+  currency      Currency    @default(CLP)
+  paidAt        DateTime    @default(now())
+  note          String?
+  accountId     String?
+  createdAt     DateTime    @default(now())
+
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  account       Account?    @relation(fields: [accountId], references: [id])
+
+  @@index([transactionId])
+  @@map("transaction_payments")
+}
+
+model TransactionAuditLog {
+  id            String      @id @default(cuid())
+  transactionId String
+  action        String      // MOVE_COMPANY | MARK_PAID | CANCEL | ADD_PAYMENT
+  fromValue     String?     // valor anterior (companyId, status)
+  toValue       String?     // valor nuevo
+  fromLabel     String?     // nombre legible anterior (shortCode empresa)
+  toLabel       String?     // nombre legible nuevo
+  note          String?
+  createdAt     DateTime    @default(now())
+
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@index([transactionId])
+  @@map("transaction_audit_logs")
 }
 
 // ============================================================================

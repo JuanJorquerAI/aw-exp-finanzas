@@ -48,7 +48,7 @@ export default function CxPPage() {
           {transactions.length} pendiente{transactions.length !== 1 ? 's' : ''}
         </span>
       </div>
-      <TransactionTable transactions={transactions} showMarkPaid />
+      <TransactionTable transactions={transactions} showCxPActions />
     </div>
   );
 }

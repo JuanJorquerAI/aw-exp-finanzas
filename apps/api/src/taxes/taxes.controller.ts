@@ -27,7 +27,8 @@ export class TaxesController {
   ) {
     if (!companyId) throw new BadRequestException('companyId requerido');
     const year = parseInt(yearStr, 10);
-    if (isNaN(year)) throw new BadRequestException('year debe ser un número válido');
+    if (isNaN(year))
+      throw new BadRequestException('year debe ser un número válido');
     return this.taxesService.getAnnual(companyId, year);
   }
 }

@@ -65,7 +65,9 @@ describe('TransactionsService', () => {
     it('crea allocations proporcionales cuando se pasa allocations[]', async () => {
       const mockTx = { id: 'tx-1', amountCLP: '80000' };
       mockPrisma.transaction.create.mockResolvedValue(mockTx);
-      mockPrisma.transactionAllocation.createMany.mockResolvedValue({ count: 2 });
+      mockPrisma.transactionAllocation.createMany.mockResolvedValue({
+        count: 2,
+      });
 
       await service.create({
         companyId: 'company-aw',
@@ -83,8 +85,18 @@ describe('TransactionsService', () => {
 
       expect(mockPrisma.transactionAllocation.createMany).toHaveBeenCalledWith({
         data: [
-          { transactionId: 'tx-1', companyId: 'company-aw', percentage: 50, amountCLP: 40000 },
-          { transactionId: 'tx-1', companyId: 'company-expro', percentage: 50, amountCLP: 40000 },
+          {
+            transactionId: 'tx-1',
+            companyId: 'company-aw',
+            percentage: 50,
+            amountCLP: 40000,
+          },
+          {
+            transactionId: 'tx-1',
+            companyId: 'company-expro',
+            percentage: 50,
+            amountCLP: 40000,
+          },
         ],
       });
     });
@@ -92,7 +104,9 @@ describe('TransactionsService', () => {
     it('crea allocation 100% cuando no se pasan allocations', async () => {
       const mockTx = { id: 'tx-2', amountCLP: '100000' };
       mockPrisma.transaction.create.mockResolvedValue(mockTx);
-      mockPrisma.transactionAllocation.createMany.mockResolvedValue({ count: 1 });
+      mockPrisma.transactionAllocation.createMany.mockResolvedValue({
+        count: 1,
+      });
 
       await service.create({
         companyId: 'company-aw',
@@ -106,7 +120,12 @@ describe('TransactionsService', () => {
 
       expect(mockPrisma.transactionAllocation.createMany).toHaveBeenCalledWith({
         data: [
-          { transactionId: 'tx-2', companyId: 'company-aw', percentage: 100, amountCLP: 100000 },
+          {
+            transactionId: 'tx-2',
+            companyId: 'company-aw',
+            percentage: 100,
+            amountCLP: 100000,
+          },
         ],
       });
     });

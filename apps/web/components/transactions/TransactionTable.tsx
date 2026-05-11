@@ -2,6 +2,9 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { MarkPaidButton } from './MarkPaidButton';
+import { AbonoDrawer } from './AbonoDrawer';
+import { CxCActions } from './CxCActions';
+import { CxPActions } from './CxPActions';
 import type { Transaction } from '@/lib/types';
 
 function fmtDate(iso: string): string {
@@ -19,9 +22,12 @@ function fmtAmount(amount: string, currency: string): string {
 interface TransactionTableProps {
   transactions: Transaction[];
   showMarkPaid?: boolean;
+  showAbono?: boolean;
+  showCxCActions?: boolean;
+  showCxPActions?: boolean;
 }
 
-export function TransactionTable({ transactions, showMarkPaid = false }: TransactionTableProps) {
+export function TransactionTable({ transactions, showMarkPaid = false, showAbono = false, showCxCActions = false, showCxPActions = false }: TransactionTableProps) {
   if (transactions.length === 0) {
     return (
       <p className="py-12 text-center text-sm dark:text-slate-600 text-slate-400">
@@ -40,7 +46,7 @@ export function TransactionTable({ transactions, showMarkPaid = false }: Transac
             <TableHead className="dark:text-slate-500 text-slate-500 text-xs">Contrapartida</TableHead>
             <TableHead className="text-right dark:text-slate-500 text-slate-500 text-xs">Monto</TableHead>
             <TableHead className="w-24 dark:text-slate-500 text-slate-500 text-xs">Vence</TableHead>
-            {showMarkPaid && <TableHead className="w-24" />}
+            {(showMarkPaid || showAbono || showCxCActions || showCxPActions) && <TableHead className="w-44" />}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -67,6 +73,21 @@ export function TransactionTable({ transactions, showMarkPaid = false }: Transac
               {showMarkPaid && (
                 <TableCell className="text-right">
                   <MarkPaidButton transactionId={tx.id} />
+                </TableCell>
+              )}
+              {showAbono && (
+                <TableCell className="text-right">
+                  <AbonoDrawer transaction={tx} />
+                </TableCell>
+              )}
+              {showCxCActions && (
+                <TableCell className="text-right">
+                  <CxCActions transaction={tx} />
+                </TableCell>
+              )}
+              {showCxPActions && (
+                <TableCell className="text-right">
+                  <CxPActions transaction={tx} />
                 </TableCell>
               )}
             </TableRow>

@@ -5,6 +5,13 @@ import { CompanySummaryCard } from '@/components/dashboard/CompanySummaryCard';
 import { MonthTotalBar } from '@/components/dashboard/MonthTotalBar';
 import { useCurrency } from '@/hooks/useCurrency';
 
+function monthLabel(ym: string): string {
+  const [y, m] = ym.split('-').map(Number);
+  return new Date(y, m - 1, 1)
+    .toLocaleDateString('es-CL', { month: 'long', year: 'numeric' })
+    .replace(/\bde\b/g, 'de');
+}
+
 function getMonthBounds(ym: string): { dateFrom: string; dateTo: string } {
   const [y, m] = ym.split('-').map(Number);
   const first = new Date(y, m - 1, 1);
@@ -34,10 +41,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6 p-8">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold dark:text-slate-100 text-slate-900">Dashboard</h2>
-        <div className="flex items-center gap-3">
+    <div className="space-y-5 p-8">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-widest dark:text-slate-500 text-slate-400 mb-0.5">Resumen mensual</p>
+          <h2 className="text-xl font-bold dark:text-slate-100 text-slate-900 first-letter:uppercase">{monthLabel(month)}</h2>
+        </div>
+        <div className="flex items-center gap-3 pt-1">
           {currency === 'USD' && (
             <div className="flex items-center gap-1.5">
               <span className="text-xs dark:text-slate-500 text-slate-400">1 USD =</span>

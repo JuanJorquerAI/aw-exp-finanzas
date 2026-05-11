@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import localFont from 'next/font/local';
 import './globals.css';
 
-const geistSans = localFont({ src: './fonts/GeistVF.woff', variable: '--font-sans', weight: '100 900' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 const geistMono = localFont({ src: './fonts/GeistMonoVF.woff', variable: '--font-mono', weight: '100 900' });
 
 export const metadata: Metadata = {
@@ -20,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+      <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>{children}</body>
     </html>
   );
 }

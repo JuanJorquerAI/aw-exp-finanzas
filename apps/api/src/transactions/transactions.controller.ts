@@ -10,6 +10,8 @@ import {
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { FilterTransactionsDto } from './dto/filter-transactions.dto';
+import { CreatePaymentDto } from './dto/create-payment.dto';
+import { MoveTransactionDto } from './dto/move-transaction.dto';
 
 @Controller('transactions')
 export class TransactionsController {
@@ -33,5 +35,20 @@ export class TransactionsController {
   @Patch(':id/paid')
   markPaid(@Param('id') id: string) {
     return this.transactionsService.markPaid(id);
+  }
+
+  @Patch(':id/cancel')
+  cancel(@Param('id') id: string) {
+    return this.transactionsService.cancel(id);
+  }
+
+  @Patch(':id/move')
+  move(@Param('id') id: string, @Body() dto: MoveTransactionDto) {
+    return this.transactionsService.moveToCompany(id, dto.companyId);
+  }
+
+  @Post(':id/payments')
+  addPayment(@Param('id') id: string, @Body() dto: CreatePaymentDto) {
+    return this.transactionsService.addPayment(id, dto);
   }
 }

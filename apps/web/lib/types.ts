@@ -1,3 +1,26 @@
+export interface TransactionPayment {
+  id: string;
+  transactionId: string;
+  amount: string;
+  currency: 'CLP' | 'USD' | 'UF' | 'EUR';
+  paidAt: string;
+  note: string | null;
+  accountId: string | null;
+  createdAt: string;
+}
+
+export interface TransactionAuditLog {
+  id: string;
+  transactionId: string;
+  action: string;
+  fromValue: string | null;
+  toValue: string | null;
+  fromLabel: string | null;
+  toLabel: string | null;
+  note: string | null;
+  createdAt: string;
+}
+
 export interface TransactionAllocation {
   id: string;
   transactionId: string;
@@ -24,6 +47,8 @@ export interface Transaction {
   docType: TransactionDocType | null;
   isAfecta: boolean;
   allocations: TransactionAllocation[];
+  payments?: TransactionPayment[];
+  auditLogs?: TransactionAuditLog[];
   counterparty: { id: string; name: string; type: string } | null;
   category: { id: string; name: string; color: string | null } | null;
 }
@@ -49,6 +74,14 @@ export interface CreateTransactionInput {
   docType?: TransactionDocType;
   isAfecta?: boolean;
   allocations?: Array<{ companyId: string; percentage: number }>;
+}
+
+export interface CreatePaymentInput {
+  amount: number;
+  currency?: 'CLP' | 'USD' | 'UF' | 'EUR';
+  paidAt?: string;
+  note?: string;
+  accountId?: string;
 }
 
 export interface TaxBreakdown {

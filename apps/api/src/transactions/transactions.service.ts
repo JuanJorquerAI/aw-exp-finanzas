@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { FilterTransactionsDto } from './dto/filter-transactions.dto';
+import { CreatePaymentDto } from './dto/create-payment.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -41,6 +42,8 @@ export class TransactionsService {
         category: true,
         document: true,
         account: true,
+        payments: { orderBy: { paidAt: 'asc' } },
+        auditLogs: { orderBy: { createdAt: 'asc' } },
       },
     });
     if (!tx) throw new NotFoundException(`Transacción ${id} no encontrada`);
@@ -75,6 +78,86 @@ export class TransactionsService {
     return this.prisma.transaction.update({
       where: { id },
       data: { status: 'PAID', paidAt: new Date() },
+    });
+  }
+
+  async moveToCompany(id: string, companyId: string) {
+    const tx = await this.prisma.transaction.findUnique({
+      where: { id },
+      include: { allocations: true, company: true },
+    });
+    if (!tx) throw new NotFoundException(`Transacción ${id} no encontrada`);
+    if (tx.allocations.length !== 1) {
+      throw new BadRequestException('Solo se pueden mover transacciones con asignación simple (100% una empresa)');
+    }
+
+    const targetCompany = await this.prisma.company.findUnique({ where: { id: companyId } });
+    if (!targetCompany) throw new NotFoundException(`Empresa ${companyId} no encontrada`);
+
+    return this.prisma.$transaction(async (prisma) => {
+      await prisma.transactionAllocation.update({
+        where: { id: tx.allocations[0].id },
+        data: { companyId },
+      });
+      const updated = await prisma.transaction.update({
+        where: { id },
+        data: { companyId },
+        include: { allocations: true, counterparty: true },
+      });
+      await prisma.transactionAuditLog.create({
+        data: {
+          transactionId: id,
+          action: 'MOVE_COMPANY',
+          fromValue: tx.companyId,
+          toValue: companyId,
+          fromLabel: tx.company.shortCode,
+          toLabel: targetCompany.shortCode,
+        },
+      });
+      return updated;
+    });
+  }
+
+  cancel(id: string) {
+    return this.prisma.transaction.update({
+      where: { id },
+      data: { status: 'CANCELLED' },
+    });
+  }
+
+  async addPayment(transactionId: string, dto: CreatePaymentDto) {
+    const tx = await this.findOne(transactionId);
+
+    return this.prisma.$transaction(async (prisma) => {
+      const payment = await prisma.transactionPayment.create({
+        data: {
+          transactionId,
+          amount: dto.amount,
+          ...(dto.currency && {
+            currency: dto.currency as 'CLP' | 'USD' | 'UF' | 'EUR',
+          }),
+          paidAt: dto.paidAt ? new Date(dto.paidAt) : new Date(),
+          note: dto.note ?? null,
+          ...(dto.accountId && { accountId: dto.accountId }),
+        },
+      });
+
+      const agg = await prisma.transactionPayment.aggregate({
+        where: { transactionId },
+        _sum: { amount: true },
+      });
+
+      const totalPaid = Number(agg._sum.amount ?? 0);
+      const totalAmount = Number(tx.amount);
+
+      if (totalPaid >= totalAmount) {
+        await prisma.transaction.update({
+          where: { id: transactionId },
+          data: { status: 'PAID', paidAt: payment.paidAt },
+        });
+      }
+
+      return payment;
     });
   }
 }

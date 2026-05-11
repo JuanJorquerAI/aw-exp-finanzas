@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCompanies, useCreateTransaction } from '@/lib/queries';
+import { DatePicker } from '@/components/ui/date-picker';
 import type { TransactionDocType } from '@/lib/types';
 
 interface FormState {
@@ -181,25 +182,12 @@ export function NewTransactionDrawer({ open, onOpenChange, defaultCompanyCode = 
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="nt-date" className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Fecha</Label>
-              <Input
-                id="nt-date"
-                required
-                type="date"
-                value={form.date}
-                onChange={(e) => set('date', e.target.value)}
-                className="dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200"
-              />
+              <Label className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Fecha</Label>
+              <DatePicker value={form.date} onChange={(v) => set('date', v)} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="nt-due" className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Vencimiento</Label>
-              <Input
-                id="nt-due"
-                type="date"
-                value={form.dueDate}
-                onChange={(e) => set('dueDate', e.target.value)}
-                className="dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200"
-              />
+              <Label className="dark:text-slate-400 text-slate-600 text-xs uppercase tracking-wider">Vencimiento</Label>
+              <DatePicker value={form.dueDate} onChange={(v) => set('dueDate', v)} placeholder="Opcional" />
             </div>
           </div>
 

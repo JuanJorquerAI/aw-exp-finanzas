@@ -1,4 +1,5 @@
 import { IsString, IsOptional, MaxLength } from 'class-validator';
+import { IsRUT } from '@aw-finanzas/shared';
 
 export class CreateCompanyDto {
   @IsString()
@@ -10,7 +11,7 @@ export class CreateCompanyDto {
   shortCode: string;
 
   @IsOptional()
-  @IsString()
+  @IsRUT()
   rut?: string;
 
   @IsOptional()

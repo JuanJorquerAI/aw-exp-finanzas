@@ -1,0 +1,49 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - heading "aw-finanzas" [level=1] [ref=e6]
+          - paragraph [ref=e7]: AW · EXPRO
+        - button [ref=e8] [cursor=pointer]:
+          - img [ref=e9]
+      - generic [ref=e15]:
+        - button "AW" [ref=e16] [cursor=pointer]
+        - button "EXPRO" [ref=e17] [cursor=pointer]
+      - generic [ref=e18]:
+        - button [ref=e19] [cursor=pointer]:
+          - img [ref=e20]
+        - generic [ref=e22]: may 2026
+        - button [ref=e23] [cursor=pointer]:
+          - img [ref=e24]
+      - navigation [ref=e26]:
+        - link "Dashboard" [ref=e27] [cursor=pointer]:
+          - /url: /dashboard?company=AW&month=2026-05
+          - img [ref=e28]
+          - text: Dashboard
+        - link "CxC" [ref=e33] [cursor=pointer]:
+          - /url: /cxc?company=AW&month=2026-05
+          - img [ref=e34]
+          - text: CxC
+        - link "CxP" [ref=e37] [cursor=pointer]:
+          - /url: /cxp?company=AW&month=2026-05
+          - img [ref=e38]
+          - text: CxP
+        - link "Transacciones" [ref=e41] [cursor=pointer]:
+          - /url: /transactions?company=AW&month=2026-05
+          - img [ref=e42]
+          - text: Transacciones
+        - link "Impuestos" [ref=e43] [cursor=pointer]:
+          - /url: /impuestos?company=AW&month=2026-05
+          - img [ref=e44]
+          - text: Impuestos
+      - button "Nueva Transacción" [ref=e47] [cursor=pointer]:
+        - img [ref=e48]
+        - text: Nueva Transacción
+    - main [ref=e49]:
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - heading "Impuestos" [level=2] [ref=e52]
+          - paragraph [ref=e53]: Estimación PPM, IVA y retenciones — AW · May 2026
+        - paragraph [ref=e54]: Empresa no encontrada.
+  - alert [ref=e55]

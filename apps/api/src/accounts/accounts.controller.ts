@@ -1,7 +1,9 @@
 import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto } from './dto/create-account.dto';
+import { Public } from '../auth/public.decorator';
 
+@Public()
 @Controller('accounts')
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}

@@ -1,0 +1,211 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - paragraph [ref=e3]: Design Options · aw-finanzas
+    - paragraph [ref=e4]: Elige una dirección
+  - generic [ref=e5]:
+    - generic [ref=e6]: Opción A — Dark Financial
+    - generic [ref=e7]:
+      - complementary [ref=e8]:
+        - generic [ref=e9]:
+          - generic [ref=e10]: aw-finanzas
+          - generic [ref=e11]: AplicacionesWeb · Expande PRO
+        - generic [ref=e12]:
+          - button "AW" [ref=e13] [cursor=pointer]
+          - button "EXPRO" [ref=e14] [cursor=pointer]
+        - generic [ref=e15]:
+          - button "←" [ref=e16] [cursor=pointer]
+          - generic [ref=e17]: may 2026
+          - button "→" [ref=e18] [cursor=pointer]
+        - navigation [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]: ▦
+            - text: Dashboard
+          - generic [ref=e22]:
+            - generic [ref=e23]: ↓
+            - text: CxC
+            - generic [ref=e24]: "3"
+          - generic [ref=e25]:
+            - generic [ref=e26]: ↑
+            - text: CxP
+            - generic [ref=e27]: "7"
+          - generic [ref=e28]:
+            - generic [ref=e29]: ≡
+            - text: Transacciones
+        - button "+ Nueva Transacción" [ref=e30] [cursor=pointer]:
+          - generic [ref=e31]: +
+          - text: Nueva Transacción
+      - main [ref=e32]:
+        - generic [ref=e33]:
+          - heading "Dashboard" [level=2] [ref=e34]
+          - generic [ref=e35]: mayo 2026
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - paragraph [ref=e38]: Ingresos cobrados
+            - paragraph [ref=e39]: $8.536.844
+          - generic [ref=e40]:
+            - paragraph [ref=e41]: Egresos pagados
+            - paragraph [ref=e42]: $298.182
+          - generic [ref=e43]:
+            - paragraph [ref=e44]: Resultado combinado
+            - paragraph [ref=e45]: +$8.238.662
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - generic [ref=e49]: AW
+              - generic [ref=e50]: AplicacionesWeb
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - paragraph [ref=e53]: Ingresos
+                - paragraph [ref=e54]: $8.5M
+              - generic [ref=e55]:
+                - paragraph [ref=e56]: Egresos
+                - paragraph [ref=e57]: $298k
+            - generic [ref=e58]:
+              - generic [ref=e59]: CxC pendiente
+              - generic [ref=e60]: $1.200.000
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - generic [ref=e63]: EXPRO
+              - generic [ref=e64]: Expande PRO
+            - generic [ref=e65]:
+              - generic [ref=e66]:
+                - paragraph [ref=e67]: Ingresos
+                - paragraph [ref=e68]: $0
+              - generic [ref=e69]:
+                - paragraph [ref=e70]: Egresos
+                - paragraph [ref=e71]: $0
+            - generic [ref=e72]:
+              - generic [ref=e73]: CxC pendiente
+              - generic [ref=e74]: $0
+  - generic [ref=e75]:
+    - generic [ref=e76]: Opción B — Light Editorial / Bento
+    - generic [ref=e77]:
+      - complementary [ref=e78]:
+        - generic [ref=e79]:
+          - generic [ref=e80]: aw-finanzas
+          - generic [ref=e81]: AplicacionesWeb · Expande PRO
+        - generic [ref=e82]:
+          - button "AW" [ref=e83] [cursor=pointer]
+          - button "EXPRO" [ref=e84] [cursor=pointer]
+        - generic [ref=e85]:
+          - button "←" [ref=e86] [cursor=pointer]
+          - generic [ref=e87]: may 2026
+          - button "→" [ref=e88] [cursor=pointer]
+        - navigation [ref=e89]:
+          - generic [ref=e90]:
+            - generic [ref=e91]: ▦
+            - text: Dashboard
+          - generic [ref=e92]:
+            - generic [ref=e93]: ↓
+            - text: CxC
+            - generic [ref=e94]: "3"
+          - generic [ref=e95]:
+            - generic [ref=e96]: ↑
+            - text: CxP
+            - generic [ref=e97]: "7"
+          - generic [ref=e98]:
+            - generic [ref=e99]: ≡
+            - text: Transacciones
+        - button "+ Nueva Transacción" [ref=e100] [cursor=pointer]
+      - main [ref=e101]:
+        - heading "Dashboard mayo 2026" [level=2] [ref=e103]
+        - generic [ref=e104]:
+          - generic [ref=e105]:
+            - paragraph [ref=e106]: Resultado combinado
+            - generic [ref=e107]:
+              - paragraph [ref=e108]: +$8.2M
+              - paragraph [ref=e109]: CLP · mayo 2026
+            - generic [ref=e110]:
+              - generic [ref=e111]:
+                - paragraph [ref=e112]: Ingresos
+                - paragraph [ref=e113]: $8.5M
+              - generic [ref=e114]:
+                - paragraph [ref=e115]: Egresos
+                - paragraph [ref=e116]: $298k
+          - generic [ref=e117]:
+            - generic [ref=e119]: AW · AplicacionesWeb
+            - generic [ref=e120]:
+              - generic [ref=e121]:
+                - paragraph [ref=e122]: Ingresos cobrados
+                - paragraph [ref=e123]: $8.536.844
+              - generic [ref=e124]:
+                - paragraph [ref=e125]: Egresos pagados
+                - paragraph [ref=e126]: $298.182
+          - generic [ref=e127]:
+            - generic [ref=e129]: EXPRO · Expande PRO
+            - generic [ref=e130]:
+              - generic [ref=e131]:
+                - paragraph [ref=e132]: CxC pendiente
+                - paragraph [ref=e133]: $1.200.000
+              - generic [ref=e134]:
+                - paragraph [ref=e135]: CxP pendiente
+                - paragraph [ref=e136]: $840.000
+  - generic [ref=e137]:
+    - generic [ref=e138]: Opción C — Dark Luxury
+    - generic [ref=e139]:
+      - complementary [ref=e140]:
+        - generic [ref=e141]:
+          - generic [ref=e142]: aw-finanzas
+          - generic [ref=e143]: AW · EXPRO
+        - generic [ref=e144]:
+          - button "AW" [ref=e145] [cursor=pointer]
+          - button "EXPRO" [ref=e146] [cursor=pointer]
+        - generic [ref=e147]:
+          - button "←" [ref=e148] [cursor=pointer]
+          - generic [ref=e149]: may 26
+          - button "→" [ref=e150] [cursor=pointer]
+        - navigation [ref=e151]:
+          - generic [ref=e152]: Dashboard
+          - generic [ref=e153]:
+            - text: CxC
+            - generic [ref=e154]: "3"
+          - generic [ref=e155]:
+            - text: CxP
+            - generic [ref=e156]: "7"
+          - generic [ref=e157]: Transacciones
+        - button "+ Nueva Transacción" [ref=e158] [cursor=pointer]
+      - main [ref=e159]:
+        - generic [ref=e160]:
+          - heading "Dashboard" [level=2] [ref=e161]
+          - generic [ref=e162]: Mayo 2026
+        - generic [ref=e163]:
+          - generic [ref=e164]:
+            - paragraph [ref=e165]: Resultado del mes
+            - paragraph [ref=e166]: +$8.2M
+            - paragraph [ref=e167]: CLP · ambas empresas
+          - generic [ref=e168]:
+            - generic [ref=e169]:
+              - paragraph [ref=e170]: Ingresos
+              - paragraph [ref=e171]: $8.536.844
+            - generic [ref=e172]:
+              - paragraph [ref=e173]: Egresos
+              - paragraph [ref=e174]: $298.182
+        - generic [ref=e175]:
+          - generic [ref=e176]:
+            - generic [ref=e177]:
+              - generic [ref=e180]: AW
+              - generic [ref=e181]: AplicacionesWeb
+            - generic [ref=e182]:
+              - generic [ref=e183]:
+                - generic [ref=e184]: Ingresos cobrados
+                - generic [ref=e185]: $8.536.844
+              - generic [ref=e186]:
+                - generic [ref=e187]: Egresos pagados
+                - generic [ref=e188]: $298.182
+              - generic [ref=e189]:
+                - generic [ref=e190]: CxC pendiente
+                - generic [ref=e191]: $1.200.000
+          - generic [ref=e192]:
+            - generic [ref=e193]:
+              - generic [ref=e196]: EXPRO
+              - generic [ref=e197]: Expande PRO
+            - generic [ref=e198]:
+              - generic [ref=e199]:
+                - generic [ref=e200]: Ingresos cobrados
+                - generic [ref=e201]: $0
+              - generic [ref=e202]:
+                - generic [ref=e203]: Egresos pagados
+                - generic [ref=e204]: $0
+              - generic [ref=e205]:
+                - generic [ref=e206]: CxP pendiente
+                - generic [ref=e207]: $840.000

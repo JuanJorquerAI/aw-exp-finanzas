@@ -1,0 +1,237 @@
+- generic:
+  - generic:
+    - complementary:
+      - generic:
+        - generic:
+          - heading [level=1]: aw-finanzas
+          - paragraph: AW · EXPRO
+        - button:
+          - img
+      - generic:
+        - button: AW
+        - button: EXPRO
+      - generic:
+        - button:
+          - img
+        - generic: may 2026
+        - button:
+          - img
+      - navigation:
+        - link:
+          - /url: /dashboard?company=AW&month=2026-05
+          - img
+          - text: Dashboard
+        - link:
+          - /url: /cxc?company=AW&month=2026-05
+          - img
+          - text: CxC
+        - link:
+          - /url: /cxp?company=AW&month=2026-05
+          - img
+          - text: CxP
+        - link:
+          - /url: /transactions?company=AW&month=2026-05
+          - img
+          - text: Transacciones
+        - link:
+          - /url: /impuestos?company=AW&month=2026-05
+          - img
+          - text: Impuestos
+      - button:
+        - img
+        - text: Nueva Transacción
+    - main:
+      - generic:
+        - generic:
+          - generic:
+            - heading [level=2]: Cuentas por Cobrar
+            - paragraph: AW · ingresos pendientes
+          - generic: 12 pendientes
+        - generic:
+          - generic:
+            - table:
+              - rowgroup:
+                - row:
+                  - columnheader: Fecha
+                  - columnheader: Descripción
+                  - columnheader: Contrapartida
+                  - columnheader: Monto
+                  - columnheader: Vence
+                  - columnheader
+              - rowgroup:
+                - row:
+                  - cell: 01-05-26
+                  - cell: Factura 4 - Inmobiliaria Eulufi
+                  - cell: Inmobiliaria Eulufi
+                  - cell: $500.000
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button [expanded]: $ Abonar
+                      - button:
+                        - img
+                - row:
+                  - cell: 01-05-26
+                  - cell: Factura 1191 - Animals Center
+                  - cell: Animals Center
+                  - cell: $498.691
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button: $ Abonar
+                      - button:
+                        - img
+                - row:
+                  - cell: 01-05-26
+                  - cell: Factura 1190 - Distribuidora Jose Lira Silva EIRL
+                  - cell: Distribuidora Jose Lira Silva EIRL
+                  - cell: $1.196.747
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button: $ Abonar
+                      - button:
+                        - img
+                - row:
+                  - cell: 01-05-26
+                  - cell: Factura 1192 - Comercializadora Francisca Allende EIRL
+                  - cell: Comercializadora Francisca Allende EIRL
+                  - cell: $382.959
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button: $ Abonar
+                      - button:
+                        - img
+                - row:
+                  - cell: 01-05-26
+                  - cell: Factura 1197 - BATERÍAS TUBULAR S.A.
+                  - cell: BATERÍAS TUBULAR S.A.
+                  - cell: $214.200
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button: $ Abonar
+                      - button:
+                        - img
+                - row:
+                  - cell: 01-05-26
+                  - cell: Factura 1196 - Nicolas Alvarez
+                  - cell: Nicolas Alvarez
+                  - cell: $143.610
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button: $ Abonar
+                      - button:
+                        - img
+                - row:
+                  - cell: 01-05-26
+                  - cell: Factura 1194 - Tercera dosis
+                  - cell: Tercera dosis
+                  - cell: $215.985
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button: $ Abonar
+                      - button:
+                        - img
+                - row:
+                  - cell: 01-05-26
+                  - cell: Factura 1193 - Coni Anich
+                  - cell: Coni Anich
+                  - cell: $584.013
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button: $ Abonar
+                      - button:
+                        - img
+                - row:
+                  - cell: 01-05-26
+                  - cell: Factura 1195 - Maxiclima (Mailhosting)
+                  - cell: Maxiclima (Mailhosting)
+                  - cell: $138.823
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button: $ Abonar
+                      - button:
+                        - img
+                - row:
+                  - cell: 01-05-26
+                  - cell: Factura 12-13 - Agencia Fiel
+                  - cell: Agencia Fiel
+                  - cell: $749.700
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button: $ Abonar
+                      - button:
+                        - img
+                - row:
+                  - cell: 01-05-26
+                  - cell: Factura S/N - ICB SA
+                  - cell: ICB SA
+                  - cell: $474.116
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button: $ Abonar
+                      - button:
+                        - img
+                - row:
+                  - cell: 01-05-26
+                  - cell: Factura 3 - CyR
+                  - cell: CyR
+                  - cell: $2.618.000
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button: $ Abonar
+                      - button:
+                        - img
+  - alert
+  - dialog "Factura 4 - Inmobiliaria Eulufi" [ref=e202]:
+    - generic [ref=e203]:
+      - heading "Factura 4 - Inmobiliaria Eulufi" [level=2] [ref=e204]
+      - paragraph [ref=e205]: Inmobiliaria Eulufi
+    - generic [ref=e206]:
+      - generic [ref=e207]:
+        - generic [ref=e208]:
+          - generic [ref=e209]: Total
+          - generic [ref=e210]: $500.000
+        - generic [ref=e211]:
+          - generic [ref=e212]: Pagado
+          - generic [ref=e213]: $0
+        - generic [ref=e214]:
+          - generic [ref=e215]: Pendiente
+          - generic [ref=e216]: $500.000
+      - generic [ref=e217]:
+        - paragraph [ref=e218]: Nuevo abono
+        - generic [ref=e219]:
+          - generic [ref=e220]: Monto (CLP)
+          - spinbutton "Monto (CLP)" [active] [ref=e221]: "500000"
+        - generic [ref=e222]:
+          - text: Fecha de pago
+          - textbox "Fecha de pago" [ref=e223]: 2026-05-11
+        - generic [ref=e224]:
+          - text: Nota (opcional)
+          - textbox "Nota (opcional)" [ref=e225]:
+            - /placeholder: "Ej: Transferencia BCI, cheque #1234…"
+        - button "Registrar abono" [ref=e226] [cursor=pointer]
+    - button "Cerrar" [ref=e227] [cursor=pointer]:
+      - img [ref=e228]
+      - generic [ref=e231]: Cerrar

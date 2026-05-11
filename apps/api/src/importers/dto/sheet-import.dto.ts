@@ -7,7 +7,9 @@ import {
   IsArray,
   ValidateNested,
   IsObject,
+  IsIn,
 } from 'class-validator';
+import { IsRUT } from '@aw-finanzas/shared';
 
 export class PaymentDto {
   @IsString() item: string;
@@ -18,9 +20,9 @@ export class PaymentDto {
 }
 
 export class InvoiceDto {
-  @IsString() rut: string;
+  @IsRUT() rut: string;
   @IsString() number: string;
-  @IsString() type: string;
+  @IsIn(['AFECTA', 'EXENTA']) type: 'AFECTA' | 'EXENTA';
   @IsString() counterparty: string;
   @IsString() service: string;
   @IsNumber() net: number;

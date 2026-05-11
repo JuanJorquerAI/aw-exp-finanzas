@@ -1,0 +1,5 @@
+[    8965ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/../../node_modules/.pnpm/next@14.2.35_@playwright+test@1.59.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js:38559
+[   18125ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/companies:0
+[   18439ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/transactions?dateFrom=2026-05-01&dateTo=2026-05-31:0
+[   37823ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/companies:0
+[   38553ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/transactions?dateFrom=2026-05-01&dateTo=2026-05-31:0

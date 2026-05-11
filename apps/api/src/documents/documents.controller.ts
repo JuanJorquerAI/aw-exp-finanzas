@@ -1,7 +1,9 @@
 import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { DocumentsService } from './documents.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
+import { Public } from '../auth/public.decorator';
 
+@Public()
 @Controller('documents')
 export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}

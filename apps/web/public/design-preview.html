@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Options — aw-finanzas</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: #0f0f0f; }
+  .option-label { position: sticky; top: 0; z-index: 10; padding: 8px 16px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+</style>
+</head>
+<body class="p-6 space-y-10">
+
+<!-- TÍTULO -->
+<div class="text-center mb-2">
+  <p class="text-zinc-500 text-xs tracking-widest uppercase">Design Options · aw-finanzas</p>
+  <p class="text-zinc-600 text-xs mt-1">Elige una dirección</p>
+</div>
+
+<!-- ═══════════ OPCIÓN A: Dark Financial ═══════════ -->
+<section>
+  <div class="option-label bg-zinc-900 text-slate-400 rounded-t-lg border border-zinc-800 border-b-0">Opción A — Dark Financial</div>
+  <div class="flex h-[440px] rounded-b-lg overflow-hidden border border-zinc-800">
+    <!-- Sidebar -->
+    <aside class="w-52 bg-slate-950 flex flex-col px-3 py-5 border-r border-slate-800 shrink-0">
+      <div class="px-2 mb-7">
+        <div class="text-white font-bold text-sm tracking-tight">aw-finanzas</div>
+        <div class="text-slate-600 text-xs mt-0.5">AplicacionesWeb · Expande PRO</div>
+      </div>
+      <div class="flex rounded-md bg-slate-900 p-0.5 mb-5">
+        <button class="flex-1 rounded py-1.5 text-xs font-semibold bg-slate-700 text-white">AW</button>
+        <button class="flex-1 rounded py-1.5 text-xs font-medium text-slate-500">EXPRO</button>
+      </div>
+      <div class="flex items-center justify-between px-1 mb-6">
+        <button class="text-slate-600 hover:text-slate-400 text-xs">←</button>
+        <span class="text-slate-400 text-xs font-medium">may 2026</span>
+        <button class="text-slate-600 hover:text-slate-400 text-xs">→</button>
+      </div>
+      <nav class="space-y-0.5 flex-1">
+        <a class="flex items-center gap-2.5 px-2 py-2 rounded-md bg-slate-800 text-white text-sm font-medium">
+          <span class="text-slate-400 text-xs">▦</span> Dashboard
+        </a>
+        <a class="flex items-center gap-2.5 px-2 py-2 rounded-md text-slate-500 text-sm hover:text-slate-300">
+          <span class="text-slate-600 text-xs">↓</span> CxC
+          <span class="ml-auto text-xs bg-emerald-900 text-emerald-400 px-1.5 py-0.5 rounded">3</span>
+        </a>
+        <a class="flex items-center gap-2.5 px-2 py-2 rounded-md text-slate-500 text-sm hover:text-slate-300">
+          <span class="text-slate-600 text-xs">↑</span> CxP
+          <span class="ml-auto text-xs bg-rose-900 text-rose-400 px-1.5 py-0.5 rounded">7</span>
+        </a>
+        <a class="flex items-center gap-2.5 px-2 py-2 rounded-md text-slate-500 text-sm hover:text-slate-300">
+          <span class="text-slate-600 text-xs">≡</span> Transacciones
+        </a>
+      </nav>
+      <button class="mt-3 w-full py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center justify-center gap-1.5">
+        <span>+</span> Nueva Transacción
+      </button>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 bg-slate-950 overflow-auto p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-white font-semibold text-lg">Dashboard</h2>
+        <span class="text-slate-500 text-xs">mayo 2026</span>
+      </div>
+      <!-- Summary bar -->
+      <div class="grid grid-cols-3 gap-3 mb-5 p-4 rounded-xl bg-slate-900 border border-slate-800">
+        <div>
+          <p class="text-slate-500 text-xs mb-1">Ingresos cobrados</p>
+          <p class="text-emerald-400 text-2xl font-bold">$8.536.844</p>
+        </div>
+        <div>
+          <p class="text-slate-500 text-xs mb-1">Egresos pagados</p>
+          <p class="text-rose-400 text-2xl font-bold">$298.182</p>
+        </div>
+        <div class="text-right">
+          <p class="text-slate-500 text-xs mb-1">Resultado combinado</p>
+          <p class="text-white text-2xl font-bold">+$8.238.662</p>
+        </div>
+      </div>
+      <!-- Company cards -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">AW</span>
+            <span class="text-xs text-slate-600">AplicacionesWeb</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div><p class="text-slate-500 text-xs">Ingresos</p><p class="text-emerald-400 text-xl font-bold">$8.5M</p></div>
+            <div><p class="text-slate-500 text-xs">Egresos</p><p class="text-rose-400 text-xl font-bold">$298k</p></div>
+          </div>
+          <div class="border-t border-slate-800 pt-3 flex justify-between items-center">
+            <span class="text-slate-500 text-xs">CxC pendiente</span>
+            <span class="text-white font-semibold">$1.200.000</span>
+          </div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">EXPRO</span>
+            <span class="text-xs text-slate-600">Expande PRO</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div><p class="text-slate-500 text-xs">Ingresos</p><p class="text-emerald-400 text-xl font-bold">$0</p></div>
+            <div><p class="text-slate-500 text-xs">Egresos</p><p class="text-rose-400 text-xl font-bold">$0</p></div>
+          </div>
+          <div class="border-t border-slate-800 pt-3 flex justify-between items-center">
+            <span class="text-slate-500 text-xs">CxC pendiente</span>
+            <span class="text-white font-semibold">$0</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ═══════════ OPCIÓN B: Light Editorial / Bento ═══════════ -->
+<section>
+  <div class="option-label bg-zinc-900 text-slate-400 rounded-t-lg border border-zinc-800 border-b-0">Opción B — Light Editorial / Bento</div>
+  <div class="flex h-[440px] rounded-b-lg overflow-hidden border border-zinc-800">
+    <!-- Sidebar -->
+    <aside class="w-52 bg-gray-50 flex flex-col px-3 py-5 border-r border-gray-200 shrink-0">
+      <div class="px-2 mb-7">
+        <div class="text-gray-900 font-bold text-sm tracking-tight">aw-finanzas</div>
+        <div class="text-gray-400 text-xs mt-0.5">AplicacionesWeb · Expande PRO</div>
+      </div>
+      <div class="flex rounded-lg border border-gray-200 bg-white p-0.5 mb-5 shadow-sm">
+        <button class="flex-1 rounded-md py-1.5 text-xs font-semibold bg-gray-900 text-white">AW</button>
+        <button class="flex-1 rounded-md py-1.5 text-xs font-medium text-gray-400">EXPRO</button>
+      </div>
+      <div class="flex items-center justify-between px-1 mb-6">
+        <button class="text-gray-300 text-xs">←</button>
+        <span class="text-gray-600 text-xs font-medium">may 2026</span>
+        <button class="text-gray-300 text-xs">→</button>
+      </div>
+      <nav class="space-y-0.5 flex-1">
+        <a class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium">
+          <span class="text-gray-400 text-xs">▦</span> Dashboard
+        </a>
+        <a class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 text-sm">
+          <span class="text-gray-400 text-xs">↓</span> CxC
+          <span class="ml-auto text-xs bg-emerald-50 text-emerald-600 border border-emerald-200 px-1.5 rounded-full">3</span>
+        </a>
+        <a class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 text-sm">
+          <span class="text-gray-400 text-xs">↑</span> CxP
+          <span class="ml-auto text-xs bg-red-50 text-red-600 border border-red-200 px-1.5 rounded-full">7</span>
+        </a>
+        <a class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 text-sm">
+          <span class="text-gray-400 text-xs">≡</span> Transacciones
+        </a>
+      </nav>
+      <button class="mt-3 w-full py-2 rounded-lg bg-gray-900 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm">
+        + Nueva Transacción
+      </button>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 bg-white overflow-auto p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-gray-900 font-bold text-xl">Dashboard <span class="text-gray-400 font-normal text-base">mayo 2026</span></h2>
+      </div>
+      <!-- Bento grid -->
+      <div class="grid grid-cols-5 grid-rows-2 gap-3 h-[300px]">
+        <!-- Total resultado — grande -->
+        <div class="col-span-2 row-span-2 rounded-2xl bg-gray-900 text-white p-5 flex flex-col justify-between">
+          <p class="text-gray-400 text-xs uppercase tracking-wider font-semibold">Resultado combinado</p>
+          <div>
+            <p class="text-5xl font-black text-white leading-none">+$8.2M</p>
+            <p class="text-gray-400 text-sm mt-2">CLP · mayo 2026</p>
+          </div>
+          <div class="flex gap-4 text-sm">
+            <div><p class="text-gray-500 text-xs">Ingresos</p><p class="text-emerald-400 font-semibold">$8.5M</p></div>
+            <div><p class="text-gray-500 text-xs">Egresos</p><p class="text-red-400 font-semibold">$298k</p></div>
+          </div>
+        </div>
+        <!-- AW card -->
+        <div class="col-span-3 rounded-2xl bg-gray-50 border border-gray-100 p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">AW · AplicacionesWeb</span>
+          </div>
+          <div class="flex gap-6">
+            <div><p class="text-gray-400 text-xs">Ingresos cobrados</p><p class="text-emerald-600 text-2xl font-bold">$8.536.844</p></div>
+            <div><p class="text-gray-400 text-xs">Egresos pagados</p><p class="text-rose-600 text-2xl font-bold">$298.182</p></div>
+          </div>
+        </div>
+        <!-- EXPRO card -->
+        <div class="col-span-3 rounded-2xl bg-gray-50 border border-gray-100 p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">EXPRO · Expande PRO</span>
+          </div>
+          <div class="flex gap-6">
+            <div><p class="text-gray-400 text-xs">CxC pendiente</p><p class="text-gray-800 text-2xl font-bold">$1.200.000</p></div>
+            <div><p class="text-gray-400 text-xs">CxP pendiente</p><p class="text-gray-800 text-2xl font-bold">$840.000</p></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ═══════════ OPCIÓN C: Dark Luxury ═══════════ -->
+<section>
+  <div class="option-label bg-zinc-900 text-slate-400 rounded-t-lg border border-zinc-800 border-b-0">Opción C — Dark Luxury</div>
+  <div class="flex h-[440px] rounded-b-lg overflow-hidden border border-zinc-800">
+    <!-- Sidebar -->
+    <aside class="w-52 bg-zinc-950 flex flex-col px-3 py-5 border-r border-zinc-900 shrink-0">
+      <div class="px-2 mb-7">
+        <div class="text-zinc-100 font-bold text-sm tracking-tight">aw-finanzas</div>
+        <div class="text-zinc-600 text-xs mt-0.5 tracking-wider uppercase text-[10px]">AW · EXPRO</div>
+      </div>
+      <div class="flex rounded-md bg-zinc-900 border border-zinc-800 p-0.5 mb-5">
+        <button class="flex-1 rounded py-1.5 text-xs font-semibold bg-amber-500 text-zinc-950">AW</button>
+        <button class="flex-1 rounded py-1.5 text-xs font-medium text-zinc-500">EXPRO</button>
+      </div>
+      <div class="flex items-center justify-between px-1 mb-6">
+        <button class="text-zinc-700 text-xs">←</button>
+        <span class="text-zinc-400 text-xs font-medium tracking-widest uppercase">may 26</span>
+        <button class="text-zinc-700 text-xs">→</button>
+      </div>
+      <nav class="space-y-px flex-1">
+        <a class="flex items-center gap-2.5 px-2 py-2 rounded text-zinc-100 text-sm font-medium border-l-2 border-amber-500 bg-zinc-900 pl-3">
+          Dashboard
+        </a>
+        <a class="flex items-center gap-2.5 px-3 py-2 rounded text-zinc-500 text-sm">
+          CxC <span class="ml-auto text-[10px] text-amber-500 font-bold">3</span>
+        </a>
+        <a class="flex items-center gap-2.5 px-3 py-2 rounded text-zinc-500 text-sm">
+          CxP <span class="ml-auto text-[10px] text-red-500 font-bold">7</span>
+        </a>
+        <a class="flex items-center gap-2.5 px-3 py-2 rounded text-zinc-500 text-sm">
+          Transacciones
+        </a>
+      </nav>
+      <button class="mt-3 w-full py-2 rounded border border-amber-500/40 text-amber-400 text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20">
+        + Nueva Transacción
+      </button>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 bg-zinc-950 overflow-auto p-6">
+      <div class="flex items-baseline justify-between mb-6">
+        <h2 class="text-zinc-100 font-bold text-lg tracking-tight">Dashboard</h2>
+        <span class="text-zinc-600 text-xs tracking-widest uppercase">Mayo 2026</span>
+      </div>
+      <!-- Top result bar -->
+      <div class="rounded-xl bg-zinc-900 border border-zinc-800 p-5 mb-4 flex items-end justify-between">
+        <div>
+          <p class="text-zinc-500 text-xs tracking-wider uppercase mb-1">Resultado del mes</p>
+          <p class="text-5xl font-black text-amber-400 leading-none">+$8.2M</p>
+          <p class="text-zinc-600 text-xs mt-2">CLP · ambas empresas</p>
+        </div>
+        <div class="flex gap-8 text-right">
+          <div>
+            <p class="text-zinc-600 text-xs uppercase tracking-wider mb-1">Ingresos</p>
+            <p class="text-emerald-400 text-xl font-bold">$8.536.844</p>
+          </div>
+          <div>
+            <p class="text-zinc-600 text-xs uppercase tracking-wider mb-1">Egresos</p>
+            <p class="text-red-400 text-xl font-bold">$298.182</p>
+          </div>
+        </div>
+      </div>
+      <!-- Company cards -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="p-4 rounded-xl bg-zinc-900 border border-zinc-800">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <div class="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
+              <span class="text-xs font-bold text-zinc-300 uppercase tracking-wider">AW</span>
+            </div>
+            <span class="text-xs text-zinc-700">AplicacionesWeb</span>
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-zinc-500 text-xs">Ingresos cobrados</span>
+              <span class="text-emerald-400 font-bold">$8.536.844</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-zinc-500 text-xs">Egresos pagados</span>
+              <span class="text-red-400 font-bold">$298.182</span>
+            </div>
+            <div class="border-t border-zinc-800 pt-2 flex justify-between items-center">
+              <span class="text-zinc-600 text-xs">CxC pendiente</span>
+              <span class="text-amber-400 font-semibold">$1.200.000</span>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 rounded-xl bg-zinc-900 border border-zinc-800">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <div class="w-1.5 h-1.5 rounded-full bg-zinc-600"></div>
+              <span class="text-xs font-bold text-zinc-300 uppercase tracking-wider">EXPRO</span>
+            </div>
+            <span class="text-xs text-zinc-700">Expande PRO</span>
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-zinc-500 text-xs">Ingresos cobrados</span>
+              <span class="text-zinc-400 font-bold">$0</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-zinc-500 text-xs">Egresos pagados</span>
+              <span class="text-zinc-400 font-bold">$0</span>
+            </div>
+            <div class="border-t border-zinc-800 pt-2 flex justify-between items-center">
+              <span class="text-zinc-600 text-xs">CxP pendiente</span>
+              <span class="text-zinc-400 font-semibold">$840.000</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+
+</body>
+</html>

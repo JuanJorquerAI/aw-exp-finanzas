@@ -1,0 +1,131 @@
+- generic:
+  - generic:
+    - complementary:
+      - generic:
+        - generic:
+          - heading [level=1]: aw-finanzas
+          - paragraph: AW · EXPRO
+        - button:
+          - img
+      - generic:
+        - button: AW
+        - button: EXPRO
+      - generic:
+        - button:
+          - img
+        - generic: may 2026
+        - button:
+          - img
+      - navigation:
+        - link:
+          - /url: /dashboard?company=AW&month=2026-05
+          - img
+          - text: Dashboard
+        - link:
+          - /url: /cxc?company=AW&month=2026-05
+          - img
+          - text: CxC
+        - link:
+          - /url: /cxp?company=AW&month=2026-05
+          - img
+          - text: CxP
+        - link:
+          - /url: /transactions?company=AW&month=2026-05
+          - img
+          - text: Transacciones
+        - link:
+          - /url: /impuestos?company=AW&month=2026-05
+          - img
+          - text: Impuestos
+      - button:
+        - img
+        - text: Nueva Transacción
+    - main:
+      - generic:
+        - generic:
+          - generic:
+            - heading [level=2]: Cuentas por Pagar
+            - paragraph: AW · egresos pendientes
+          - generic: 3 pendientes
+        - generic:
+          - generic:
+            - table:
+              - rowgroup:
+                - row:
+                  - columnheader: Fecha
+                  - columnheader: Descripción
+                  - columnheader: Contrapartida
+                  - columnheader: Monto
+                  - columnheader: Vence
+                  - columnheader
+              - rowgroup:
+                - row:
+                  - cell: 08-05-26
+                  - cell: Test E2E Playwright
+                  - cell: —
+                  - cell: $50.000
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button [expanded]: $ Abonar
+                      - button:
+                        - img
+                - row:
+                  - cell: 08-05-26
+                  - cell: Test fecha corta
+                  - cell: —
+                  - cell: $50.000
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button: $ Abonar
+                      - button:
+                        - img
+                - row:
+                  - cell: 08-05-26
+                  - cell: Test
+                  - cell: —
+                  - cell: $50.000
+                  - cell: —
+                  - cell:
+                    - generic:
+                      - button: ✓ Pagar
+                      - button: $ Abonar
+                      - button:
+                        - img
+  - alert
+  - dialog "Test E2E Playwright" [ref=e53]:
+    - generic [ref=e54]:
+      - heading "Test E2E Playwright" [level=2] [ref=e55]
+      - paragraph [ref=e56]: Sin contrapartida
+    - generic [ref=e57]:
+      - generic [ref=e58]:
+        - generic [ref=e59]:
+          - generic [ref=e60]: Total
+          - generic [ref=e61]: $50.000
+        - generic [ref=e62]:
+          - generic [ref=e63]: Pagado
+          - generic [ref=e64]: $0
+        - generic [ref=e65]:
+          - generic [ref=e66]: Pendiente
+          - generic [ref=e67]: $50.000
+      - generic [ref=e68]:
+        - paragraph [ref=e69]: Nuevo abono
+        - generic [ref=e70]:
+          - generic [ref=e71]: Monto (CLP)
+          - spinbutton "Monto (CLP)" [active] [ref=e72]: "50000"
+        - generic [ref=e73]:
+          - text: Fecha de pago
+          - button "11 may 2026" [ref=e74] [cursor=pointer]:
+            - img
+            - text: 11 may 2026
+        - generic [ref=e75]:
+          - text: Nota (opcional)
+          - textbox "Nota (opcional)" [ref=e76]:
+            - /placeholder: "Ej: Transferencia BCI, cheque #1234…"
+        - button "Registrar abono" [ref=e77] [cursor=pointer]
+    - button "Cerrar" [ref=e78] [cursor=pointer]:
+      - img [ref=e79]
+      - generic [ref=e82]: Cerrar

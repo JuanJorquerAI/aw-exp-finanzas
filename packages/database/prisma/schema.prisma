@@ -355,6 +355,26 @@ model CategorizationRule {
   @@map("categorization_rules")
 }
 
+// Audit log de operaciones críticas (importaciones, mutaciones sensibles)
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String                                                // "IMPORT_SHEET", "CREATE_COMPANY", etc.
+  userId      String?                                               // ID del usuario autenticado
+  userEmail   String?                                               // Email para trazabilidad rápida
+  ipAddress   String?                                               // IP del request
+  userAgent   String?                                               // User-Agent
+  resource    String?                                               // Recurso afectado (ej: "transaction:abc123")
+  metadata    Json?                                                 // Payload arbitrario (counts, errores)
+  status      String   @default("SUCCESS")                          // SUCCESS | FAILURE
+  errorMessage String?                                              // Si status = FAILURE
+  createdAt   DateTime @default(now())
+
+  @@index([action])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
 // Tipos de cambio diarios (para reportes históricos)
 model ExchangeRate {
   id          String   @id @default(cuid())

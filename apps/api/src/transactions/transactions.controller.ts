@@ -12,7 +12,9 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { FilterTransactionsDto } from './dto/filter-transactions.dto';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { MoveTransactionDto } from './dto/move-transaction.dto';
+import { Public } from '../auth/public.decorator';
 
+@Public()
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}

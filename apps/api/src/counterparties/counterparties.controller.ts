@@ -1,7 +1,9 @@
 import { Controller, Get, Post, Put, Body, Param } from '@nestjs/common';
 import { CounterpartiesService } from './counterparties.service';
 import { CreateCounterpartyDto } from './dto/create-counterparty.dto';
+import { Public } from '../auth/public.decorator';
 
+@Public()
 @Controller('counterparties')
 export class CounterpartiesController {
   constructor(private readonly counterpartiesService: CounterpartiesService) {}

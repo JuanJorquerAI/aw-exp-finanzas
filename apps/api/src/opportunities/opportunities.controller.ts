@@ -10,7 +10,9 @@ import {
 import { OpportunitiesService } from './opportunities.service';
 import { CreateOpportunityDto } from './dto/create-opportunity.dto';
 import { OpportunityStage } from '@aw-finanzas/database';
+import { Public } from '../auth/public.decorator';
 
+@Public()
 @Controller('opportunities')
 export class OpportunitiesController {
   constructor(private readonly opportunitiesService: OpportunitiesService) {}

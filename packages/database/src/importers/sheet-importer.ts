@@ -70,10 +70,10 @@ export async function importFromSheet(
   prisma: PrismaClient,
 ): Promise<{ payments: number; invoices: number; visa: number; opportunities: number }> {
   const companies = await prisma.company.findMany();
-  const companiesMap = Object.fromEntries(companies.map((c) => [c.shortCode, c]));
+  const companiesMap = Object.fromEntries(companies.map((c: { shortCode: string; id: string; [key: string]: unknown }) => [c.shortCode, c]));
 
   const categories = await prisma.category.findMany();
-  const categoriesMap = Object.fromEntries(categories.map((c) => [c.name, c]));
+  const categoriesMap = Object.fromEntries(categories.map((c: { name: string; id: string; [key: string]: unknown }) => [c.name, c]));
 
   const monthDate = parseISO(`${data.month}-01`);
   const monthStart = startOfMonth(monthDate);

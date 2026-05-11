@@ -9,14 +9,16 @@ COPY packages/database/package.json ./packages/database/
 COPY packages/shared/package.json ./packages/shared/
 COPY apps/api/package.json ./apps/api/
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # Copiar código fuente
 COPY packages/ ./packages/
 COPY apps/api/ ./apps/api/
 
-# Build
-RUN pnpm --filter @aw-finanzas/database prisma generate
+# Generar cliente Prisma desde raíz para que quede en node_modules correcto
+RUN npx prisma generate --schema packages/database/prisma/schema.prisma
+
+# Build NestJS
 RUN pnpm --filter api build
 
 # Producción: migrar DB y arrancar

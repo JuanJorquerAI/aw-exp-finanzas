@@ -12,6 +12,7 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { OpportunitiesModule } from './opportunities/opportunities.module';
 import { ImportersModule } from './importers/importers.module';
 import { TaxesModule } from './taxes/taxes.module';
+import { TransactionDocumentsModule } from './transaction-documents/transaction-documents.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/auth.guard';
 
@@ -35,6 +36,7 @@ import { JwtAuthGuard } from './auth/auth.guard';
     OpportunitiesModule,
     ImportersModule,
     TaxesModule,
+    TransactionDocumentsModule,
     AuthModule,
   ],
   providers: [

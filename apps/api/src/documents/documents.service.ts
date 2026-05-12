@@ -21,7 +21,7 @@ export class DocumentsService {
   async findOne(id: string) {
     const doc = await this.prisma.document.findUnique({
       where: { id },
-      include: { counterparty: true, transactions: true },
+      include: { counterparty: true, transactionLinks: { include: { transaction: true } } },
     });
     if (!doc) throw new NotFoundException(`Documento ${id} no encontrado`);
     return doc;

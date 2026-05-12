@@ -164,8 +164,11 @@ export async function importFromSheet(
           description: `Factura ${inv.number || 'S/N'} - ${inv.counterparty}`,
           companyId: awCompany.id,
           counterpartyId: cp.id,
-          documentId: doc.id,
         },
+      });
+
+      await tx.transactionDocument.create({
+        data: { transactionId: incTx.id, documentId: doc.id },
       });
 
       await tx.transactionAllocation.create({

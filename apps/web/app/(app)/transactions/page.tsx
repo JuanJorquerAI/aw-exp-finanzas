@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ArrowDownCircle, ArrowUpCircle, ArrowRightLeft, Pencil, FileText, ChevronDown } from 'lucide-react';
 import { useTransactions, useCompanies, useUpdateTransactionStatus } from '@/lib/queries';
@@ -172,8 +172,8 @@ export default function TransactionsPage() {
             </thead>
             <tbody>
               {dates.map((date) => (
-                <>
-                  <tr key={`date-${date}`} className="dark:bg-slate-900/60 bg-slate-50/80 border-b dark:border-slate-800 border-slate-100">
+                <React.Fragment key={date}>
+                  <tr className="dark:bg-slate-900/60 bg-slate-50/80 border-b dark:border-slate-800 border-slate-100">
                     <td colSpan={10} className="px-4 py-1.5 text-[10px] font-semibold uppercase tracking-wider dark:text-slate-500 text-slate-400">
                       {fmtDate(date)}
                     </td>
@@ -181,7 +181,7 @@ export default function TransactionsPage() {
                   {grouped[date].map((tx) => (
                     <TxRow key={tx.id} tx={tx} onReview={setReviewTx} />
                   ))}
-                </>
+                </React.Fragment>
               ))}
             </tbody>
           </table>

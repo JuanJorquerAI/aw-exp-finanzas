@@ -85,7 +85,7 @@ export function ReviewDrawer({ transaction: tx, open, onOpenChange }: ReviewDraw
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-md dark:bg-slate-950 bg-white overflow-y-auto">
+      <SheetContent className="w-full sm:max-w-md dark:bg-slate-950 bg-white overflow-y-auto" aria-describedby={undefined}>
         <SheetHeader className="mb-6">
           <SheetTitle className="dark:text-slate-100 text-slate-900">Revisar transacción</SheetTitle>
         </SheetHeader>

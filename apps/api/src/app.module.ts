@@ -13,6 +13,7 @@ import { OpportunitiesModule } from './opportunities/opportunities.module';
 import { ImportersModule } from './importers/importers.module';
 import { TaxesModule } from './taxes/taxes.module';
 import { TransactionDocumentsModule } from './transaction-documents/transaction-documents.module';
+import { TransactionNotesModule } from './transaction-notes/transaction-notes.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/auth.guard';
 
@@ -37,6 +38,7 @@ import { JwtAuthGuard } from './auth/auth.guard';
     ImportersModule,
     TaxesModule,
     TransactionDocumentsModule,
+    TransactionNotesModule,
     AuthModule,
   ],
   providers: [

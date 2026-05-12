@@ -1,11 +1,12 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
-import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, List, Plus, ChevronLeft, ChevronRight, Sun, Moon, Receipt } from 'lucide-react';
+import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, List, Plus, ChevronLeft, ChevronRight, Sun, Moon, Receipt, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { NewTransactionDrawer } from '@/components/transactions/NewTransactionDrawer';
 import { useTheme } from '@/hooks/useTheme';
+import { logoutAction } from '@/app/login/actions';
 
 const COMPANIES = ['AW', 'EXPRO'] as const;
 
@@ -125,6 +126,16 @@ export function AppSidebar() {
           <Plus className="h-3.5 w-3.5" />
           Nueva Transacción
         </button>
+
+        <form action={logoutAction} className="mt-2">
+          <button
+            type="submit"
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs dark:text-slate-600 text-slate-400 dark:hover:text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            <LogOut className="h-3 w-3" />
+            Cerrar sesión
+          </button>
+        </form>
       </aside>
 
       <NewTransactionDrawer

@@ -1,4 +1,4 @@
-import type { Transaction, Company, CreateTransactionInput, MonthlyTax, CreatePaymentInput, TransactionPayment, Account, BankImportResult, Category, Counterparty, UpdateTransactionInput } from './types';
+import type { Transaction, Company, CreateTransactionInput, MonthlyTax, CreatePaymentInput, TransactionPayment, Account, BankImportResult, Category, Counterparty, UpdateTransactionInput, CategorizationRule, CreateCategorizationRuleInput, TestRuleResult } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -117,4 +117,33 @@ export async function importBankFile(
     throw new Error(`Error al importar: ${response.status} ${text}`);
   }
   return response.json() as Promise<BankImportResult>;
+}
+
+export function getCategorizationRules() {
+  return fetchApi<CategorizationRule[]>('/categories/rules');
+}
+
+export function createCategorizationRule(dto: CreateCategorizationRuleInput) {
+  return fetchApi<CategorizationRule>('/categories/rules', {
+    method: 'POST',
+    body: JSON.stringify(dto),
+  });
+}
+
+export function updateCategorizationRule(id: string, dto: Partial<CreateCategorizationRuleInput & { isActive: boolean }>) {
+  return fetchApi<CategorizationRule>(`/categories/rules/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(dto),
+  });
+}
+
+export function deleteCategorizationRule(id: string) {
+  return fetchApi<{ deleted: boolean }>(`/categories/rules/${id}`, { method: 'DELETE' });
+}
+
+export function testCategorizationRule(text: string) {
+  return fetchApi<TestRuleResult>('/categories/rules/test', {
+    method: 'POST',
+    body: JSON.stringify({ text }),
+  });
 }

@@ -142,3 +142,26 @@ export interface UpdateTransactionInput {
   status?: 'PENDING' | 'PAID' | 'RECONCILED' | 'CANCELLED';
   description?: string;
 }
+
+export interface CategorizationRule {
+  id: string;
+  pattern: string;
+  isRegex: boolean;
+  priority: number;
+  isActive: boolean;
+  categoryId: string;
+  category: { id: string; name: string; color: string | null };
+  createdAt: string;
+}
+
+export interface CreateCategorizationRuleInput {
+  pattern: string;
+  isRegex?: boolean;
+  categoryId: string;
+  priority?: number;
+}
+
+export interface TestRuleResult {
+  matched: boolean;
+  category: { id: string; name: string; color: string | null } | null;
+}

@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma, TransactionSource } from '@prisma/client';
 import { BankImportRow } from './bank-parser';
+import { applyCategorizationRules } from '../categorization';
 
 export interface BankImportOptions {
   accountId: string;
@@ -47,6 +48,9 @@ export async function importFromBank(
       const status = hasMeta ? 'PAID' : 'PENDING';
       if (!hasMeta) pending++;
 
+      const matchText = [row.description, row.counterName].filter(Boolean).join(' ');
+      const categoryId = await applyCategorizationRules(matchText, tx);
+
       const newTx = await tx.transaction.create({
         data: {
           type: row.direction === 'CREDIT' ? 'INCOME' : 'EXPENSE',
@@ -62,6 +66,7 @@ export async function importFromBank(
           companyId: options.companyId,
           accountId: options.accountId,
           counterpartyId,
+          categoryId,
         },
       });
 

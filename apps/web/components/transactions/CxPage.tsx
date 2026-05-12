@@ -240,7 +240,7 @@ function ListTable({
 
 /* ── Counterparty table ── */
 function CounterpartyTable({
-  groups, type, onEdit,
+  groups, onEdit,
 }: {
   groups: { name: string; txs: EnrichedTx[] }[];
   type: 'INCOME' | 'EXPENSE';
@@ -251,7 +251,7 @@ function CounterpartyTable({
   function toggle(name: string) {
     setExpanded((prev) => {
       const next = new Set(prev);
-      next.has(name) ? next.delete(name) : next.add(name);
+      if (next.has(name)) { next.delete(name); } else { next.add(name); }
       return next;
     });
   }

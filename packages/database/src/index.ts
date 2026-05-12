@@ -18,3 +18,4 @@ export { importFromBank } from './importers/bank-importer';
 export type { BankImportOptions, BankImportResult } from './importers/bank-importer';
 export { createBankParser } from './importers/bank-parser';
 export type { BankImportRow, BankParser, BankFileType } from './importers/bank-parser';
+export { applyCategorizationRules } from './categorization';

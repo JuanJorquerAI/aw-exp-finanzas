@@ -1,7 +1,7 @@
 'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTransactions, getCompanies, markTransactionPaid, cancelTransaction, createTransaction, getTaxesMonthly, getTaxesAnnual, getTransaction, addPayment, moveTransactionCompany, getAccounts, importBankFile, getCategories, getCounterparties, updateTransaction, createCounterparty, updateCounterparty } from './api';
-import type { CreateTransactionInput, CreatePaymentInput, UpdateTransactionInput } from './types';
+import { getTransactions, getCompanies, markTransactionPaid, cancelTransaction, createTransaction, getTaxesMonthly, getTaxesAnnual, getTransaction, addPayment, moveTransactionCompany, getAccounts, importBankFile, getCategories, getCounterparties, updateTransaction, createCounterparty, updateCounterparty, getCategorizationRules, createCategorizationRule, updateCategorizationRule, deleteCategorizationRule } from './api';
+import type { CreateTransactionInput, CreatePaymentInput, UpdateTransactionInput, CreateCategorizationRuleInput } from './types';
 
 export const queryKeys = {
   companies: ['companies'] as const,
@@ -138,5 +138,34 @@ export function useBankImport() {
     mutationFn: ({ file, accountId, fileType }: { file: File; accountId: string; fileType: 'detallado' | 'historico' }) =>
       importBankFile(file, accountId, fileType),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+  });
+}
+
+export function useCategorizationRules() {
+  return useQuery({ queryKey: ['categorization-rules'], queryFn: getCategorizationRules });
+}
+
+export function useCreateCategorizationRule() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: CreateCategorizationRuleInput) => createCategorizationRule(dto),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['categorization-rules'] }),
+  });
+}
+
+export function useUpdateCategorizationRule() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: Partial<CreateCategorizationRuleInput & { isActive: boolean }> }) =>
+      updateCategorizationRule(id, dto),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['categorization-rules'] }),
+  });
+}
+
+export function useDeleteCategorizationRule() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteCategorizationRule(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['categorization-rules'] }),
   });
 }

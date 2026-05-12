@@ -75,9 +75,29 @@ export class ImportersService {
       const parser = createBankParser(bank, fileType);
       const rows = parser.parse(file.buffer);
 
+      // Determinar mes de la cartola a partir de la primera fila (fallback: mes actual)
+      const firstRowDate = rows[0]?.date;
+      const month = firstRowDate
+        ? `${firstRowDate.getFullYear()}-${String(firstRowDate.getMonth() + 1).padStart(2, '0')}`
+        : new Date().toISOString().slice(0, 7);
+
+      const bankStatement = await this.prisma.bankStatement.create({
+        data: {
+          companyId: account.companyId,
+          accountId: account.id,
+          filename: file.originalname,
+          month,
+          rowCount: rows.length,
+        },
+      });
+
       const result = await importFromBank(
         rows,
-        { accountId: account.id, companyId: account.companyId },
+        {
+          accountId: account.id,
+          companyId: account.companyId,
+          bankStatementId: bankStatement.id,
+        },
         this.prisma,
       );
 
@@ -94,6 +114,7 @@ export class ImportersService {
             bank,
             fileType,
             accountId: account.id,
+            bankStatementId: bankStatement.id,
             rowCount: rows.length,
           },
         },

@@ -2,9 +2,16 @@ import { PrismaClient, Prisma, TransactionSource } from '@prisma/client';
 import { BankImportRow } from './bank-parser';
 import { applyCategorizationRules } from '../categorization';
 
+/** Normaliza RUT chileno: quita puntos, guiones y espacios; uppercase DV. */
+function normalizeRut(rut: string): string {
+  return rut.replace(/[.\-\s]/g, '').toUpperCase();
+}
+
 export interface BankImportOptions {
   accountId: string;
   companyId: string;
+  /** ID del BankStatement registrado antes de llamar a este importer. */
+  bankStatementId?: string;
 }
 
 export interface BankImportResult {
@@ -67,6 +74,7 @@ export async function importFromBank(
           accountId: options.accountId,
           counterpartyId,
           categoryId,
+          bankStatementId: options.bankStatementId ?? null,
         },
       });
 
@@ -99,10 +107,11 @@ async function upsertBankCounterparty(
   const notes = bankName ? `Banco: ${bankName}` : null;
 
   if (rut) {
+    const normalizedRut = normalizeRut(rut);
     return tx.counterparty.upsert({
-      where: { rut },
+      where: { rut: normalizedRut },
       update: { name },
-      create: { type: 'OTHER', name, rut, notes },
+      create: { type: 'OTHER', name, rut: normalizedRut, notes },
     });
   }
 

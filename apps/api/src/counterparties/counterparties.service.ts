@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { normalizeRut } from '@aw-finanzas/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCounterpartyDto } from './dto/create-counterparty.dto';
 
@@ -17,10 +18,28 @@ export class CounterpartiesService {
   }
 
   create(dto: CreateCounterpartyDto) {
-    return this.prisma.counterparty.create({ data: dto });
+    const data = dto.rut ? { ...dto, rut: normalizeRut(dto.rut) } : dto;
+    return this.prisma.counterparty.create({ data });
   }
 
   update(id: string, dto: Partial<CreateCounterpartyDto>) {
-    return this.prisma.counterparty.update({ where: { id }, data: dto });
+    const data = dto.rut ? { ...dto, rut: normalizeRut(dto.rut) } : dto;
+    return this.prisma.counterparty.update({ where: { id }, data });
+  }
+
+  async upsertByRut(rut: string, dto: Partial<CreateCounterpartyDto>) {
+    const normalizedRut = normalizeRut(rut);
+    const existing = await this.prisma.counterparty.findUnique({
+      where: { rut: normalizedRut },
+    });
+    if (existing) return existing;
+    return this.prisma.counterparty.create({
+      data: {
+        rut: normalizedRut,
+        name: dto.name ?? '',
+        type: dto.type ?? 'OTHER',
+        ...dto,
+      },
+    });
   }
 }

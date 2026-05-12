@@ -1,5 +1,5 @@
 import { IsOptional, IsEnum, IsDateString, IsString } from 'class-validator';
-import { TransactionType, TransactionStatus } from '@aw-finanzas/database';
+import { TransactionType, TransactionStatus, TransactionSource } from '@aw-finanzas/database';
 
 export class FilterTransactionsDto {
   @IsOptional()
@@ -13,6 +13,10 @@ export class FilterTransactionsDto {
   @IsOptional()
   @IsEnum(TransactionStatus)
   status?: TransactionStatus;
+
+  @IsOptional()
+  @IsEnum(TransactionSource)
+  source?: TransactionSource;
 
   @IsOptional()
   @IsDateString()

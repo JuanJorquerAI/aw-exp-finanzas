@@ -102,3 +102,20 @@ export interface MonthlyTax {
   companyId: string;
   breakdown: TaxBreakdown;
 }
+
+export interface Account {
+  id: string;
+  companyId: string;
+  name: string;
+  type: string;
+  currency: string;
+  bankName: string | null;
+  accountNumber: string | null;
+  isActive: boolean;
+}
+
+export interface BankImportResult {
+  imported: number;
+  skipped: number;
+  pending: number;
+}

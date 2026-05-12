@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
-import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, List, Plus, ChevronLeft, ChevronRight, Sun, Moon, Receipt, LogOut } from 'lucide-react';
+import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, List, Plus, ChevronLeft, ChevronRight, Sun, Moon, Receipt, LogOut, Landmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { NewTransactionDrawer } from '@/components/transactions/NewTransactionDrawer';
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { href: '/cxp', label: 'CxP', Icon: ArrowUpCircle },
   { href: '/transactions', label: 'Transacciones', Icon: List },
   { href: '/impuestos', label: 'Impuestos', Icon: Receipt },
+  { href: '/conciliacion', label: 'Conciliación', Icon: Landmark },
 ];
 
 function getDefaultMonth(): string {

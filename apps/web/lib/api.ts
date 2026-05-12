@@ -1,4 +1,4 @@
-import type { Transaction, Company, CreateTransactionInput, MonthlyTax, CreatePaymentInput, TransactionPayment } from './types';
+import type { Transaction, Company, CreateTransactionInput, MonthlyTax, CreatePaymentInput, TransactionPayment, Account, BankImportResult } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -61,4 +61,30 @@ export function getTaxesMonthly(companyId: string, year: number, month: number) 
 
 export function getTaxesAnnual(companyId: string, year: number) {
   return fetchApi<MonthlyTax[]>(`/taxes/annual?companyId=${companyId}&year=${year}`);
+}
+
+export function getAccounts() {
+  return fetchApi<Account[]>('/accounts');
+}
+
+export async function importBankFile(
+  file: File,
+  accountId: string,
+  fileType: 'detallado' | 'historico',
+): Promise<BankImportResult> {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('accountId', accountId);
+  form.append('bank', 'BCI');
+  form.append('fileType', fileType);
+
+  const response = await fetch(`${API_URL}/importers/bank`, {
+    method: 'POST',
+    body: form,
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Error al importar: ${response.status} ${text}`);
+  }
+  return response.json() as Promise<BankImportResult>;
 }

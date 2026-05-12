@@ -1,6 +1,6 @@
 'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTransactions, getCompanies, markTransactionPaid, cancelTransaction, createTransaction, getTaxesMonthly, getTaxesAnnual, getTransaction, addPayment, moveTransactionCompany } from './api';
+import { getTransactions, getCompanies, markTransactionPaid, cancelTransaction, createTransaction, getTaxesMonthly, getTaxesAnnual, getTransaction, addPayment, moveTransactionCompany, getAccounts, importBankFile } from './api';
 import type { CreateTransactionInput, CreatePaymentInput } from './types';
 
 export const queryKeys = {
@@ -88,5 +88,18 @@ export function useTaxesAnnual(companyId: string, year: number) {
     queryKey: queryKeys.taxesAnnual(companyId, year),
     queryFn: () => getTaxesAnnual(companyId, year),
     enabled: !!companyId,
+  });
+}
+
+export function useAccounts() {
+  return useQuery({ queryKey: ['accounts'], queryFn: getAccounts });
+}
+
+export function useBankImport() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ file, accountId, fileType }: { file: File; accountId: string; fileType: 'detallado' | 'historico' }) =>
+      importBankFile(file, accountId, fileType),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
   });
 }

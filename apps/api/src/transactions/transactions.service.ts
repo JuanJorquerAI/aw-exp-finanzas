@@ -9,12 +9,13 @@ export class TransactionsService {
   constructor(private readonly prisma: PrismaService) {}
 
   findAll(filters: FilterTransactionsDto) {
-    const { companyId, type, status, dateFrom, dateTo } = filters;
+    const { companyId, type, status, source, dateFrom, dateTo } = filters;
     return this.prisma.transaction.findMany({
       where: {
         ...(companyId && { allocations: { some: { companyId } } }),
         ...(type && { type }),
         ...(status && { status }),
+        ...(source && { source }),
         ...((dateFrom || dateTo) && {
           date: {
             ...(dateFrom && { gte: new Date(dateFrom) }),

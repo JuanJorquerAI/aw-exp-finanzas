@@ -1,15 +1,24 @@
-import { Body, Controller, Post, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 import { ImportersService } from './importers.service';
 import { SheetImportDto } from './dto/sheet-import.dto';
 import { BankImportDto } from './dto/bank-import.dto';
+import { Public } from '../auth/public.decorator';
 
 interface AuthenticatedRequest extends Request {
   user?: { userId: string; email: string };
 }
 
+@Public()
 @Controller('importers')
 export class ImportersController {
   constructor(private readonly importersService: ImportersService) {}

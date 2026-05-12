@@ -1,7 +1,7 @@
 'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTransactions, getCompanies, markTransactionPaid, cancelTransaction, createTransaction, getTaxesMonthly, getTaxesAnnual, getTransaction, addPayment, moveTransactionCompany, getAccounts, importBankFile } from './api';
-import type { CreateTransactionInput, CreatePaymentInput } from './types';
+import { getTransactions, getCompanies, markTransactionPaid, cancelTransaction, createTransaction, getTaxesMonthly, getTaxesAnnual, getTransaction, addPayment, moveTransactionCompany, getAccounts, importBankFile, getCategories, getCounterparties, updateTransaction } from './api';
+import type { CreateTransactionInput, CreatePaymentInput, UpdateTransactionInput } from './types';
 
 export const queryKeys = {
   companies: ['companies'] as const,
@@ -91,8 +91,28 @@ export function useTaxesAnnual(companyId: string, year: number) {
   });
 }
 
-export function useAccounts() {
-  return useQuery({ queryKey: ['accounts'], queryFn: getAccounts });
+export function useAccounts(companyId?: string) {
+  return useQuery({
+    queryKey: ['accounts', companyId],
+    queryFn: () => getAccounts(companyId),
+  });
+}
+
+export function useCategories() {
+  return useQuery({ queryKey: ['categories'], queryFn: getCategories });
+}
+
+export function useCounterparties() {
+  return useQuery({ queryKey: ['counterparties'], queryFn: getCounterparties });
+}
+
+export function useUpdateTransaction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: UpdateTransactionInput }) =>
+      updateTransaction(id, dto),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+  });
 }
 
 export function useBankImport() {

@@ -46,6 +46,7 @@ export interface Transaction {
   comment: string | null;
   docType: TransactionDocType | null;
   isAfecta: boolean;
+  source: 'MANUAL' | 'SHEET_IMPORT' | 'BANK_CSV' | 'ERP' | 'SII';
   allocations: TransactionAllocation[];
   payments?: TransactionPayment[];
   auditLogs?: TransactionAuditLog[];
@@ -118,4 +119,26 @@ export interface BankImportResult {
   imported: number;
   skipped: number;
   pending: number;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  color: string | null;
+  parentId: string | null;
+}
+
+export interface Counterparty {
+  id: string;
+  name: string;
+  type: string;
+  rut: string | null;
+}
+
+export interface UpdateTransactionInput {
+  categoryId?: string;
+  counterpartyId?: string;
+  type?: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+  status?: 'PENDING' | 'PAID' | 'RECONCILED' | 'CANCELLED';
+  description?: string;
 }

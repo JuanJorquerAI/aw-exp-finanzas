@@ -1,8 +1,10 @@
 'use client';
 import { useRef, useState } from 'react';
-import { Upload, CheckCircle2, AlertCircle, SkipForward, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Upload, CheckCircle2, AlertCircle, SkipForward, ArrowDownCircle, ArrowUpCircle, ClipboardEdit } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAccounts, useBankImport, useTransactions } from '@/lib/queries';
+import { useAccounts, useBankImport, useTransactions, useCompanies } from '@/lib/queries';
+import { ReviewDrawer } from '@/components/transactions/ReviewDrawer';
 import type { BankImportResult, Transaction } from '@/lib/types';
 
 const CLP = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
@@ -11,8 +13,15 @@ function formatCLP(val: string | number) {
   return CLP.format(Number(val));
 }
 
+type TxFilter = 'all' | 'INCOME' | 'EXPENSE';
+
 export default function ConciliacionPage() {
-  const { data: accounts = [], isLoading: loadingAccounts } = useAccounts();
+  const searchParams = useSearchParams();
+  const companyCode = searchParams.get('company') ?? 'AW';
+  const { data: companies = [] } = useCompanies();
+  const company = companies.find((c) => c.shortCode === companyCode);
+
+  const { data: accounts = [], isLoading: loadingAccounts } = useAccounts(company?.id);
   const { mutateAsync: importBank, isPending } = useBankImport();
 
   const [accountId, setAccountId] = useState('');
@@ -20,11 +29,16 @@ export default function ConciliacionPage() {
   const [result, setResult] = useState<BankImportResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [txFilter, setTxFilter] = useState<TxFilter>('all');
+  const [reviewTx, setReviewTx] = useState<Transaction | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { data: bankTxs = [], isLoading: loadingTxs } = useTransactions({ source: 'BANK_CSV' });
   const pending = bankTxs.filter((t: Transaction) => t.status === 'PENDING');
-  const recent = bankTxs.filter((t: Transaction) => t.status !== 'PENDING').slice(0, 30);
+  const recent = bankTxs
+    .filter((t: Transaction) => t.status !== 'PENDING')
+    .filter((t: Transaction) => txFilter === 'all' || t.type === txFilter)
+    .slice(0, 30);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -142,14 +156,17 @@ export default function ConciliacionPage() {
             Pendientes de revisión
             <span className="rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 text-xs font-semibold">{pending.length}</span>
           </h3>
-          <BankTxTable transactions={pending} />
+          <BankTxTable transactions={pending} onReview={setReviewTx} />
         </div>
       )}
 
       {/* Recent bank transactions */}
-      {recent.length > 0 && (
+      {!loadingTxs && bankTxs.filter((t: Transaction) => t.status !== 'PENDING').length > 0 && (
         <div>
-          <h3 className="mb-3 text-sm font-medium dark:text-slate-200 text-slate-800">Importadas recientes</h3>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-sm font-medium dark:text-slate-200 text-slate-800">Importadas recientes</h3>
+            <TxFilterTabs value={txFilter} onChange={setTxFilter} />
+          </div>
           <BankTxTable transactions={recent} />
         </div>
       )}
@@ -157,6 +174,33 @@ export default function ConciliacionPage() {
       {!loadingTxs && bankTxs.length === 0 && !result && (
         <p className="text-sm dark:text-slate-600 text-slate-400">No hay transacciones bancarias importadas aún.</p>
       )}
+
+      <ReviewDrawer
+        transaction={reviewTx}
+        open={!!reviewTx}
+        onOpenChange={(o) => { if (!o) setReviewTx(null); }}
+      />
+    </div>
+  );
+}
+
+function TxFilterTabs({ value, onChange }: { value: TxFilter; onChange: (v: TxFilter) => void }) {
+  return (
+    <div className="flex rounded-md border dark:border-slate-700 border-slate-200 overflow-hidden text-xs">
+      {([['all', 'Todos'], ['INCOME', 'Ingresos'], ['EXPENSE', 'Egresos']] as [TxFilter, string][]).map(([v, label]) => (
+        <button
+          key={v}
+          onClick={() => onChange(v)}
+          className={cn(
+            'px-3 py-1 transition-colors',
+            value === v
+              ? 'dark:bg-slate-700 bg-slate-100 dark:text-slate-200 text-slate-800 font-semibold'
+              : 'dark:text-slate-400 text-slate-500 dark:hover:bg-slate-800 hover:bg-slate-50',
+          )}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -173,7 +217,7 @@ function Stat({ icon, label, value, color }: { icon: React.ReactNode; label: str
   );
 }
 
-function BankTxTable({ transactions }: { transactions: Transaction[] }) {
+function BankTxTable({ transactions, onReview }: { transactions: Transaction[]; onReview?: (tx: Transaction) => void }) {
   return (
     <div className="rounded-lg border dark:border-slate-800 border-slate-200 overflow-hidden">
       <table className="w-full text-xs">
@@ -184,6 +228,7 @@ function BankTxTable({ transactions }: { transactions: Transaction[] }) {
             <th className="px-4 py-2.5 text-left font-medium dark:text-slate-400 text-slate-500">Contraparte</th>
             <th className="px-4 py-2.5 text-right font-medium dark:text-slate-400 text-slate-500">Monto</th>
             <th className="px-4 py-2.5 text-center font-medium dark:text-slate-400 text-slate-500">Estado</th>
+            {onReview && <th className="px-4 py-2.5" />}
           </tr>
         </thead>
         <tbody className="divide-y dark:divide-slate-800 divide-slate-100">
@@ -197,7 +242,7 @@ function BankTxTable({ transactions }: { transactions: Transaction[] }) {
                 {tx.counterparty?.name ?? <span className="italic dark:text-slate-600 text-slate-400">Sin contraparte</span>}
               </td>
               <td className="px-4 py-2.5 text-right whitespace-nowrap font-mono">
-                <span className={cn('flex items-center justify-end gap-1', tx.type === 'INCOME' ? 'text-emerald-500' : 'dark:text-slate-300 text-slate-700')}>
+                <span className={cn('flex items-center justify-end gap-1', tx.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500')}>
                   {tx.type === 'INCOME'
                     ? <ArrowDownCircle className="h-3 w-3" />
                     : <ArrowUpCircle className="h-3 w-3" />}
@@ -207,6 +252,17 @@ function BankTxTable({ transactions }: { transactions: Transaction[] }) {
               <td className="px-4 py-2.5 text-center">
                 <StatusBadge status={tx.status} />
               </td>
+              {onReview && (
+                <td className="px-3 py-2.5 text-center">
+                  <button
+                    onClick={() => onReview(tx)}
+                    className="rounded p-1 dark:text-slate-500 text-slate-400 dark:hover:text-indigo-400 hover:text-indigo-600 dark:hover:bg-slate-800 hover:bg-slate-100 transition-colors"
+                    title="Revisar"
+                  >
+                    <ClipboardEdit className="h-3.5 w-3.5" />
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

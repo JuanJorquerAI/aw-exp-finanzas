@@ -1,4 +1,4 @@
-import type { Transaction, Company, CreateTransactionInput, MonthlyTax, CreatePaymentInput, TransactionPayment, Account, BankImportResult } from './types';
+import type { Transaction, Company, CreateTransactionInput, MonthlyTax, CreatePaymentInput, TransactionPayment, Account, BankImportResult, Category, Counterparty, UpdateTransactionInput } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -63,8 +63,24 @@ export function getTaxesAnnual(companyId: string, year: number) {
   return fetchApi<MonthlyTax[]>(`/taxes/annual?companyId=${companyId}&year=${year}`);
 }
 
-export function getAccounts() {
-  return fetchApi<Account[]>('/accounts');
+export function getCategories() {
+  return fetchApi<Category[]>('/categories');
+}
+
+export function getCounterparties() {
+  return fetchApi<Counterparty[]>('/counterparties');
+}
+
+export function updateTransaction(id: string, dto: UpdateTransactionInput) {
+  return fetchApi<Transaction>(`/transactions/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(dto),
+  });
+}
+
+export function getAccounts(companyId?: string) {
+  const qs = companyId ? `?companyId=${companyId}` : '';
+  return fetchApi<Account[]>(`/accounts${qs}`);
 }
 
 export async function importBankFile(

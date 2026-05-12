@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { FilterTransactionsDto } from './dto/filter-transactions.dto';
@@ -89,11 +93,16 @@ export class TransactionsService {
     });
     if (!tx) throw new NotFoundException(`Transacción ${id} no encontrada`);
     if (tx.allocations.length !== 1) {
-      throw new BadRequestException('Solo se pueden mover transacciones con asignación simple (100% una empresa)');
+      throw new BadRequestException(
+        'Solo se pueden mover transacciones con asignación simple (100% una empresa)',
+      );
     }
 
-    const targetCompany = await this.prisma.company.findUnique({ where: { id: companyId } });
-    if (!targetCompany) throw new NotFoundException(`Empresa ${companyId} no encontrada`);
+    const targetCompany = await this.prisma.company.findUnique({
+      where: { id: companyId },
+    });
+    if (!targetCompany)
+      throw new NotFoundException(`Empresa ${companyId} no encontrada`);
 
     return this.prisma.$transaction(async (prisma) => {
       await prisma.transactionAllocation.update({
@@ -123,6 +132,33 @@ export class TransactionsService {
     return this.prisma.transaction.update({
       where: { id },
       data: { status: 'CANCELLED' },
+    });
+  }
+
+  update(
+    id: string,
+    dto: {
+      categoryId?: string;
+      counterpartyId?: string;
+      type?: string;
+      status?: string;
+      description?: string;
+    },
+  ) {
+    const data: Record<string, unknown> = {};
+    if (dto.categoryId !== undefined) data.categoryId = dto.categoryId || null;
+    if (dto.counterpartyId !== undefined)
+      data.counterpartyId = dto.counterpartyId || null;
+    if (dto.type) data.type = dto.type;
+    if (dto.status) {
+      data.status = dto.status;
+      if (dto.status === 'PAID') data.paidAt = new Date();
+    }
+    if (dto.description) data.description = dto.description;
+    return this.prisma.transaction.update({
+      where: { id },
+      data,
+      include: { allocations: true, counterparty: true, category: true },
     });
   }
 

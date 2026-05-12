@@ -12,6 +12,7 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { FilterTransactionsDto } from './dto/filter-transactions.dto';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { MoveTransactionDto } from './dto/move-transaction.dto';
+import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { Public } from '../auth/public.decorator';
 
 @Public()
@@ -32,6 +33,11 @@ export class TransactionsController {
   @Post()
   create(@Body() dto: CreateTransactionDto) {
     return this.transactionsService.create(dto);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: UpdateTransactionDto) {
+    return this.transactionsService.update(id, dto);
   }
 
   @Patch(':id/paid')

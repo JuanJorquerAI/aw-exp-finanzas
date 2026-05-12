@@ -55,7 +55,7 @@ export function AppSidebar() {
 
   return (
     <>
-      <aside className="flex h-screen w-56 flex-col border-r border-slate-800 dark:bg-slate-950 bg-white px-3 py-5 overflow-y-auto">
+      <aside className="flex h-screen w-56 flex-col border-r border-slate-800 dark:bg-slate-950 bg-white px-3 py-5">
         <div className="mb-6 flex items-center justify-between px-2">
           <div>
             <h1 className="text-sm font-bold dark:text-white text-slate-900 tracking-tight">aw-finanzas</h1>
@@ -104,7 +104,7 @@ export function AppSidebar() {
           </button>
         </div>
 
-        <nav className="flex-1 space-y-0.5">
+        <nav className="flex-1 min-h-0 overflow-y-auto space-y-0.5">
           {NAV_ITEMS.map(({ href, label, Icon }) => (
             <Link
               key={href}

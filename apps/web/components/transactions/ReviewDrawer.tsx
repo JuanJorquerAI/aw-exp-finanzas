@@ -180,15 +180,17 @@ export function ReviewDrawer({ transaction: tx, open, onOpenChange }: ReviewDraw
             variant="outline"
             className="flex-1 text-xs"
           >
-            Guardar sin marcar pagado
+            {isPending ? 'Guardando…' : 'Guardar'}
           </Button>
-          <Button
-            onClick={() => handleSave(true)}
-            disabled={isPending}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs"
-          >
-            {isPending ? 'Guardando…' : 'Marcar revisado'}
-          </Button>
+          {tx.status === 'PENDING' && (
+            <Button
+              onClick={() => handleSave(true)}
+              disabled={isPending}
+              className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs"
+            >
+              {isPending ? 'Guardando…' : 'Marcar revisado'}
+            </Button>
+          )}
         </div>
       </SheetContent>
     </Sheet>

@@ -1,8 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { ArrowDownCircle, ArrowUpCircle, ArrowRightLeft } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, ArrowRightLeft, Pencil } from 'lucide-react';
 import { useTransactions, useCompanies } from '@/lib/queries';
+import { ReviewDrawer } from '@/components/transactions/ReviewDrawer';
 import { cn } from '@/lib/utils';
 import type { Transaction } from '@/lib/types';
 
@@ -47,6 +48,7 @@ export default function TransactionsPage() {
   const companyCode = searchParams.get('company') ?? 'AW';
   const [y, m] = month.split('-').map(Number);
   const [filter, setFilter] = useState<TxFilter>('all');
+  const [reviewTx, setReviewTx] = useState<Transaction | null>(null);
 
   const { data: companies = [] } = useCompanies();
   const company = companies.find((c) => c.shortCode === companyCode);
@@ -142,18 +144,19 @@ export default function TransactionsPage() {
                 <th className="px-4 py-2.5 text-left font-medium dark:text-slate-400 text-slate-500">Categoría</th>
                 <th className="px-4 py-2.5 text-center font-medium dark:text-slate-400 text-slate-500">Origen</th>
                 <th className="px-4 py-2.5 text-right font-medium dark:text-slate-400 text-slate-500">Monto</th>
+                <th className="px-2 py-2.5 w-8" />
               </tr>
             </thead>
             <tbody>
               {dates.map((date) => (
                 <>
                   <tr key={`date-${date}`} className="dark:bg-slate-900/60 bg-slate-50/80 border-b dark:border-slate-800 border-slate-100">
-                    <td colSpan={6} className="px-4 py-1.5 text-[10px] font-semibold uppercase tracking-wider dark:text-slate-500 text-slate-400">
+                    <td colSpan={7} className="px-4 py-1.5 text-[10px] font-semibold uppercase tracking-wider dark:text-slate-500 text-slate-400">
                       {fmtDate(date)}
                     </td>
                   </tr>
                   {grouped[date].map((tx) => (
-                    <TxRow key={tx.id} tx={tx} />
+                    <TxRow key={tx.id} tx={tx} onReview={setReviewTx} />
                   ))}
                 </>
               ))}
@@ -161,11 +164,19 @@ export default function TransactionsPage() {
           </table>
         </div>
       )}
+
+      <ReviewDrawer
+        transaction={reviewTx}
+        open={!!reviewTx}
+        onOpenChange={(o) => { if (!o) setReviewTx(null); }}
+      />
     </div>
   );
 }
 
-function TxRow({ tx }: { tx: Transaction }) {
+const USD = new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function TxRow({ tx, onReview }: { tx: Transaction; onReview?: (tx: Transaction) => void }) {
   const isIncome = tx.type === 'INCOME';
   const isExpense = tx.type === 'EXPENSE';
   const source = tx.source ?? 'MANUAL';
@@ -202,6 +213,22 @@ function TxRow({ tx }: { tx: Transaction }) {
           {!isIncome && !isExpense && <ArrowRightLeft className="h-3 w-3" />}
           {fmtAmount(tx.amountCLP, 'CLP')}
         </span>
+        {tx.currency !== 'CLP' && (
+          <span className="text-[10px] dark:text-slate-500 text-slate-400 block text-right">
+            {tx.currency} {USD.format(Number(tx.amount))}
+          </span>
+        )}
+      </td>
+      <td className="px-2 py-2.5 text-center">
+        {onReview && (
+          <button
+            onClick={() => onReview(tx)}
+            className="rounded p-1 dark:text-slate-600 text-slate-300 dark:hover:text-indigo-400 hover:text-indigo-600 dark:hover:bg-slate-800 hover:bg-slate-100 transition-colors"
+            title="Editar"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+        )}
       </td>
     </tr>
   );

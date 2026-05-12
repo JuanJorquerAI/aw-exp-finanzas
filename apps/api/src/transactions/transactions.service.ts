@@ -168,6 +168,7 @@ export class TransactionsService {
     id: string,
     status: 'PENDING' | 'PAID' | 'REJECTED' | 'CANCELLED' | 'RECONCILED',
   ) {
+    await this.findOne(id);
     return this.prisma.transaction.update({
       where: { id },
       data: { status },

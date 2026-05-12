@@ -6,6 +6,7 @@ import {
   Param,
   Query,
   Patch,
+  BadRequestException,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -58,12 +59,16 @@ export class TransactionsController {
   @Patch(':id/status')
   updateStatus(
     @Param('id') id: string,
-    @Body()
-    body: {
-      status: 'PENDING' | 'PAID' | 'REJECTED' | 'CANCELLED' | 'RECONCILED';
-    },
+    @Body() body: { status: string },
   ) {
-    return this.transactionsService.updateStatus(id, body.status);
+    const valid = ['PENDING', 'PAID', 'REJECTED', 'CANCELLED', 'RECONCILED'] as const;
+    type ValidStatus = (typeof valid)[number];
+    if (!valid.includes(body.status as ValidStatus)) {
+      throw new BadRequestException(
+        `Estado inválido: ${body.status}. Valores permitidos: ${valid.join(', ')}`,
+      );
+    }
+    return this.transactionsService.updateStatus(id, body.status as ValidStatus);
   }
 
   @Post(':id/payments')

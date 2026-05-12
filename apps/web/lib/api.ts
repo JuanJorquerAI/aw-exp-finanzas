@@ -71,6 +71,20 @@ export function getCounterparties() {
   return fetchApi<Counterparty[]>('/counterparties');
 }
 
+export function createCounterparty(dto: { name: string; type: string; rut?: string; email?: string; phone?: string; notes?: string }) {
+  return fetchApi<Counterparty>('/counterparties', {
+    method: 'POST',
+    body: JSON.stringify(dto),
+  });
+}
+
+export function updateCounterparty(id: string, dto: { name?: string; type?: string; rut?: string; email?: string; phone?: string; notes?: string }) {
+  return fetchApi<Counterparty>(`/counterparties/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(dto),
+  });
+}
+
 export function updateTransaction(id: string, dto: UpdateTransactionInput) {
   return fetchApi<Transaction>(`/transactions/${id}`, {
     method: 'PATCH',

@@ -2,12 +2,21 @@
 import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { useCategories, useCounterparties, useUpdateTransaction } from '@/lib/queries';
+import { useCategories, useCounterparties, useUpdateTransaction, useCreateCounterparty } from '@/lib/queries';
 import type { Transaction } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 const CLP = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
 const SELECT_CLS = 'w-full rounded-md border dark:border-slate-700 border-slate-200 dark:bg-slate-900 bg-white dark:text-slate-200 text-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 dark:focus:ring-slate-600 focus:ring-slate-300';
+const INPUT_CLS = 'w-full rounded-md border dark:border-slate-700 border-slate-200 dark:bg-slate-900 bg-white dark:text-slate-200 text-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 dark:focus:ring-slate-600 focus:ring-slate-300 placeholder:dark:text-slate-600 placeholder:text-slate-400';
+
+const COUNTERPARTY_TYPES = [
+  ['CUSTOMER', 'Cliente'],
+  ['SUPPLIER', 'Proveedor'],
+  ['EMPLOYEE', 'Trabajador'],
+  ['GOVERNMENT', 'Gobierno'],
+  ['BANK', 'Banco'],
+] as const;
 
 interface ReviewDrawerProps {
   transaction: Transaction | null;
@@ -17,22 +26,36 @@ interface ReviewDrawerProps {
 
 export function ReviewDrawer({ transaction: tx, open, onOpenChange }: ReviewDrawerProps) {
   const { data: categories = [] } = useCategories();
-  const { data: counterparties = [] } = useCounterparties();
+  const { data: counterparties = [], refetch: refetchCounterparties } = useCounterparties();
   const { mutateAsync: update, isPending } = useUpdateTransaction();
+  const { mutateAsync: createCounterparty, isPending: creatingCp } = useCreateCounterparty();
 
   const [categoryId, setCategoryId] = useState('');
   const [counterpartyId, setCounterpartyId] = useState('');
   const [type, setType] = useState<'INCOME' | 'EXPENSE'>('EXPENSE');
+  const [showNewCp, setShowNewCp] = useState(false);
+  const [newCp, setNewCp] = useState({ name: '', type: 'SUPPLIER', rut: '' });
 
   useEffect(() => {
     if (tx) {
       setCategoryId(tx.category?.id ?? '');
       setCounterpartyId(tx.counterparty?.id ?? '');
       setType(tx.type === 'INCOME' ? 'INCOME' : 'EXPENSE');
+      setShowNewCp(false);
+      setNewCp({ name: '', type: 'SUPPLIER', rut: '' });
     }
   }, [tx]);
 
   if (!tx) return null;
+
+  async function handleCreateCp() {
+    if (!newCp.name.trim()) return;
+    const created = await createCounterparty({ name: newCp.name.trim(), type: newCp.type, ...(newCp.rut && { rut: newCp.rut }) });
+    await refetchCounterparties();
+    setCounterpartyId(created.id);
+    setShowNewCp(false);
+    setNewCp({ name: '', type: 'SUPPLIER', rut: '' });
+  }
 
   async function handleSave(markPaid: boolean) {
     if (!tx) return;
@@ -90,13 +113,52 @@ export function ReviewDrawer({ transaction: tx, open, onOpenChange }: ReviewDraw
 
           {/* Contraparte */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium dark:text-slate-400 text-slate-600">Contraparte</label>
-            <select value={counterpartyId} onChange={(e) => setCounterpartyId(e.target.value)} className={SELECT_CLS}>
-              <option value="">Sin contraparte</option>
-              {counterparties.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium dark:text-slate-400 text-slate-600">Contraparte</label>
+              <button
+                onClick={() => setShowNewCp((v) => !v)}
+                className="text-xs text-indigo-500 hover:text-indigo-400 transition-colors"
+              >
+                {showNewCp ? 'Cancelar' : '+ Nueva'}
+              </button>
+            </div>
+
+            {showNewCp ? (
+              <div className="rounded-md border dark:border-slate-700 border-slate-200 p-3 space-y-2.5">
+                <input
+                  value={newCp.name}
+                  onChange={(e) => setNewCp((p) => ({ ...p, name: e.target.value }))}
+                  placeholder="Nombre / Razón social"
+                  className={INPUT_CLS}
+                />
+                <input
+                  value={newCp.rut}
+                  onChange={(e) => setNewCp((p) => ({ ...p, rut: e.target.value }))}
+                  placeholder="RUT (opcional)"
+                  className={INPUT_CLS}
+                />
+                <select value={newCp.type} onChange={(e) => setNewCp((p) => ({ ...p, type: e.target.value }))} className={SELECT_CLS}>
+                  {COUNTERPARTY_TYPES.map(([v, label]) => (
+                    <option key={v} value={v}>{label}</option>
+                  ))}
+                </select>
+                <Button
+                  onClick={handleCreateCp}
+                  disabled={!newCp.name.trim() || creatingCp}
+                  size="sm"
+                  className="w-full text-xs bg-indigo-600 hover:bg-indigo-500 text-white"
+                >
+                  {creatingCp ? 'Creando…' : 'Crear contraparte'}
+                </Button>
+              </div>
+            ) : (
+              <select value={counterpartyId} onChange={(e) => setCounterpartyId(e.target.value)} className={SELECT_CLS}>
+                <option value="">Sin contraparte</option>
+                {counterparties.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}{c.rut ? ` · ${c.rut}` : ''}</option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Categoría */}

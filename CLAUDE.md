@@ -101,6 +101,7 @@ Reservado para mapeo bidireccional con ExpandERP (Phase 4).
 - **No instalar librerías no listadas** sin justificar
 - **No implementar dashboard, auth, ni deploy** — eso es Phase 1+
 - **Logs del seed e importer en español**
+- Le pediré a Codex y a Antigravity que me valide si el código es correcto.
 
 ## Variables de entorno
 

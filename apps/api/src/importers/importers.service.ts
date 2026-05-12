@@ -58,7 +58,8 @@ export class ImportersService {
     dto: BankImportDto,
     ctx: AuditContext = {},
   ) {
-    if (!file) throw new BadRequestException('Archivo XLSX requerido (campo: file)');
+    if (!file)
+      throw new BadRequestException('Archivo XLSX requerido (campo: file)');
 
     const bank = dto.bank ?? 'BCI';
     const fileType = dto.fileType ?? 'detallado';
@@ -67,7 +68,8 @@ export class ImportersService {
       where: { id: dto.accountId },
       select: { id: true, companyId: true, bankName: true },
     });
-    if (!account) throw new BadRequestException(`Cuenta no encontrada: ${dto.accountId}`);
+    if (!account)
+      throw new BadRequestException(`Cuenta no encontrada: ${dto.accountId}`);
 
     try {
       const parser = createBankParser(bank, fileType);
@@ -87,7 +89,13 @@ export class ImportersService {
           ipAddress: ctx.ipAddress,
           userAgent: ctx.userAgent,
           status: 'SUCCESS',
-          metadata: { ...result, bank, fileType, accountId: account.id, rowCount: rows.length },
+          metadata: {
+            ...result,
+            bank,
+            fileType,
+            accountId: account.id,
+            rowCount: rows.length,
+          },
         },
       });
 

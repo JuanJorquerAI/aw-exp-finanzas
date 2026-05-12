@@ -1,6 +1,6 @@
 'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTransactions, getCompanies, markTransactionPaid, cancelTransaction, createTransaction, getTaxesMonthly, getTaxesAnnual, getTransaction, addPayment, moveTransactionCompany, getAccounts, importBankFile, getCategories, getCounterparties, updateTransaction } from './api';
+import { getTransactions, getCompanies, markTransactionPaid, cancelTransaction, createTransaction, getTaxesMonthly, getTaxesAnnual, getTransaction, addPayment, moveTransactionCompany, getAccounts, importBankFile, getCategories, getCounterparties, updateTransaction, createCounterparty, updateCounterparty } from './api';
 import type { CreateTransactionInput, CreatePaymentInput, UpdateTransactionInput } from './types';
 
 export const queryKeys = {
@@ -104,6 +104,23 @@ export function useCategories() {
 
 export function useCounterparties() {
   return useQuery({ queryKey: ['counterparties'], queryFn: getCounterparties });
+}
+
+export function useCreateCounterparty() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: { name: string; type: string; rut?: string }) => createCounterparty(dto),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['counterparties'] }),
+  });
+}
+
+export function useUpdateCounterparty() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: { name?: string; type?: string; rut?: string; email?: string; phone?: string; notes?: string } }) =>
+      updateCounterparty(id, dto),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['counterparties'] }),
+  });
 }
 
 export function useUpdateTransaction() {

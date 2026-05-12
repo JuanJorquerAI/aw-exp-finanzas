@@ -100,7 +100,7 @@ export default function ContrapartesPage() {
   }
 
   return (
-    <div className="p-8 max-w-5xl">
+    <div className="p-8 w-full">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold dark:text-slate-100 text-slate-900">Contrapartes</h2>

@@ -86,7 +86,7 @@ export default function ReglasPage() {
   }
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-8 w-full">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold dark:text-slate-100 text-slate-900">Reglas de categorización</h2>

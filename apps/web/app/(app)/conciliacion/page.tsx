@@ -57,7 +57,7 @@ export default function ConciliacionPage() {
   }
 
   return (
-    <div className="p-8 space-y-8 max-w-5xl">
+    <div className="p-8 space-y-8 w-full">
       <div>
         <h2 className="text-lg font-semibold dark:text-slate-100 text-slate-900">Conciliación bancaria</h2>
         <p className="mt-0.5 text-xs dark:text-slate-500 text-slate-400">Importa cartolas BCI · Movimientos Detallado o Histórica</p>

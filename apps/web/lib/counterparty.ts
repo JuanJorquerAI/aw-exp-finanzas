@@ -1,5 +1,13 @@
 import type { Counterparty } from './types';
 
+export function formatRut(rut: string): string {
+  const clean = rut.replace(/[.\-]/g, '').toUpperCase();
+  if (clean.length < 2) return rut;
+  const body = clean.slice(0, -1);
+  const dv = clean.slice(-1);
+  return body.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '-' + dv;
+}
+
 export function cpLabel(cp: Pick<Counterparty, 'name' | 'razonSocial' | 'rut'>): string {
   const parts: string[] = [cp.name];
   if (cp.razonSocial && cp.razonSocial !== cp.name) parts.push(`(${cp.razonSocial})`);

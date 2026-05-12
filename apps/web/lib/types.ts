@@ -76,7 +76,7 @@ export interface Transaction {
   auditLogs?: TransactionAuditLog[];
   documents: TransactionDocument[];
   notes: TransactionNote[];
-  counterparty: { id: string; name: string; type: string } | null;
+  counterparty: { id: string; name: string; type: string; rut?: string | null } | null;
   category: { id: string; name: string; color: string | null } | null;
 }
 

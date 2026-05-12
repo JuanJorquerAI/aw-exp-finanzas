@@ -55,6 +55,17 @@ export class TransactionsController {
     return this.transactionsService.moveToCompany(id, dto.companyId);
   }
 
+  @Patch(':id/status')
+  updateStatus(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      status: 'PENDING' | 'PAID' | 'REJECTED' | 'CANCELLED' | 'RECONCILED';
+    },
+  ) {
+    return this.transactionsService.updateStatus(id, body.status);
+  }
+
   @Post(':id/payments')
   addPayment(@Param('id') id: string, @Body() dto: CreatePaymentDto) {
     return this.transactionsService.addPayment(id, dto);

@@ -31,8 +31,9 @@ export class TransactionsService {
         allocations: true,
         counterparty: true,
         category: true,
-        documents: { include: { document: true } },
         account: true,
+        documents: { include: { document: { include: { counterparty: true } } } },
+        notes: { orderBy: { createdAt: 'asc' } },
       },
       orderBy: { date: 'desc' },
     });
@@ -45,8 +46,9 @@ export class TransactionsService {
         allocations: true,
         counterparty: true,
         category: true,
-        documents: { include: { document: true } },
         account: true,
+        documents: { include: { document: { include: { counterparty: true } } } },
+        notes: { orderBy: { createdAt: 'asc' } },
         payments: { orderBy: { paidAt: 'asc' } },
         auditLogs: { orderBy: { createdAt: 'asc' } },
       },
@@ -159,6 +161,16 @@ export class TransactionsService {
       where: { id },
       data,
       include: { allocations: true, counterparty: true, category: true },
+    });
+  }
+
+  async updateStatus(
+    id: string,
+    status: 'PENDING' | 'PAID' | 'REJECTED' | 'CANCELLED' | 'RECONCILED',
+  ) {
+    return this.prisma.transaction.update({
+      where: { id },
+      data: { status },
     });
   }
 

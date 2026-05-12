@@ -1,8 +1,11 @@
 'use client';
+import { useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTransactions, useCompanies } from '@/lib/queries';
 import { CompanySummaryCard } from '@/components/dashboard/CompanySummaryCard';
 import { MonthTotalBar } from '@/components/dashboard/MonthTotalBar';
+import { AlertsBanner } from '@/components/dashboard/AlertsBanner';
+import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { useCurrency } from '@/hooks/useCurrency';
 
 function monthLabel(ym: string): string {
@@ -14,11 +17,9 @@ function monthLabel(ym: string): string {
 
 function getMonthBounds(ym: string): { dateFrom: string; dateTo: string } {
   const [y, m] = ym.split('-').map(Number);
-  const first = new Date(y, m - 1, 1);
-  const last = new Date(y, m, 0);
   return {
-    dateFrom: first.toISOString().split('T')[0],
-    dateTo: last.toISOString().split('T')[0],
+    dateFrom: new Date(y, m - 1, 1).toISOString().split('T')[0],
+    dateTo: new Date(y, m, 0).toISOString().split('T')[0],
   };
 }
 
@@ -30,18 +31,31 @@ function getDefaultMonth(): string {
 export default function DashboardPage() {
   const searchParams = useSearchParams();
   const month = searchParams.get('month') ?? getDefaultMonth();
+  const companyCode = searchParams.get('company') ?? 'AW';
   const { dateFrom, dateTo } = getMonthBounds(month);
   const { currency, usdRate, toggle, updateRate } = useCurrency();
 
   const { data: companies = [], isLoading: loadingCo } = useCompanies();
+  const company = companies.find((c) => c.shortCode === companyCode);
+
   const { data: transactions = [], isLoading: loadingTx } = useTransactions({ dateFrom, dateTo });
 
-  if (loadingCo || loadingTx) {
+  const { data: allPending = [], isLoading: loadingPending } = useTransactions(
+    company ? { companyId: company.id, status: 'PENDING' } : {},
+  );
+
+  const bankPending = useMemo(
+    () => allPending.filter((t) => t.source === 'BANK_CSV'),
+    [allPending],
+  );
+
+  if (loadingCo || loadingTx || loadingPending) {
     return <div className="p-8 text-sm dark:text-slate-600 text-slate-400">Cargando...</div>;
   }
 
   return (
     <div className="space-y-5 p-8">
+      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest dark:text-slate-500 text-slate-400 mb-0.5">Resumen mensual</p>
@@ -75,11 +89,15 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Alerts */}
+      <AlertsBanner allPending={allPending} bankPending={bankPending} companyCode={companyCode} />
+
+      {/* Company cards */}
       <div className="grid gap-4 sm:grid-cols-2">
-        {companies.filter((c) => c.isActive).map((company) => (
+        {companies.filter((c) => c.isActive).map((co) => (
           <CompanySummaryCard
-            key={company.id}
-            company={company}
+            key={co.id}
+            company={co}
             transactions={transactions}
             displayCurrency={currency}
             usdRate={usdRate}
@@ -87,11 +105,11 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <MonthTotalBar
-        transactions={transactions}
-        displayCurrency={currency}
-        usdRate={usdRate}
-      />
+      {/* Month totals */}
+      <MonthTotalBar transactions={transactions} displayCurrency={currency} usdRate={usdRate} />
+
+      {/* Recent movements */}
+      <RecentTransactions transactions={transactions} companyCode={companyCode} month={month} />
     </div>
   );
 }

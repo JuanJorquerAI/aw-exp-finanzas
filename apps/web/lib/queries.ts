@@ -109,7 +109,7 @@ export function useCounterparties() {
 export function useCreateCounterparty() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (dto: { name: string; type: string; rut?: string }) => createCounterparty(dto),
+    mutationFn: (dto: { name: string; type: string; rut?: string; razonSocial?: string; isPersonaNatural?: boolean }) => createCounterparty(dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['counterparties'] }),
   });
 }
@@ -117,7 +117,7 @@ export function useCreateCounterparty() {
 export function useUpdateCounterparty() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: { name?: string; type?: string; rut?: string; email?: string; phone?: string; notes?: string } }) =>
+    mutationFn: ({ id, dto }: { id: string; dto: { name?: string; type?: string; rut?: string; razonSocial?: string; isPersonaNatural?: boolean; email?: string; phone?: string; notes?: string } }) =>
       updateCounterparty(id, dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['counterparties'] }),
   });

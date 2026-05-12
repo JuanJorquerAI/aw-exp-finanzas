@@ -3,6 +3,7 @@ import {
   IsEnum,
   IsOptional,
   IsEmail,
+  IsBoolean,
   MaxLength,
 } from 'class-validator';
 import { CounterpartyType } from '@aw-finanzas/database';
@@ -15,6 +16,15 @@ export class CreateCounterpartyDto {
   @IsString()
   @MaxLength(255)
   name: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  razonSocial?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isPersonaNatural?: boolean;
 
   @IsOptional()
   @IsRUT()

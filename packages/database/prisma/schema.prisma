@@ -136,7 +136,9 @@ model Account {
 model Counterparty {
   id          String           @id @default(cuid())
   type        CounterpartyType
-  name        String                              // Razón social o nombre
+  name        String                              // Nombre de fantasía / nombre de uso
+  razonSocial String?                             // Nombre legal (empresas)
+  isPersonaNatural Boolean     @default(false)    // Persona natural vs empresa
   rut         String?          @unique             // RUT chileno
   email       String?
   phone       String?

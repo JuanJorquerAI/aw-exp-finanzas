@@ -46,7 +46,10 @@ export class CategoriesController {
   }
 
   @Patch('rules/:id')
-  updateRule(@Param('id') id: string, @Body() dto: UpdateCategorizationRuleDto) {
+  updateRule(
+    @Param('id') id: string,
+    @Body() dto: UpdateCategorizationRuleDto,
+  ) {
     return this.categoriesService.updateRule(id, dto);
   }
 

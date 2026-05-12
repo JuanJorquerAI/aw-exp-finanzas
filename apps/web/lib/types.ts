@@ -131,6 +131,8 @@ export interface Category {
 export interface Counterparty {
   id: string;
   name: string;
+  razonSocial: string | null;
+  isPersonaNatural: boolean;
   type: string;
   rut: string | null;
 }

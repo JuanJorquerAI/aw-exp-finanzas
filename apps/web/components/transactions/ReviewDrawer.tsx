@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { useCategories, useCounterparties, useUpdateTransaction, useCreateCounterparty } from '@/lib/queries';
+import { cpLabel } from '@/lib/counterparty';
 import type { Transaction } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -155,7 +156,7 @@ export function ReviewDrawer({ transaction: tx, open, onOpenChange }: ReviewDraw
               <select value={counterpartyId} onChange={(e) => setCounterpartyId(e.target.value)} className={SELECT_CLS}>
                 <option value="">Sin contraparte</option>
                 {counterparties.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}{c.rut ? ` · ${c.rut}` : ''}</option>
+                  <option key={c.id} value={c.id}>{cpLabel(c)}</option>
                 ))}
               </select>
             )}

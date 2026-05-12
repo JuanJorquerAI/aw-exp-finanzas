@@ -213,9 +213,9 @@ export function ReviewDrawer({ transaction: tx, open, onOpenChange }: ReviewDraw
               <div className="flex gap-2">
                 <select value={selectedDocId} onChange={(e) => setSelectedDocId(e.target.value)} className="flex-1 text-xs rounded-md border dark:border-slate-700 border-slate-300 dark:bg-slate-900 bg-white px-2 py-1.5">
                   <option value="">Vincular documento...</option>
-                  {allDocs
-                    .filter((d: any) => !tx.documents?.some((l) => l.documentId === d.id))
-                    .map((d: any) => (
+                  {(allDocs as { id: string; type: string; number: string | null; totalAmount: string }[])
+                    .filter((d) => !tx.documents?.some((l) => l.documentId === d.id))
+                    .map((d) => (
                       <option key={d.id} value={d.id}>
                         {d.type} {d.number ? `#${d.number}` : ''} — {new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(Number(d.totalAmount))}
                       </option>

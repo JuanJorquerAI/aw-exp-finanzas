@@ -32,7 +32,9 @@ export class TransactionsService {
         counterparty: true,
         category: true,
         account: true,
-        documents: { include: { document: { include: { counterparty: true } } } },
+        documents: {
+          include: { document: { include: { counterparty: true } } },
+        },
         notes: { orderBy: { createdAt: 'asc' } },
       },
       orderBy: { date: 'desc' },
@@ -47,7 +49,9 @@ export class TransactionsService {
         counterparty: true,
         category: true,
         account: true,
-        documents: { include: { document: { include: { counterparty: true } } } },
+        documents: {
+          include: { document: { include: { counterparty: true } } },
+        },
         notes: { orderBy: { createdAt: 'asc' } },
         payments: { orderBy: { paidAt: 'asc' } },
         auditLogs: { orderBy: { createdAt: 'asc' } },

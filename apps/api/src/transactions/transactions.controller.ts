@@ -57,18 +57,24 @@ export class TransactionsController {
   }
 
   @Patch(':id/status')
-  updateStatus(
-    @Param('id') id: string,
-    @Body() body: { status: string },
-  ) {
-    const valid = ['PENDING', 'PAID', 'REJECTED', 'CANCELLED', 'RECONCILED'] as const;
+  updateStatus(@Param('id') id: string, @Body() body: { status: string }) {
+    const valid = [
+      'PENDING',
+      'PAID',
+      'REJECTED',
+      'CANCELLED',
+      'RECONCILED',
+    ] as const;
     type ValidStatus = (typeof valid)[number];
     if (!valid.includes(body.status as ValidStatus)) {
       throw new BadRequestException(
         `Estado inválido: ${body.status}. Valores permitidos: ${valid.join(', ')}`,
       );
     }
-    return this.transactionsService.updateStatus(id, body.status as ValidStatus);
+    return this.transactionsService.updateStatus(
+      id,
+      body.status as ValidStatus,
+    );
   }
 
   @Post(':id/payments')

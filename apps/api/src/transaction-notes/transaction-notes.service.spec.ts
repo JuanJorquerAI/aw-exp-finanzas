@@ -25,7 +25,10 @@ describe('TransactionNotesService', () => {
 
   it('creates note with content', async () => {
     mockPrisma.transactionNote.create.mockResolvedValue({
-      id: '1', transactionId: 'tx1', content: 'Revisado con contador', createdAt: new Date(),
+      id: '1',
+      transactionId: 'tx1',
+      content: 'Revisado con contador',
+      createdAt: new Date(),
     });
     const note = await service.addNote('tx1', 'Revisado con contador');
     expect(mockPrisma.transactionNote.create).toHaveBeenCalledWith({

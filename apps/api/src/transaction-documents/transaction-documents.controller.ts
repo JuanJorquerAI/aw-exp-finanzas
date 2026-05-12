@@ -8,7 +8,9 @@ export class TransactionDocumentsController {
   constructor(private readonly service: TransactionDocumentsService) {}
 
   @Post()
-  link(@Body() body: { transactionId: string; documentId: string; note?: string }) {
+  link(
+    @Body() body: { transactionId: string; documentId: string; note?: string },
+  ) {
     return this.service.link(body.transactionId, body.documentId, body.note);
   }
 

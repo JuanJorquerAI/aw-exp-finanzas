@@ -26,7 +26,9 @@ describe('TransactionDocumentsService', () => {
 
   it('links document to transaction', async () => {
     mockPrisma.transactionDocument.create.mockResolvedValue({
-      id: '1', transactionId: 'tx1', documentId: 'doc1',
+      id: '1',
+      transactionId: 'tx1',
+      documentId: 'doc1',
     });
     const result = await service.link('tx1', 'doc1');
     expect(mockPrisma.transactionDocument.create).toHaveBeenCalledWith({
@@ -47,6 +49,8 @@ describe('TransactionDocumentsService', () => {
   it('unlinks document', async () => {
     mockPrisma.transactionDocument.delete.mockResolvedValue({ id: '1' });
     await service.unlink('1');
-    expect(mockPrisma.transactionDocument.delete).toHaveBeenCalledWith({ where: { id: '1' } });
+    expect(mockPrisma.transactionDocument.delete).toHaveBeenCalledWith({
+      where: { id: '1' },
+    });
   });
 });

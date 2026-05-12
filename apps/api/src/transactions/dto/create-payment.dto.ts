@@ -1,4 +1,10 @@
-import { IsNumber, IsOptional, IsString, IsPositive, IsDateString } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsPositive,
+  IsDateString,
+} from 'class-validator';
 
 export class CreatePaymentDto {
   @IsNumber()

@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,6 +48,12 @@ export function NewTransactionDrawer({ open, onOpenChange, defaultCompanyCode = 
     isAfecta: true,
   };
   const [form, setForm] = useState<FormState>(emptyForm);
+
+  useEffect(() => {
+    if (open) {
+      setForm((prev) => ({ ...prev, companyCode: defaultCompanyCode }));
+    }
+  }, [open, defaultCompanyCode]);
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => {

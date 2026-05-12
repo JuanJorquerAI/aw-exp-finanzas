@@ -35,10 +35,10 @@ export class CounterpartiesService {
     if (existing) return existing;
     return this.prisma.counterparty.create({
       data: {
-        rut: normalizedRut,
-        name: dto.name ?? '',
-        type: dto.type ?? 'OTHER',
+        name: '',
+        type: 'OTHER',
         ...dto,
+        rut: normalizedRut,
       },
     });
   }

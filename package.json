@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"pnpm --filter api dev\" \"pnpm --filter web dev\"",
+    "dev": "concurrently --names api,web --prefix-colors blue,green \"PORT=3001 pnpm --filter api dev\" \"PORT=3000 pnpm --filter web dev\"",
+    "dev:fresh": "pkill -f 'next' 2>/dev/null; pkill -f 'nest start' 2>/dev/null; pkill -f 'node dist/main' 2>/dev/null; sleep 0.5 && pnpm dev",
     "build": "pnpm --filter @aw-finanzas/database build && pnpm --filter @aw-finanzas/shared build && pnpm --filter api build && pnpm --filter web build",
     "db:migrate": "pnpm --filter @aw-finanzas/database migrate",
     "db:seed": "pnpm --filter @aw-finanzas/database seed",

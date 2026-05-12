@@ -9,7 +9,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Suspense>
           <AppSidebar />
         </Suspense>
-        <main className="flex-1 overflow-auto dark:bg-slate-950 bg-slate-50">
+        <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto dark:bg-slate-950 bg-slate-50">
           <Suspense fallback={<div className="p-8 text-sm text-slate-400">Cargando...</div>}>
             {children}
           </Suspense>

@@ -29,13 +29,37 @@ export interface TransactionAllocation {
   amountCLP: string;
 }
 
+export interface TransactionDocument {
+  id: string;
+  transactionId: string;
+  documentId: string;
+  note: string | null;
+  linkedAt: string;
+  document: {
+    id: string;
+    type: string;
+    number: string | null;
+    totalAmount: string;
+    currency: string;
+    issueDate: string | null;
+    counterparty: { id: string; name: string } | null;
+  };
+}
+
+export interface TransactionNote {
+  id: string;
+  transactionId: string;
+  content: string;
+  createdAt: string;
+}
+
 export type TransactionDocType = 'FACTURA' | 'BOLETA_HONORARIOS' | 'OTRO';
 
 export interface Transaction {
   id: string;
   companyId: string;
   type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
-  status: 'PENDING' | 'PAID' | 'RECONCILED' | 'CANCELLED';
+  status: 'PENDING' | 'PAID' | 'RECONCILED' | 'CANCELLED' | 'REJECTED';
   amount: string;
   currency: 'CLP' | 'USD' | 'UF' | 'EUR';
   amountCLP: string;
@@ -50,6 +74,8 @@ export interface Transaction {
   allocations: TransactionAllocation[];
   payments?: TransactionPayment[];
   auditLogs?: TransactionAuditLog[];
+  documents: TransactionDocument[];
+  notes: TransactionNote[];
   counterparty: { id: string; name: string; type: string } | null;
   category: { id: string; name: string; color: string | null } | null;
 }
@@ -141,7 +167,7 @@ export interface UpdateTransactionInput {
   categoryId?: string;
   counterpartyId?: string;
   type?: 'INCOME' | 'EXPENSE' | 'TRANSFER';
-  status?: 'PENDING' | 'PAID' | 'RECONCILED' | 'CANCELLED';
+  status?: 'PENDING' | 'PAID' | 'RECONCILED' | 'CANCELLED' | 'REJECTED';
   description?: string;
 }
 

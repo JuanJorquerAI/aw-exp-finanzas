@@ -147,3 +147,45 @@ export function testCategorizationRule(text: string) {
     body: JSON.stringify({ text }),
   });
 }
+
+export async function getDocuments(params: Record<string, string> = {}) {
+  const qs = new URLSearchParams(params).toString();
+  const res = await fetch(`${API_URL}/documents${qs ? `?${qs}` : ''}`);
+  if (!res.ok) throw new Error('Error al cargar documentos');
+  return res.json();
+}
+
+export async function linkDocument(transactionId: string, documentId: string, note?: string) {
+  const res = await fetch(`${API_URL}/transaction-documents`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ transactionId, documentId, note }),
+  });
+  if (!res.ok) throw new Error('Error al vincular documento');
+  return res.json();
+}
+
+export async function unlinkDocument(linkId: string) {
+  const res = await fetch(`${API_URL}/transaction-documents/${linkId}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Error al desvincular documento');
+}
+
+export async function addTransactionNote(transactionId: string, content: string) {
+  const res = await fetch(`${API_URL}/transactions/${transactionId}/notes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content }),
+  });
+  if (!res.ok) throw new Error('Error al agregar nota');
+  return res.json();
+}
+
+export async function updateTransactionStatus(id: string, status: string) {
+  const res = await fetch(`${API_URL}/transactions/${id}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok) throw new Error('Error al actualizar estado');
+  return res.json();
+}

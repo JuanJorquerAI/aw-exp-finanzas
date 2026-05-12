@@ -2,10 +2,11 @@
 import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { useCategories, useCounterparties, useUpdateTransaction, useCreateCounterparty } from '@/lib/queries';
+import { useCategories, useCounterparties, useUpdateTransaction, useCreateCounterparty, useLinkDocument, useUnlinkDocument, useAddTransactionNote, useDocuments } from '@/lib/queries';
 import { cpLabel } from '@/lib/counterparty';
 import type { Transaction } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { FileText, X, Plus, MessageSquare } from 'lucide-react';
 
 const CLP = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
 const SELECT_CLS = 'w-full rounded-md border dark:border-slate-700 border-slate-200 dark:bg-slate-900 bg-white dark:text-slate-200 text-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 dark:focus:ring-slate-600 focus:ring-slate-300';
@@ -30,12 +31,20 @@ export function ReviewDrawer({ transaction: tx, open, onOpenChange }: ReviewDraw
   const { data: counterparties = [], refetch: refetchCounterparties } = useCounterparties();
   const { mutateAsync: update, isPending } = useUpdateTransaction();
   const { mutateAsync: createCounterparty, isPending: creatingCp } = useCreateCounterparty();
+  const { mutate: linkDoc, isPending: linking } = useLinkDocument();
+  const { mutate: unlinkDoc } = useUnlinkDocument();
+  const { mutate: addNote, isPending: addingNote } = useAddTransactionNote();
+  const { data: allDocs = [] } = useDocuments(
+    tx?.counterparty?.id ? { counterpartyId: tx.counterparty.id } : {}
+  );
 
   const [categoryId, setCategoryId] = useState('');
   const [counterpartyId, setCounterpartyId] = useState('');
   const [type, setType] = useState<'INCOME' | 'EXPENSE'>('EXPENSE');
   const [showNewCp, setShowNewCp] = useState(false);
   const [newCp, setNewCp] = useState({ name: '', type: 'SUPPLIER', rut: '' });
+  const [newNote, setNewNote] = useState('');
+  const [selectedDocId, setSelectedDocId] = useState('');
 
   useEffect(() => {
     if (tx) {
@@ -44,6 +53,8 @@ export function ReviewDrawer({ transaction: tx, open, onOpenChange }: ReviewDraw
       setType(tx.type === 'INCOME' ? 'INCOME' : 'EXPENSE');
       setShowNewCp(false);
       setNewCp({ name: '', type: 'SUPPLIER', rut: '' });
+      setNewNote('');
+      setSelectedDocId('');
     }
   }, [tx]);
 
@@ -171,6 +182,103 @@ export function ReviewDrawer({ transaction: tx, open, onOpenChange }: ReviewDraw
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
+          </div>
+
+          {/* Documentos vinculados */}
+          <div className="space-y-2">
+            <p className="text-xs font-semibold dark:text-slate-300 text-slate-700 flex items-center gap-1.5">
+              <FileText className="h-3.5 w-3.5" /> Documentos vinculados
+            </p>
+            {(tx.documents?.length ?? 0) > 0 ? (
+              <div className="space-y-1">
+                {tx.documents!.map((link) => (
+                  <div key={link.id} className="flex items-center justify-between rounded-md border dark:border-slate-700 border-slate-200 px-3 py-2 text-xs dark:bg-slate-900 bg-slate-50">
+                    <span className="dark:text-slate-300 text-slate-700">
+                      {link.document.type} {link.document.number ? `#${link.document.number}` : ''}
+                      {' · '}
+                      <span className="dark:text-slate-500 text-slate-400">
+                        {new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(Number(link.document.totalAmount))}
+                      </span>
+                    </span>
+                    <button onClick={() => unlinkDoc(link.id)} className="rounded p-0.5 dark:text-slate-600 text-slate-400 dark:hover:text-rose-400 hover:text-rose-600 transition-colors">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[11px] dark:text-slate-600 text-slate-400">Sin documentos vinculados</p>
+            )}
+            {allDocs.length > 0 && (
+              <div className="flex gap-2">
+                <select value={selectedDocId} onChange={(e) => setSelectedDocId(e.target.value)} className="flex-1 text-xs rounded-md border dark:border-slate-700 border-slate-300 dark:bg-slate-900 bg-white px-2 py-1.5">
+                  <option value="">Vincular documento...</option>
+                  {allDocs
+                    .filter((d: any) => !tx.documents?.some((l) => l.documentId === d.id))
+                    .map((d: any) => (
+                      <option key={d.id} value={d.id}>
+                        {d.type} {d.number ? `#${d.number}` : ''} — {new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(Number(d.totalAmount))}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  disabled={!selectedDocId || linking}
+                  onClick={() => {
+                    if (!selectedDocId || !tx) return;
+                    linkDoc({ transactionId: tx.id, documentId: selectedDocId });
+                    setSelectedDocId('');
+                  }}
+                  className="rounded-md px-3 py-2 text-xs bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Bitácora */}
+          <div className="space-y-2">
+            <p className="text-xs font-semibold dark:text-slate-300 text-slate-700 flex items-center gap-1.5">
+              <MessageSquare className="h-3.5 w-3.5" /> Bitácora
+            </p>
+            {(tx.notes?.length ?? 0) > 0 && (
+              <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                {tx.notes!.map((note) => (
+                  <div key={note.id} className="rounded-md dark:bg-slate-900 bg-slate-50 border dark:border-slate-800 border-slate-200 px-3 py-2">
+                    <p className="text-xs dark:text-slate-300 text-slate-700">{note.content}</p>
+                    <p className="text-[10px] dark:text-slate-600 text-slate-400 mt-0.5">
+                      {new Date(note.createdAt).toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey && newNote.trim() && tx) {
+                    e.preventDefault();
+                    addNote({ transactionId: tx.id, content: newNote.trim() });
+                    setNewNote('');
+                  }
+                }}
+                placeholder="Agregar nota... (Enter para guardar)"
+                className="flex-1 text-xs rounded-md border dark:border-slate-700 border-slate-300 dark:bg-slate-900 bg-white px-3 py-1.5 dark:text-slate-200 text-slate-800 placeholder:dark:text-slate-600 placeholder:text-slate-400"
+              />
+              <button
+                disabled={!newNote.trim() || addingNote}
+                onClick={() => {
+                  if (!newNote.trim() || !tx) return;
+                  addNote({ transactionId: tx.id, content: newNote.trim() });
+                  setNewNote('');
+                }}
+                className="rounded-md px-3 py-2 text-xs dark:bg-slate-700 bg-slate-200 dark:text-slate-300 text-slate-700 hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
         </div>
 

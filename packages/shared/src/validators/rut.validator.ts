@@ -46,6 +46,13 @@ export function isValidRut(rut: unknown): boolean {
 }
 
 /**
+ * Compara dos RUTs chilenos ignorando formato (puntos, guiones, mayúsculas).
+ */
+export function areRutsEqual(a: string, b: string): boolean {
+  return normalizeRut(a) === normalizeRut(b);
+}
+
+/**
  * Formatea un RUT al estilo chileno: 11.111.111-1
  */
 export function formatRut(rut: string): string {

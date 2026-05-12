@@ -249,7 +249,7 @@ model Transaction {
   account         Account?            @relation(fields: [accountId], references: [id])
   counterparty    Counterparty?       @relation(fields: [counterpartyId], references: [id])
   category        Category?           @relation(fields: [categoryId], references: [id])
-  bankStatement   BankStatement?      @relation(fields: [bankStatementId], references: [id])
+  bankStatement   BankStatement?      @relation(fields: [bankStatementId], references: [id], onDelete: SetNull)
   allocations     TransactionAllocation[]
   payments        TransactionPayment[]
   auditLogs       TransactionAuditLog[]

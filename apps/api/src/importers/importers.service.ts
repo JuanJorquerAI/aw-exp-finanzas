@@ -1,7 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { importFromSheet, SheetImportData } from '@aw-finanzas/database';
+import {
+  createBankParser,
+  importFromBank,
+  importFromSheet,
+  SheetImportData,
+} from '@aw-finanzas/database';
 import { SheetImportDto } from './dto/sheet-import.dto';
+import { BankImportDto } from './dto/bank-import.dto';
 
 interface AuditContext {
   userId?: string;
@@ -35,6 +41,62 @@ export class ImportersService {
       await this.prisma.auditLog.create({
         data: {
           action: 'IMPORT_SHEET',
+          userId: ctx.userId,
+          userEmail: ctx.userEmail,
+          ipAddress: ctx.ipAddress,
+          userAgent: ctx.userAgent,
+          status: 'FAILURE',
+          errorMessage: message,
+        },
+      });
+      throw err;
+    }
+  }
+
+  async importBank(
+    file: Express.Multer.File,
+    dto: BankImportDto,
+    ctx: AuditContext = {},
+  ) {
+    if (!file) throw new BadRequestException('Archivo XLSX requerido (campo: file)');
+
+    const bank = dto.bank ?? 'BCI';
+    const fileType = dto.fileType ?? 'detallado';
+
+    const account = await this.prisma.account.findUnique({
+      where: { id: dto.accountId },
+      select: { id: true, companyId: true, bankName: true },
+    });
+    if (!account) throw new BadRequestException(`Cuenta no encontrada: ${dto.accountId}`);
+
+    try {
+      const parser = createBankParser(bank, fileType);
+      const rows = parser.parse(file.buffer);
+
+      const result = await importFromBank(
+        rows,
+        { accountId: account.id, companyId: account.companyId },
+        this.prisma,
+      );
+
+      await this.prisma.auditLog.create({
+        data: {
+          action: 'IMPORT_BANK_CSV',
+          userId: ctx.userId,
+          userEmail: ctx.userEmail,
+          ipAddress: ctx.ipAddress,
+          userAgent: ctx.userAgent,
+          status: 'SUCCESS',
+          metadata: { ...result, bank, fileType, accountId: account.id, rowCount: rows.length },
+        },
+      });
+
+      return result;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      await this.prisma.auditLog.create({
+        data: {
+          action: 'IMPORT_BANK_CSV',
           userId: ctx.userId,
           userEmail: ctx.userEmail,
           ipAddress: ctx.ipAddress,

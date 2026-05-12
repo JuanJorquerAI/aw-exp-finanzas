@@ -14,3 +14,7 @@ export { PrismaClient };
 export * from '@prisma/client';
 export { importFromSheet } from './importers/sheet-importer';
 export type { SheetImportData } from './importers/sheet-importer';
+export { importFromBank } from './importers/bank-importer';
+export type { BankImportOptions, BankImportResult } from './importers/bank-importer';
+export { createBankParser } from './importers/bank-parser';
+export type { BankImportRow, BankParser, BankFileType } from './importers/bank-parser';

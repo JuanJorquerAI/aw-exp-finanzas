@@ -58,21 +58,29 @@ export function CompanySummaryCard({ company, transactions, displayCurrency, usd
         </span>
       </div>
 
-      {totalFlow > 0 && (
-        <div className="space-y-1">
-          <div className="flex h-1.5 overflow-hidden rounded-full dark:bg-slate-800 bg-slate-100">
-            <div
-              className="bg-emerald-500 transition-all duration-700"
-              style={{ width: `${incomeRatio}%` }}
-            />
-            <div className="flex-1 bg-rose-500" />
-          </div>
-          <div className="flex justify-between text-[10px] dark:text-slate-600 text-slate-400">
-            <span>Ingresos {Math.round(incomeRatio)}%</span>
-            <span>Egresos {Math.round(100 - incomeRatio)}%</span>
-          </div>
+      <div className="space-y-1">
+        <div className="flex h-1.5 overflow-hidden rounded-full dark:bg-slate-800 bg-slate-100">
+          {totalFlow > 0 && (
+            <>
+              <div
+                className="bg-emerald-500 transition-all duration-700"
+                style={{ width: `${incomeRatio}%` }}
+              />
+              <div className="flex-1 bg-rose-500" />
+            </>
+          )}
         </div>
-      )}
+        <div className="flex justify-between text-[10px] dark:text-slate-600 text-slate-400">
+          {totalFlow > 0 ? (
+            <>
+              <span>Ingresos {Math.round(incomeRatio)}%</span>
+              <span>Egresos {Math.round(100 - incomeRatio)}%</span>
+            </>
+          ) : (
+            <span>Sin movimientos este mes</span>
+          )}
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <MetricCell label="Cobrado" value={fmt(s.income)} color="emerald" />

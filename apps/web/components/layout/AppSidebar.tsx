@@ -55,7 +55,7 @@ export function AppSidebar() {
 
   return (
     <>
-      <aside className="flex h-screen w-56 flex-col border-r border-slate-800 dark:bg-slate-950 bg-white px-3 py-5">
+      <aside className="flex h-full w-56 shrink-0 flex-col border-r dark:border-slate-800 border-slate-200 dark:bg-slate-950 bg-white px-3 py-5">
         <div className="mb-6 flex items-center justify-between px-2">
           <div>
             <h1 className="text-sm font-bold dark:text-white text-slate-900 tracking-tight">aw-finanzas</h1>

@@ -84,7 +84,11 @@ export class CategoriesService {
     return { matched: true, category };
   }
 
-  async recategorize(): Promise<{ processed: number; updated: number; skipped: number }> {
+  async recategorize(): Promise<{
+    processed: number;
+    updated: number;
+    skipped: number;
+  }> {
     const rules = await this.prisma.categorizationRule.findMany({
       where: { isActive: true },
       orderBy: { priority: 'desc' },
@@ -107,7 +111,9 @@ export class CategoriesService {
     let skipped = 0;
 
     for (const tx of txs) {
-      const text = [tx.description, tx.counterparty?.name].filter(Boolean).join(' ');
+      const text = [tx.description, tx.counterparty?.name]
+        .filter(Boolean)
+        .join(' ');
       const normalized = text.toLowerCase();
       let matchedCategoryId: string | null = null;
 
@@ -115,8 +121,13 @@ export class CategoriesService {
         if (rule.isRegex) {
           try {
             const re = new RegExp(rule.pattern, 'i');
-            if (re.test(text)) { matchedCategoryId = rule.categoryId; break; }
-          } catch { /* patrón regex inválido */ }
+            if (re.test(text)) {
+              matchedCategoryId = rule.categoryId;
+              break;
+            }
+          } catch {
+            /* patrón regex inválido */
+          }
         } else {
           if (normalized.includes(rule.pattern.toLowerCase())) {
             matchedCategoryId = rule.categoryId;

@@ -1,5 +1,12 @@
 import 'reflect-metadata';
 import express from 'express';
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[serverless] unhandledRejection:', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[serverless] uncaughtException:', err);
+});
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';

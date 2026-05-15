@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma, TransactionSource } from '@prisma/client';
 import { endOfMonth, startOfMonth, parseISO } from 'date-fns';
+import { applyCategorizationRules } from '../categorization';
 
 export interface SheetImportData {
   month: string;
@@ -65,6 +66,18 @@ const ITEM_TO_CATEGORY: Record<string, string> = {
   'Notion': 'Notion',
 };
 
+async function resolveCategoryId(
+  item: string,
+  categoriesMap: Record<string, { id: string }>,
+  tx: Prisma.TransactionClient,
+): Promise<string | null> {
+  const staticName = ITEM_TO_CATEGORY[item];
+  if (staticName && categoriesMap[staticName]) {
+    return categoriesMap[staticName].id;
+  }
+  return applyCategorizationRules(item, tx);
+}
+
 export async function importFromSheet(
   data: SheetImportData,
   prisma: PrismaClient,
@@ -95,8 +108,7 @@ export async function importFromSheet(
         continue;
       }
 
-      const catName = ITEM_TO_CATEGORY[p.item];
-      const category = catName ? categoriesMap[catName] : undefined;
+      const categoryId = await resolveCategoryId(p.item, categoriesMap, tx);
 
       const transaction = await tx.transaction.create({
         data: {
@@ -110,7 +122,7 @@ export async function importFromSheet(
           description: p.item,
           comment: p.comment || null,
           companyId: primary.id,
-          categoryId: category?.id ?? null,
+          categoryId,
         },
       });
 
@@ -188,8 +200,7 @@ export async function importFromSheet(
       const amount = isUSD ? v.amountUSD! : v.amountCLP!;
       const amountCLP = isUSD ? v.amountUSD! * data.exchangeRate.USD_CLP : v.amountCLP!;
 
-      const catName = ITEM_TO_CATEGORY[v.item];
-      const category = catName ? categoriesMap[catName] : undefined;
+      const categoryId = await resolveCategoryId(v.item, categoriesMap, tx);
 
       const visaTx = await tx.transaction.create({
         data: {
@@ -203,7 +214,7 @@ export async function importFromSheet(
           date: monthStart,
           description: v.item,
           companyId: awCompany.id,
-          categoryId: category?.id ?? null,
+          categoryId,
         },
       });
       await tx.transactionAllocation.create({

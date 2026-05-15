@@ -83,4 +83,70 @@ export class CategoriesService {
     });
     return { matched: true, category };
   }
+
+  async recategorize(): Promise<{
+    processed: number;
+    updated: number;
+    skipped: number;
+  }> {
+    const rules = await this.prisma.categorizationRule.findMany({
+      where: { isActive: true },
+      orderBy: { priority: 'desc' },
+      select: { pattern: true, isRegex: true, categoryId: true },
+    });
+
+    const txs = await this.prisma.transaction.findMany({
+      where: {
+        categoryId: null,
+        source: { in: ['BANK_CSV', 'SHEET_IMPORT'] },
+      },
+      select: {
+        id: true,
+        description: true,
+        counterparty: { select: { name: true } },
+      },
+    });
+
+    let updated = 0;
+    let skipped = 0;
+
+    for (const tx of txs) {
+      const text = [tx.description, tx.counterparty?.name]
+        .filter(Boolean)
+        .join(' ');
+      const normalized = text.toLowerCase();
+      let matchedCategoryId: string | null = null;
+
+      for (const rule of rules) {
+        if (rule.isRegex) {
+          try {
+            const re = new RegExp(rule.pattern, 'i');
+            if (re.test(text)) {
+              matchedCategoryId = rule.categoryId;
+              break;
+            }
+          } catch {
+            /* patrón regex inválido */
+          }
+        } else {
+          if (normalized.includes(rule.pattern.toLowerCase())) {
+            matchedCategoryId = rule.categoryId;
+            break;
+          }
+        }
+      }
+
+      if (matchedCategoryId) {
+        await this.prisma.transaction.update({
+          where: { id: tx.id },
+          data: { categoryId: matchedCategoryId },
+        });
+        updated++;
+      } else {
+        skipped++;
+      }
+    }
+
+    return { processed: txs.length, updated, skipped };
+  }
 }

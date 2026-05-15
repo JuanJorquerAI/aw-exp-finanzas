@@ -10,7 +10,11 @@ function buildClientArgs(): ConstructorParameters<typeof PrismaClient>[0] {
   }
   const sql = neon(process.env.DATABASE_URL);
   const adapter = new PrismaNeonHTTP(sql);
-  console.error('[prisma] adapter created:', typeof adapter, Object.keys(adapter));
+  console.error(
+    '[prisma] adapter created:',
+    typeof adapter,
+    Object.keys(adapter),
+  );
   return { adapter };
 }
 

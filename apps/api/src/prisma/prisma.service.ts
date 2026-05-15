@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@aw-finanzas/database';
 import { neon } from '@neondatabase/serverless';
 import { PrismaNeonHTTP } from '@prisma/adapter-neon';
@@ -10,21 +10,9 @@ function buildClientArgs(): ConstructorParameters<typeof PrismaClient>[0] {
 }
 
 @Injectable()
-export class PrismaService
-  extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
+export class PrismaService extends PrismaClient implements OnModuleDestroy {
   constructor() {
     super(buildClientArgs());
-  }
-
-  async onModuleInit() {
-    if (!process.env.DATABASE_URL) return;
-    try {
-      await this.$connect();
-    } catch (e) {
-      console.error('DB connection failed:', e);
-    }
   }
 
   async onModuleDestroy() {

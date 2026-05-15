@@ -12,8 +12,9 @@ export class HealthController {
     try {
       await this.prisma.$queryRaw`SELECT 1`;
       return { status: 'ok', db: 'connected' };
-    } catch {
-      return { status: 'ok', db: 'disconnected' };
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      return { status: 'ok', db: 'disconnected', error: msg.slice(0, 300) };
     }
   }
 }

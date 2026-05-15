@@ -62,4 +62,9 @@ export class CategoriesController {
   testRule(@Body() dto: TestRuleDto) {
     return this.categoriesService.testRule(dto.text);
   }
+
+  @Post('rules/recategorize')
+  recategorize() {
+    return this.categoriesService.recategorize();
+  }
 }

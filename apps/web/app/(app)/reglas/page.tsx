@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Plus, Trash2, ToggleLeft, ToggleRight, TestTube2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, ToggleLeft, ToggleRight, TestTube2, ChevronUp, ChevronDown, RefreshCw } from 'lucide-react';
 import { useCategorizationRules, useCreateCategorizationRule, useUpdateCategorizationRule, useDeleteCategorizationRule, useCategories } from '@/lib/queries';
 import { testCategorizationRule } from '@/lib/api';
 import type { CategorizationRule, TestRuleResult } from '@/lib/types';
@@ -46,6 +46,8 @@ export default function ReglasPage() {
   const [testText, setTestText] = useState('');
   const [testResult, setTestResult] = useState<TestRuleResult | null>(null);
   const [testing, setTesting] = useState(false);
+  const [recategorizing, setRecategorizing] = useState(false);
+  const [recatResult, setRecatResult] = useState<{ processed: number; updated: number; skipped: number } | null>(null);
 
   const sorted = [...rules].sort((a, b) => b.priority - a.priority);
 
@@ -74,6 +76,20 @@ export default function ReglasPage() {
     await remove(id);
   }
 
+  async function handleRecategorize() {
+    setRecategorizing(true);
+    setRecatResult(null);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/rules/recategorize`, {
+        method: 'POST',
+      });
+      const data = await res.json() as { processed: number; updated: number; skipped: number };
+      setRecatResult(data);
+    } finally {
+      setRecategorizing(false);
+    }
+  }
+
   async function handleTest() {
     if (!testText.trim()) return;
     setTesting(true);
@@ -94,13 +110,23 @@ export default function ReglasPage() {
             Se aplican automáticamente al importar desde banco. Mayor prioridad = se evalúa primero.
           </p>
         </div>
-        <button
-          onClick={() => setShowNew((v) => !v)}
-          className="flex items-center gap-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          Nueva regla
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleRecategorize}
+            disabled={recategorizing}
+            className="flex items-center gap-1.5 rounded-md border dark:border-slate-700 border-slate-200 dark:text-slate-300 text-slate-600 dark:hover:bg-slate-800 hover:bg-slate-100 px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40"
+          >
+            <RefreshCw className={cn('h-3.5 w-3.5', recategorizing && 'animate-spin')} />
+            {recategorizing ? 'Recategorizando...' : 'Re-categorizar txs'}
+          </button>
+          <button
+            onClick={() => setShowNew((v) => !v)}
+            className="flex items-center gap-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Nueva regla
+          </button>
+        </div>
       </div>
 
       {/* Tester */}
@@ -136,6 +162,17 @@ export default function ReglasPage() {
           </div>
         )}
       </div>
+
+      {/* Resultado re-categorización */}
+      {recatResult !== null && (
+        <div className="mb-4 flex items-center gap-3 rounded-lg border dark:border-emerald-800/40 border-emerald-200 dark:bg-emerald-900/20 bg-emerald-50 px-4 py-3 text-xs">
+          <RefreshCw className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+          <span className="dark:text-emerald-300 text-emerald-700">
+            Procesadas: <strong>{recatResult.processed}</strong> · Actualizadas: <strong>{recatResult.updated}</strong> · Sin match: <strong>{recatResult.skipped}</strong>
+          </span>
+          <button onClick={() => setRecatResult(null)} className="ml-auto dark:text-emerald-600 text-emerald-400 dark:hover:text-emerald-400 hover:text-emerald-600">✕</button>
+        </div>
+      )}
 
       {/* Formulario nueva regla */}
       {showNew && (

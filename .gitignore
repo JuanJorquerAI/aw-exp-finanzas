@@ -17,3 +17,4 @@ test-results/
 skills-lock.json
 docs/superpowers/
 railway.toml
+.vercel

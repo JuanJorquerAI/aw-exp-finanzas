@@ -1,20 +1,15 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@aw-finanzas/database';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import ws from 'ws';
+
+neonConfig.webSocketConstructor = ws;
 
 function buildClientArgs(): ConstructorParameters<typeof PrismaClient>[0] {
-  if (!process.env.DATABASE_URL) return {};
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { Pool, neonConfig } = require('@neondatabase/serverless');
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { PrismaNeon } = require('@prisma/adapter-neon');
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    neonConfig.webSocketConstructor = require('ws');
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    return { adapter: new PrismaNeon(pool) };
-  } catch {
-    return {};
-  }
+  if (!process.env.DATABASE_URL) return {} as never;
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  return { adapter: new PrismaNeon(pool) };
 }
 
 @Injectable()
@@ -27,6 +22,7 @@ export class PrismaService
   }
 
   async onModuleInit() {
+    if (!process.env.DATABASE_URL) return;
     try {
       await this.$connect();
     } catch (e) {

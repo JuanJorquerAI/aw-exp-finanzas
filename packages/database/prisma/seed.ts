@@ -130,6 +130,74 @@ async function main() {
     ],
   });
 
+  // ============= CATEGORIZATION RULES =============
+  const catMap = Object.fromEntries(
+    (await prisma.category.findMany({ select: { id: true, name: true } }))
+      .map((c) => [c.name, c.id]),
+  );
+
+  const rules = [
+    // Tributarios
+    { pattern: 'IVA + PPM',          categoryName: 'IVA + PPM',           priority: 100, isRegex: false },
+    { pattern: 'F29',                categoryName: 'F29',                  priority: 100, isRegex: false },
+    { pattern: 'PPM',                categoryName: 'IVA + PPM',            priority: 90,  isRegex: false },
+    { pattern: 'Pagos previsionales',categoryName: 'Pagos previsionales',  priority: 100, isRegex: false },
+    { pattern: 'TESORERIA GENERAL',  categoryName: 'IVA + PPM',            priority: 80,  isRegex: false },
+    { pattern: 'SII',                categoryName: 'IVA + PPM',            priority: 70,  isRegex: false },
+    { pattern: 'AFP',                categoryName: 'Pagos previsionales',  priority: 80,  isRegex: false },
+    { pattern: 'PREVIRED',           categoryName: 'Pagos previsionales',  priority: 90,  isRegex: false },
+    { pattern: 'FONASA',             categoryName: 'Pagos previsionales',  priority: 80,  isRegex: false },
+    { pattern: 'ISAPRE',             categoryName: 'Pagos previsionales',  priority: 80,  isRegex: false },
+    // Sueldos y honorarios
+    { pattern: 'Sueldo Damian',      categoryName: 'Sueldo developers',    priority: 100, isRegex: false },
+    { pattern: 'Sueldo Juan',        categoryName: 'Sueldo socios',        priority: 100, isRegex: false },
+    { pattern: 'Bryan Cartagena',    categoryName: 'Sueldo developers',    priority: 100, isRegex: false },
+    { pattern: 'Luis Silva',         categoryName: 'Sueldo developers',    priority: 100, isRegex: false },
+    { pattern: 'Luis Farías',        categoryName: 'Honorarios externos',  priority: 100, isRegex: false },
+    { pattern: 'Eduardo Ricci',      categoryName: 'Honorarios externos',  priority: 100, isRegex: false },
+    // Financieros
+    { pattern: 'Cuota Fogape',       categoryName: 'Cuota Fogape',         priority: 100, isRegex: false },
+    { pattern: 'FOGAPE',             categoryName: 'Cuota Fogape',         priority: 90,  isRegex: false },
+    { pattern: 'Préstamo BCI',       categoryName: 'Préstamo BCI',         priority: 100, isRegex: false },
+    { pattern: 'PRESTAMO BCI',       categoryName: 'Préstamo BCI',         priority: 90,  isRegex: false },
+    { pattern: 'Visa',               categoryName: 'Tarjeta Visa',         priority: 90,  isRegex: false },
+    // Software / SaaS
+    { pattern: 'Canva',              categoryName: 'Canva',                priority: 100, isRegex: false },
+    { pattern: 'Google Workspace',   categoryName: 'Google Workspace',     priority: 100, isRegex: false },
+    { pattern: 'google workspace',   categoryName: 'Google Workspace',     priority: 90,  isRegex: false },
+    { pattern: 'ChatGPT',            categoryName: 'ChatGPT',              priority: 100, isRegex: false },
+    { pattern: 'OPENAI',             categoryName: 'ChatGPT',              priority: 90,  isRegex: false },
+    { pattern: 'Claude',             categoryName: 'Claude',               priority: 100, isRegex: false },
+    { pattern: 'ANTHROPIC',          categoryName: 'Claude',               priority: 90,  isRegex: false },
+    { pattern: 'Notion',             categoryName: 'Notion',               priority: 100, isRegex: false },
+    // Operacionales
+    { pattern: 'Mails de AW',        categoryName: 'Mails corporativos',   priority: 100, isRegex: false },
+    { pattern: 'AWS',                categoryName: 'Hosting propio',       priority: 80,  isRegex: false },
+    { pattern: 'amazon web',         categoryName: 'Hosting propio',       priority: 80,  isRegex: false },
+    { pattern: 'godaddy',            categoryName: 'Hosting propio',       priority: 80,  isRegex: false },
+    { pattern: 'hostinger',          categoryName: 'Hosting propio',       priority: 80,  isRegex: false },
+  ];
+
+  for (const r of rules) {
+    const categoryId = catMap[r.categoryName];
+    if (!categoryId) {
+      console.warn(`⚠️  Categoría no encontrada para regla: ${r.categoryName}`);
+      continue;
+    }
+    await prisma.categorizationRule.upsert({
+      where: { pattern: r.pattern },
+      update: { categoryId, priority: r.priority, isActive: true },
+      create: {
+        pattern: r.pattern,
+        isRegex: r.isRegex,
+        categoryId,
+        priority: r.priority,
+        isActive: true,
+      },
+    });
+  }
+
+  console.log(`✅ ${rules.length} reglas de categorización creadas/actualizadas`);
   console.log('✅ Seed completed');
 }
 

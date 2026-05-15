@@ -402,6 +402,7 @@ model CategorizationRule {
 
   category    Category @relation(fields: [categoryId], references: [id])
 
+  @@unique([pattern])
   @@map("categorization_rules")
 }
 

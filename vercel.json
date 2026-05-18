@@ -5,10 +5,8 @@
     "api/index.ts": {
       "memory": 1024,
       "maxDuration": 30,
-      "includeFiles": "node_modules/.prisma/**"
+      "includeFiles": "node_modules/.prisma/**,node_modules/.pnpm/@prisma+client*/**"
     }
   },
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api/index" }
-  ]
+  "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }]
 }

@@ -5,6 +5,9 @@ module.exports = {
   entry: './src/serverless.ts',
   target: 'node',
   mode: 'production',
+  experiments: {
+    asyncWebAssembly: true,
+  },
   resolve: {
     extensions: ['.ts', '.js'],
   },

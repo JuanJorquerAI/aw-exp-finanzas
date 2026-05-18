@@ -14,7 +14,7 @@ export class HealthController {
       return { status: 'ok', db: 'connected' };
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
-      return { status: 'ok', db: 'disconnected', error: msg.slice(0, 300) };
+      return { status: 'ok', db: 'disconnected', error: msg.slice(0, 1000) };
     }
   }
 }

@@ -49,9 +49,10 @@ module.exports = async (req: express.Request, res: express.Response) => {
     }
   }
   if (initError) {
-    res
-      .status(503)
-      .json({ status: 'error', message: 'DATABASE_URL not configured' });
+    res.status(503).json({
+      status: 'error',
+      message: initError.message?.slice(0, 1000) ?? String(initError),
+    });
     return;
   }
   server(req, res);

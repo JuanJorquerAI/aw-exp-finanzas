@@ -18,3 +18,5 @@ skills-lock.json
 docs/superpowers/
 railway.toml
 .vercel
+.codegraph/
+.cursor/

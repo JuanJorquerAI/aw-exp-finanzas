@@ -1,40 +1,58 @@
-'use client';
-import Link from 'next/link';
-import { usePathname, useSearchParams, useRouter } from 'next/navigation';
-import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, List, Plus, ChevronLeft, ChevronRight, Sun, Moon, Receipt, LogOut, Landmark, Users, Tags } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useState } from 'react';
-import { NewTransactionDrawer } from '@/components/transactions/NewTransactionDrawer';
-import { useTheme } from '@/hooks/useTheme';
-import { logoutAction } from '@/app/login/actions';
+"use client";
+import Link from "next/link";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import {
+  LayoutDashboard,
+  ArrowDownCircle,
+  ArrowUpCircle,
+  List,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  Sun,
+  Moon,
+  Receipt,
+  LogOut,
+  Landmark,
+  Users,
+  Tags,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { NewTransactionDrawer } from "@/components/transactions/NewTransactionDrawer";
+import { useTheme } from "@/hooks/useTheme";
+import { logoutAction } from "@/app/login/actions";
 
-const COMPANIES = ['AW', 'EXPRO'] as const;
+const COMPANIES = ["AW", "EXPRO"] as const;
 
 const NAV_ITEMS = [
-  { href: '/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
-  { href: '/cxc', label: 'CxC', Icon: ArrowDownCircle },
-  { href: '/cxp', label: 'CxP', Icon: ArrowUpCircle },
-  { href: '/transactions', label: 'Transacciones', Icon: List },
-  { href: '/impuestos', label: 'Impuestos', Icon: Receipt },
-  { href: '/conciliacion', label: 'Conciliación', Icon: Landmark },
-  { href: '/contrapartes', label: 'Contrapartes', Icon: Users },
-  { href: '/reglas', label: 'Reglas auto', Icon: Tags },
+  { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
+  { href: "/cxc", label: "CxC", Icon: ArrowDownCircle },
+  { href: "/cxp", label: "CxP", Icon: ArrowUpCircle },
+  { href: "/transactions", label: "Transacciones", Icon: List },
+  { href: "/impuestos", label: "Impuestos", Icon: Receipt },
+  { href: "/conciliacion", label: "Conciliación", Icon: Landmark },
+  { href: "/contrapartes", label: "Contrapartes", Icon: Users },
+  { href: "/reglas", label: "Reglas auto", Icon: Tags },
 ];
 
 function getDefaultMonth(): string {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
 function addMonths(ym: string, delta: number): string {
-  const [y, m] = ym.split('-').map(Number);
+  const [y, m] = ym.split("-").map(Number);
   const date = new Date(y, m - 1 + delta, 1);
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
 
 function formatMonth(ym: string): string {
-  const [y, m] = ym.split('-').map(Number);
-  return new Date(y, m - 1, 1).toLocaleDateString('es-CL', { month: 'short', year: 'numeric' });
+  const [y, m] = ym.split("-").map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString("es-CL", {
+    month: "short",
+    year: "numeric",
+  });
 }
 
 export function AppSidebar() {
@@ -44,8 +62,8 @@ export function AppSidebar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { theme, toggle } = useTheme();
 
-  const company = searchParams.get('company') ?? 'AW';
-  const month = searchParams.get('month') ?? getDefaultMonth();
+  const company = searchParams.get("company") ?? "AW";
+  const month = searchParams.get("month") ?? getDefaultMonth();
 
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -58,14 +76,22 @@ export function AppSidebar() {
       <aside className="flex h-full w-56 shrink-0 flex-col border-r dark:border-slate-800 border-slate-200 dark:bg-slate-950 bg-white px-3 py-5">
         <div className="mb-6 flex items-center justify-between px-2">
           <div>
-            <h1 className="text-sm font-bold dark:text-white text-slate-900 tracking-tight">aw-finanzas</h1>
-            <p className="text-xs dark:text-slate-600 text-slate-400 mt-0.5">AW · EXPRO</p>
+            <h1 className="text-sm font-bold dark:text-white text-slate-900 tracking-tight">
+              aw-finanzas
+            </h1>
+            <p className="text-xs dark:text-slate-600 text-slate-400 mt-0.5">
+              AW · EXPRO
+            </p>
           </div>
           <button
             onClick={toggle}
             className="rounded-md p-1.5 dark:text-slate-500 text-slate-400 dark:hover:text-slate-300 hover:text-slate-600 dark:hover:bg-slate-800 hover:bg-slate-100 transition-colors"
           >
-            {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+            {theme === "dark" ? (
+              <Sun className="h-3.5 w-3.5" />
+            ) : (
+              <Moon className="h-3.5 w-3.5" />
+            )}
           </button>
         </div>
 
@@ -73,12 +99,12 @@ export function AppSidebar() {
           {COMPANIES.map((c) => (
             <button
               key={c}
-              onClick={() => updateParam('company', c)}
+              onClick={() => updateParam("company", c)}
               className={cn(
-                'flex-1 rounded py-1.5 text-xs font-semibold transition-colors',
+                "flex-1 rounded py-1.5 text-xs font-semibold transition-colors",
                 company === c
-                  ? 'dark:bg-slate-700 bg-slate-900 dark:text-white text-white'
-                  : 'dark:text-slate-500 text-slate-500 dark:hover:text-slate-300 hover:text-slate-700',
+                  ? "dark:bg-slate-700 bg-slate-900 dark:text-white text-white"
+                  : "dark:text-slate-500 text-slate-500 dark:hover:text-slate-300 hover:text-slate-700",
               )}
             >
               {c}
@@ -88,7 +114,7 @@ export function AppSidebar() {
 
         <div className="mb-6 flex items-center justify-between px-1">
           <button
-            onClick={() => updateParam('month', addMonths(month, -1))}
+            onClick={() => updateParam("month", addMonths(month, -1))}
             className="rounded p-0.5 dark:text-slate-600 text-slate-400 dark:hover:text-slate-300 hover:text-slate-700"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -97,7 +123,7 @@ export function AppSidebar() {
             {formatMonth(month)}
           </span>
           <button
-            onClick={() => updateParam('month', addMonths(month, 1))}
+            onClick={() => updateParam("month", addMonths(month, 1))}
             className="rounded p-0.5 dark:text-slate-600 text-slate-400 dark:hover:text-slate-300 hover:text-slate-700"
           >
             <ChevronRight className="h-4 w-4" />
@@ -110,10 +136,10 @@ export function AppSidebar() {
               key={href}
               href={`${href}?company=${company}&month=${month}`}
               className={cn(
-                'flex items-center gap-2.5 rounded-md px-2 py-2 text-sm transition-colors',
+                "flex items-center gap-2.5 rounded-md px-2 py-2 text-sm transition-colors",
                 pathname === href
-                  ? 'dark:bg-slate-800 bg-slate-100 dark:text-white text-slate-900 font-medium border-l-2 border-indigo-500 pl-1.5'
-                  : 'dark:text-slate-500 text-slate-500 dark:hover:bg-slate-800/60 hover:bg-slate-50 dark:hover:text-slate-200 hover:text-slate-900',
+                  ? "dark:bg-slate-800 bg-slate-100 dark:text-white text-slate-900 font-medium border-l-2 border-indigo-500 pl-1.5"
+                  : "dark:text-slate-500 text-slate-500 dark:hover:bg-slate-800/60 hover:bg-slate-50 dark:hover:text-slate-200 hover:text-slate-900",
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />

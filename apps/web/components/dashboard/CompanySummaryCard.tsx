@@ -1,6 +1,6 @@
-import type { Transaction } from '@/lib/types';
-import type { DisplayCurrency } from '@/hooks/useCurrency';
-import { fmtAmount } from '@/lib/format';
+import type { Transaction } from "@/lib/types";
+import type { DisplayCurrency } from "@/hooks/useCurrency";
+import { fmtAmount } from "@/lib/format";
 
 interface Summary {
   income: number;
@@ -10,18 +10,32 @@ interface Summary {
   pendingExpense: number;
 }
 
-function computeSummary(transactions: Transaction[], companyId: string): Summary {
-  let income = 0, expense = 0, pendingIncome = 0, pendingExpense = 0;
+function computeSummary(
+  transactions: Transaction[],
+  companyId: string,
+): Summary {
+  let income = 0,
+    expense = 0,
+    pendingIncome = 0,
+    pendingExpense = 0;
   for (const tx of transactions) {
     const alloc = tx.allocations.find((a) => a.companyId === companyId);
     if (!alloc) continue;
     const amount = parseFloat(alloc.amountCLP);
-    if (tx.type === 'INCOME' && tx.status === 'PAID') income += amount;
-    if (tx.type === 'EXPENSE' && tx.status === 'PAID') expense += amount;
-    if (tx.type === 'INCOME' && tx.status === 'PENDING') pendingIncome += amount;
-    if (tx.type === 'EXPENSE' && tx.status === 'PENDING') pendingExpense += amount;
+    if (tx.type === "INCOME" && tx.status === "PAID") income += amount;
+    if (tx.type === "EXPENSE" && tx.status === "PAID") expense += amount;
+    if (tx.type === "INCOME" && tx.status === "PENDING")
+      pendingIncome += amount;
+    if (tx.type === "EXPENSE" && tx.status === "PENDING")
+      pendingExpense += amount;
   }
-  return { income, expense, balance: income - expense, pendingIncome, pendingExpense };
+  return {
+    income,
+    expense,
+    balance: income - expense,
+    pendingIncome,
+    pendingExpense,
+  };
 }
 
 interface CompanySummaryCardProps {
@@ -31,7 +45,12 @@ interface CompanySummaryCardProps {
   usdRate: number;
 }
 
-export function CompanySummaryCard({ company, transactions, displayCurrency, usdRate }: CompanySummaryCardProps) {
+export function CompanySummaryCard({
+  company,
+  transactions,
+  displayCurrency,
+  usdRate,
+}: CompanySummaryCardProps) {
   const s = computeSummary(transactions, company.id);
   const fmt = (n: number) => fmtAmount(n, displayCurrency, usdRate);
   const positive = s.balance >= 0;
@@ -43,18 +62,23 @@ export function CompanySummaryCard({ company, transactions, displayCurrency, usd
     <div className="rounded-xl dark:bg-slate-900 bg-white border dark:border-slate-800 border-slate-200 p-5 dark:shadow-none shadow-sm flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold dark:text-slate-400 text-slate-500 uppercase tracking-widest">{company.shortCode}</span>
+          <span className="text-xs font-bold dark:text-slate-400 text-slate-500 uppercase tracking-widest">
+            {company.shortCode}
+          </span>
           <span className="text-xs dark:text-slate-600 text-slate-400">·</span>
-          <span className="text-xs dark:text-slate-600 text-slate-400">{company.name}</span>
+          <span className="text-xs dark:text-slate-600 text-slate-400">
+            {company.name}
+          </span>
         </div>
         <span
           className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
             positive
-              ? 'dark:bg-emerald-950 bg-emerald-50 dark:text-emerald-400 text-emerald-700'
-              : 'dark:bg-rose-950 bg-rose-50 dark:text-rose-400 text-rose-700'
+              ? "dark:bg-emerald-950 bg-emerald-50 dark:text-emerald-400 text-emerald-700"
+              : "dark:bg-rose-950 bg-rose-50 dark:text-rose-400 text-rose-700"
           }`}
         >
-          {positive ? '+' : ''}{fmt(s.balance)}
+          {positive ? "+" : ""}
+          {fmt(s.balance)}
         </span>
       </div>
 
@@ -88,29 +112,58 @@ export function CompanySummaryCard({ company, transactions, displayCurrency, usd
       </div>
 
       <div className="border-t dark:border-slate-800 border-slate-100 pt-4 grid grid-cols-2 gap-3">
-        <PendingCell label="CxC pendiente" value={fmt(s.pendingIncome)} href={`/cxc?company=${company.shortCode}`} />
-        <PendingCell label="CxP pendiente" value={fmt(s.pendingExpense)} href={`/cxp?company=${company.shortCode}`} />
+        <PendingCell
+          label="CxC pendiente"
+          value={fmt(s.pendingIncome)}
+          href={`/cxc?company=${company.shortCode}`}
+        />
+        <PendingCell
+          label="CxP pendiente"
+          value={fmt(s.pendingExpense)}
+          href={`/cxp?company=${company.shortCode}`}
+        />
       </div>
     </div>
   );
 }
 
-function MetricCell({ label, value, color }: { label: string; value: string; color: 'emerald' | 'rose' }) {
-  const cls = color === 'emerald'
-    ? 'dark:text-emerald-400 text-emerald-600'
-    : 'dark:text-rose-400 text-rose-600';
+function MetricCell({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: string;
+  color: "emerald" | "rose";
+}) {
+  const cls =
+    color === "emerald"
+      ? "dark:text-emerald-400 text-emerald-600"
+      : "dark:text-rose-400 text-rose-600";
   return (
     <div>
-      <p className="text-[11px] dark:text-slate-500 text-slate-400 mb-1">{label}</p>
+      <p className="text-[11px] dark:text-slate-500 text-slate-400 mb-1">
+        {label}
+      </p>
       <p className={`text-lg font-bold tabular-nums ${cls}`}>{value}</p>
     </div>
   );
 }
 
-function PendingCell({ label, value, href }: { label: string; value: string; href: string }) {
+function PendingCell({
+  label,
+  value,
+  href,
+}: {
+  label: string;
+  value: string;
+  href: string;
+}) {
   return (
     <div>
-      <p className="text-[11px] dark:text-slate-600 text-slate-400 mb-0.5">{label}</p>
+      <p className="text-[11px] dark:text-slate-600 text-slate-400 mb-0.5">
+        {label}
+      </p>
       <a
         href={href}
         className="text-sm font-semibold tabular-nums dark:text-slate-300 text-slate-700 hover:underline underline-offset-2 decoration-dotted"

@@ -1,10 +1,10 @@
-import { PrismaClient, Prisma, TransactionSource } from '@prisma/client';
-import { BankImportRow } from './bank-parser';
-import { applyCategorizationRules } from '../categorization';
+import { PrismaClient, Prisma, TransactionSource } from "@prisma/client";
+import { BankImportRow } from "./bank-parser";
+import { applyCategorizationRules } from "../categorization";
 
 /** Normaliza RUT chileno: quita puntos, guiones y espacios; uppercase DV. */
 function normalizeRut(rut: string): string {
-  return rut.replace(/[.\-\s]/g, '').toUpperCase();
+  return rut.replace(/[.\-\s]/g, "").toUpperCase();
 }
 
 export interface BankImportOptions {
@@ -52,20 +52,22 @@ export async function importFromBank(
       }
 
       const hasMeta = !!counterpartyId;
-      const status = hasMeta ? 'PAID' : 'PENDING';
+      const status = hasMeta ? "PAID" : "PENDING";
       if (!hasMeta) pending++;
 
-      const matchText = [row.description, row.counterName].filter(Boolean).join(' ');
+      const matchText = [row.description, row.counterName]
+        .filter(Boolean)
+        .join(" ");
       const categoryId = await applyCategorizationRules(matchText, tx);
 
       const newTx = await tx.transaction.create({
         data: {
-          type: row.direction === 'CREDIT' ? 'INCOME' : 'EXPENSE',
+          type: row.direction === "CREDIT" ? "INCOME" : "EXPENSE",
           status,
           source: TransactionSource.BANK_CSV,
           amount: row.amount,
           amountCLP: row.amount,
-          currency: 'CLP',
+          currency: "CLP",
           date: row.date,
           description: row.description,
           comment: row.comment ?? null,
@@ -111,12 +113,12 @@ async function upsertBankCounterparty(
     return tx.counterparty.upsert({
       where: { rut: normalizedRut },
       update: { name },
-      create: { type: 'OTHER', name, rut: normalizedRut, notes },
+      create: { type: "OTHER", name, rut: normalizedRut, notes },
     });
   }
 
   const existing = await tx.counterparty.findFirst({ where: { name } });
   if (existing) return existing;
 
-  return tx.counterparty.create({ data: { type: 'OTHER', name, notes } });
+  return tx.counterparty.create({ data: { type: "OTHER", name, notes } });
 }

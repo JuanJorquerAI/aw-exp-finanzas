@@ -1,6 +1,6 @@
-'use client';
-import { Button } from '@/components/ui/button';
-import { useMarkPaid } from '@/lib/queries';
+"use client";
+import { Button } from "@/components/ui/button";
+import { useMarkPaid } from "@/lib/queries";
 
 export function MarkPaidButton({ transactionId }: { transactionId: string }) {
   const { mutate, isPending } = useMarkPaid();

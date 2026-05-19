@@ -1,6 +1,6 @@
-import { Suspense } from 'react';
-import { AppProviders } from '@/components/layout/AppProviders';
-import { AppSidebar } from '@/components/layout/AppSidebar';
+import { Suspense } from "react";
+import { AppProviders } from "@/components/layout/AppProviders";
+import { AppSidebar } from "@/components/layout/AppSidebar";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,7 +10,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <AppSidebar />
         </Suspense>
         <main className="flex-1 min-w-0 overflow-y-auto dark:bg-slate-950 bg-slate-50">
-          <Suspense fallback={<div className="p-8 text-sm text-slate-400">Cargando...</div>}>
+          <Suspense
+            fallback={
+              <div className="p-8 text-sm text-slate-400">Cargando...</div>
+            }
+          >
             {children}
           </Suspense>
         </main>

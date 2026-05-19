@@ -1,9 +1,13 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 function normalizeRut(rut: string): string {
-  return rut.replace(/\./g, '').replace(/-/g, '').replace(/\s/g, '').toUpperCase();
+  return rut
+    .replace(/\./g, "")
+    .replace(/-/g, "")
+    .replace(/\s/g, "")
+    .toUpperCase();
 }
 
 async function main() {
@@ -20,18 +24,26 @@ async function main() {
 
   for (const cp of counterparties) {
     const normalized = normalizeRut(cp.rut!);
-    if (normalized === cp.rut) { skipped++; continue; }
+    if (normalized === cp.rut) {
+      skipped++;
+      continue;
+    }
 
     const conflict = await prisma.counterparty.findFirst({
       where: { rut: normalized, id: { not: cp.id } },
     });
 
     if (conflict) {
-      conflicts.push(`  CONFLICTO: id=${cp.id} rut="${cp.rut}" -> "${normalized}" ya existe en id=${conflict.id}`);
+      conflicts.push(
+        `  CONFLICTO: id=${cp.id} rut="${cp.rut}" -> "${normalized}" ya existe en id=${conflict.id}`,
+      );
       continue;
     }
 
-    await prisma.counterparty.update({ where: { id: cp.id }, data: { rut: normalized } });
+    await prisma.counterparty.update({
+      where: { id: cp.id },
+      data: { rut: normalized },
+    });
     updated++;
   }
 
@@ -39,8 +51,10 @@ async function main() {
   console.log(`  Sin cambios: ${skipped}`);
   if (conflicts.length > 0) {
     console.log(`⚠ Conflictos (resolver manualmente):`);
-    conflicts.forEach(c => console.log(c));
+    conflicts.forEach((c) => console.log(c));
   }
 }
 
-main().catch(console.error).finally(() => prisma.$disconnect());
+main()
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());

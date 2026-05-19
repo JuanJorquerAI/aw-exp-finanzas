@@ -1,11 +1,11 @@
-'use client';
-import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { AbonoDrawer } from './AbonoDrawer';
-import { MoveCompanyButton } from './MoveCompanyButton';
-import { useMarkPaid, useCancelTransaction } from '@/lib/queries';
-import type { Transaction } from '@/lib/types';
+"use client";
+import { useState } from "react";
+import { Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AbonoDrawer } from "./AbonoDrawer";
+import { MoveCompanyButton } from "./MoveCompanyButton";
+import { useMarkPaid, useCancelTransaction } from "@/lib/queries";
+import type { Transaction } from "@/lib/types";
 
 interface CxCActionsProps {
   transaction: Transaction;
@@ -17,7 +17,10 @@ export function CxCActions({ transaction }: CxCActionsProps) {
   const [confirmCancel, setConfirmCancel] = useState(false);
 
   function handleCancel() {
-    if (!confirmCancel) { setConfirmCancel(true); return; }
+    if (!confirmCancel) {
+      setConfirmCancel(true);
+      return;
+    }
     cancel(transaction.id);
   }
 

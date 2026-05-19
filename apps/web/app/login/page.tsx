@@ -1,12 +1,20 @@
-import { loginAction } from './actions';
+import { loginAction } from "./actions";
 
-export default function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   return (
     <div className="flex min-h-screen items-center justify-center dark:bg-slate-950 bg-slate-50">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <h1 className="text-xl font-bold dark:text-white text-slate-900 tracking-tight">aw-finanzas</h1>
-          <p className="mt-1 text-sm dark:text-slate-500 text-slate-400">AplicacionesWeb · Expande PRO</p>
+          <h1 className="text-xl font-bold dark:text-white text-slate-900 tracking-tight">
+            aw-finanzas
+          </h1>
+          <p className="mt-1 text-sm dark:text-slate-500 text-slate-400">
+            AplicacionesWeb · Expande PRO
+          </p>
         </div>
 
         <div className="rounded-xl border dark:border-slate-800 border-slate-200 dark:bg-slate-900 bg-white p-8 shadow-sm">
@@ -44,10 +52,16 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ er
   );
 }
 
-async function ErrorMessage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+async function ErrorMessage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const params = await searchParams;
   if (!params.error) return null;
   return (
-    <p className="text-xs text-red-500 dark:text-red-400">Contraseña incorrecta.</p>
+    <p className="text-xs text-red-500 dark:text-red-400">
+      Contraseña incorrecta.
+    </p>
   );
 }

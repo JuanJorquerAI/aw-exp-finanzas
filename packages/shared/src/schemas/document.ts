@@ -1,8 +1,13 @@
-import { z } from 'zod';
-import { CurrencySchema } from './transaction';
+import { z } from "zod";
+import { CurrencySchema } from "./transaction";
 
 export const DocumentTypeSchema = z.enum([
-  'AFECTA', 'EXENTA', 'BOLETA', 'NOTA_CREDITO', 'NOTA_DEBITO', 'HONORARIOS',
+  "AFECTA",
+  "EXENTA",
+  "BOLETA",
+  "NOTA_CREDITO",
+  "NOTA_DEBITO",
+  "HONORARIOS",
 ]);
 
 export const CreateDocumentSchema = z.object({
@@ -15,7 +20,7 @@ export const CreateDocumentSchema = z.object({
   netAmount: z.number().min(0),
   ivaAmount: z.number().min(0).default(0),
   totalAmount: z.number().min(0),
-  currency: CurrencySchema.default('CLP'),
+  currency: CurrencySchema.default("CLP"),
   description: z.string().optional(),
   detail: z.string().optional(),
   isSent: z.boolean().default(false),

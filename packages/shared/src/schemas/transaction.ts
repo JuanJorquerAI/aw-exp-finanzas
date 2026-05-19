@@ -1,8 +1,13 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-export const TransactionTypeSchema = z.enum(['INCOME', 'EXPENSE', 'TRANSFER']);
-export const TransactionStatusSchema = z.enum(['PENDING', 'PAID', 'RECONCILED', 'CANCELLED']);
-export const CurrencySchema = z.enum(['CLP', 'USD', 'UF', 'EUR']);
+export const TransactionTypeSchema = z.enum(["INCOME", "EXPENSE", "TRANSFER"]);
+export const TransactionStatusSchema = z.enum([
+  "PENDING",
+  "PAID",
+  "RECONCILED",
+  "CANCELLED",
+]);
+export const CurrencySchema = z.enum(["CLP", "USD", "UF", "EUR"]);
 
 export const CreateTransactionSchema = z.object({
   companyId: z.string().min(1),
@@ -12,7 +17,7 @@ export const CreateTransactionSchema = z.object({
   documentId: z.string().min(1).optional(),
   type: TransactionTypeSchema,
   amount: z.number().positive(),
-  currency: CurrencySchema.default('CLP'),
+  currency: CurrencySchema.default("CLP"),
   exchangeRate: z.number().positive().optional(),
   amountCLP: z.number().positive(),
   date: z.coerce.date(),

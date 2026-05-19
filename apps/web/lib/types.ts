@@ -2,7 +2,7 @@ export interface TransactionPayment {
   id: string;
   transactionId: string;
   amount: string;
-  currency: 'CLP' | 'USD' | 'UF' | 'EUR';
+  currency: "CLP" | "USD" | "UF" | "EUR";
   paidAt: string;
   note: string | null;
   accountId: string | null;
@@ -53,15 +53,15 @@ export interface TransactionNote {
   createdAt: string;
 }
 
-export type TransactionDocType = 'FACTURA' | 'BOLETA_HONORARIOS' | 'OTRO';
+export type TransactionDocType = "FACTURA" | "BOLETA_HONORARIOS" | "OTRO";
 
 export interface Transaction {
   id: string;
   companyId: string;
-  type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
-  status: 'PENDING' | 'PAID' | 'RECONCILED' | 'CANCELLED' | 'REJECTED';
+  type: "INCOME" | "EXPENSE" | "TRANSFER";
+  status: "PENDING" | "PAID" | "RECONCILED" | "CANCELLED" | "REJECTED";
   amount: string;
-  currency: 'CLP' | 'USD' | 'UF' | 'EUR';
+  currency: "CLP" | "USD" | "UF" | "EUR";
   amountCLP: string;
   date: string;
   dueDate: string | null;
@@ -70,13 +70,18 @@ export interface Transaction {
   comment: string | null;
   docType: TransactionDocType | null;
   isAfecta: boolean;
-  source: 'MANUAL' | 'SHEET_IMPORT' | 'BANK_CSV' | 'ERP' | 'SII';
+  source: "MANUAL" | "SHEET_IMPORT" | "BANK_CSV" | "ERP" | "SII";
   allocations: TransactionAllocation[];
   payments?: TransactionPayment[];
   auditLogs?: TransactionAuditLog[];
   documents: TransactionDocument[];
   notes: TransactionNote[];
-  counterparty: { id: string; name: string; type: string; rut?: string | null } | null;
+  counterparty: {
+    id: string;
+    name: string;
+    type: string;
+    rut?: string | null;
+  } | null;
   category: { id: string; name: string; color: string | null } | null;
 }
 
@@ -89,9 +94,9 @@ export interface Company {
 
 export interface CreateTransactionInput {
   companyId: string;
-  type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+  type: "INCOME" | "EXPENSE" | "TRANSFER";
   amount: number;
-  currency?: 'CLP' | 'USD' | 'UF' | 'EUR';
+  currency?: "CLP" | "USD" | "UF" | "EUR";
   amountCLP: number;
   date: string;
   description: string;
@@ -105,7 +110,7 @@ export interface CreateTransactionInput {
 
 export interface CreatePaymentInput {
   amount: number;
-  currency?: 'CLP' | 'USD' | 'UF' | 'EUR';
+  currency?: "CLP" | "USD" | "UF" | "EUR";
   paidAt?: string;
   note?: string;
   accountId?: string;
@@ -166,8 +171,8 @@ export interface Counterparty {
 export interface UpdateTransactionInput {
   categoryId?: string;
   counterpartyId?: string;
-  type?: 'INCOME' | 'EXPENSE' | 'TRANSFER';
-  status?: 'PENDING' | 'PAID' | 'RECONCILED' | 'CANCELLED' | 'REJECTED';
+  type?: "INCOME" | "EXPENSE" | "TRANSFER";
+  status?: "PENDING" | "PAID" | "RECONCILED" | "CANCELLED" | "REJECTED";
   description?: string;
 }
 

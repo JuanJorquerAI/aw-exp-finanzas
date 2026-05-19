@@ -1,5 +1,5 @@
-import * as XLSX from 'xlsx';
-import { parse as parseDate } from 'date-fns';
+import * as XLSX from "xlsx";
+import { parse as parseDate } from "date-fns";
 
 export interface BankImportRow {
   externalId: string;
@@ -7,7 +7,7 @@ export interface BankImportRow {
   valueDate: Date;
   description: string;
   amount: number;
-  direction: 'CREDIT' | 'DEBIT';
+  direction: "CREDIT" | "DEBIT";
   txType: string;
   counterName?: string;
   counterRut?: string;
@@ -21,17 +21,17 @@ export interface BankParser {
   parse(buffer: Buffer): BankImportRow[];
 }
 
-export type BankFileType = 'detallado' | 'historico';
+export type BankFileType = "detallado" | "historico";
 
 function parseCLPString(val: unknown): number | null {
-  if (val === null || val === undefined || val === '') return null;
-  const n = Number(String(val).replace(/\./g, '').replace(',', '.'));
+  if (val === null || val === undefined || val === "") return null;
+  const n = Number(String(val).replace(/\./g, "").replace(",", "."));
   return isNaN(n) ? null : n;
 }
 
 // Strips dots from RUT (BCI provides "77757710-7" — already no dots, keep as-is)
 function normalizeRut(rut: string): string {
-  return rut.replace(/\./g, '').trim();
+  return rut.replace(/\./g, "").trim();
 }
 
 // ─── BCI Movimientos Detallado ─────────────────────────────────────────────
@@ -42,43 +42,58 @@ function normalizeRut(rut: string): string {
 // 13=N°Cuenta  14=Tipo cuenta  15=Banco  16=Email  17=Comentario
 
 export class BciBankParser implements BankParser {
-  readonly bankName = 'BCI';
+  readonly bankName = "BCI";
 
   parse(buffer: Buffer): BankImportRow[] {
-    const wb = XLSX.read(buffer, { type: 'buffer', cellDates: true });
+    const wb = XLSX.read(buffer, { type: "buffer", cellDates: true });
     const ws = wb.Sheets[wb.SheetNames[0]];
-    const raw = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, defval: null });
+    const raw = XLSX.utils.sheet_to_json<unknown[]>(ws, {
+      header: 1,
+      defval: null,
+    });
 
     const result: BankImportRow[] = [];
 
     for (let i = 1; i < raw.length; i++) {
       const row = raw[i] as unknown[];
-      const externalId = String(row[3] ?? '').trim();
+      const externalId = String(row[3] ?? "").trim();
       if (!externalId) continue;
 
-      const ingreso = typeof row[8] === 'number' ? (row[8] as number) : null;
-      const egreso = typeof row[9] === 'number' ? (row[9] as number) : null;
-      const direction: 'CREDIT' | 'DEBIT' = ingreso !== null ? 'CREDIT' : 'DEBIT';
+      const ingreso = typeof row[8] === "number" ? (row[8] as number) : null;
+      const egreso = typeof row[9] === "number" ? (row[9] as number) : null;
+      const direction: "CREDIT" | "DEBIT" =
+        ingreso !== null ? "CREDIT" : "DEBIT";
       const amount = Math.abs(ingreso ?? egreso ?? 0);
 
       const date = row[0] instanceof Date ? row[0] : new Date(String(row[0]));
-      const valueDate = row[2] instanceof Date ? row[2] : new Date(String(row[2]));
+      const valueDate =
+        row[2] instanceof Date ? row[2] : new Date(String(row[2]));
 
-      const rawRut = typeof row[12] === 'string' ? row[12] : null;
+      const rawRut = typeof row[12] === "string" ? row[12] : null;
       const counterRut = rawRut ? normalizeRut(rawRut) : undefined;
-      const counterName = typeof row[11] === 'string' && row[11] ? (row[11] as string).trim() : undefined;
-      const counterBank = typeof row[15] === 'string' && row[15] ? (row[15] as string).trim() : undefined;
-      const comment = typeof row[17] === 'string' && row[17] ? (row[17] as string).trim() : undefined;
-      const balance = typeof row[10] === 'number' ? (row[10] as number) : undefined;
+      const counterName =
+        typeof row[11] === "string" && row[11]
+          ? (row[11] as string).trim()
+          : undefined;
+      const counterBank =
+        typeof row[15] === "string" && row[15]
+          ? (row[15] as string).trim()
+          : undefined;
+      const comment =
+        typeof row[17] === "string" && row[17]
+          ? (row[17] as string).trim()
+          : undefined;
+      const balance =
+        typeof row[10] === "number" ? (row[10] as number) : undefined;
 
       result.push({
         externalId,
         date,
         valueDate,
-        description: String(row[7] ?? '').trim(),
+        description: String(row[7] ?? "").trim(),
         amount,
         direction,
-        txType: String(row[5] ?? '').trim(),
+        txType: String(row[5] ?? "").trim(),
         counterName,
         counterRut: counterRut || undefined,
         counterBank,
@@ -98,23 +113,27 @@ export class BciBankParser implements BankParser {
 // 9=Cargos(string "1.000.000")  10=Abonos  11=Saldo
 
 export class BciHistoricoParser implements BankParser {
-  readonly bankName = 'BCI';
+  readonly bankName = "BCI";
 
   parse(buffer: Buffer): BankImportRow[] {
-    const wb = XLSX.read(buffer, { type: 'buffer', cellDates: true });
+    const wb = XLSX.read(buffer, { type: "buffer", cellDates: true });
     const ws = wb.Sheets[wb.SheetNames[0]];
-    const raw = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, defval: null });
+    const raw = XLSX.utils.sheet_to_json<unknown[]>(ws, {
+      header: 1,
+      defval: null,
+    });
 
     const result: BankImportRow[] = [];
 
     for (let i = 23; i < raw.length; i++) {
       const row = raw[i] as unknown[];
-      const dateStr = typeof row[0] === 'string' ? (row[0] as string).trim() : null;
-      if (!dateStr || !dateStr.includes('/')) continue;
+      const dateStr =
+        typeof row[0] === "string" ? (row[0] as string).trim() : null;
+      if (!dateStr || !dateStr.includes("/")) continue;
 
-      const date = parseDate(dateStr, 'dd/MM/yyyy', new Date());
-      const description = String(row[5] ?? '').trim();
-      const docNumber = String(row[7] ?? '').trim();
+      const date = parseDate(dateStr, "dd/MM/yyyy", new Date());
+      const description = String(row[5] ?? "").trim();
+      const docNumber = String(row[7] ?? "").trim();
 
       const cargo = parseCLPString(row[9]);
       const abono = parseCLPString(row[10]);
@@ -122,11 +141,11 @@ export class BciHistoricoParser implements BankParser {
 
       if (cargo === null && abono === null) continue;
 
-      const direction: 'CREDIT' | 'DEBIT' = abono !== null ? 'CREDIT' : 'DEBIT';
+      const direction: "CREDIT" | "DEBIT" = abono !== null ? "CREDIT" : "DEBIT";
       const amount = Math.abs(abono ?? cargo ?? 0);
 
       // Sin código único — usamos hash basado en fecha+doc+monto
-      const externalId = `BCI_HIST_${dateStr.replace(/\//g, '')}_${docNumber}_${amount}`;
+      const externalId = `BCI_HIST_${dateStr.replace(/\//g, "")}_${docNumber}_${amount}`;
 
       result.push({
         externalId,
@@ -135,7 +154,7 @@ export class BciHistoricoParser implements BankParser {
         description,
         amount,
         direction,
-        txType: direction === 'CREDIT' ? 'ABONO' : 'CARGO',
+        txType: direction === "CREDIT" ? "ABONO" : "CARGO",
         balance: balance ?? undefined,
       });
     }
@@ -146,10 +165,15 @@ export class BciHistoricoParser implements BankParser {
 
 // ─── Factory ──────────────────────────────────────────────────────────────
 
-export function createBankParser(bank: string, fileType: BankFileType = 'detallado'): BankParser {
+export function createBankParser(
+  bank: string,
+  fileType: BankFileType = "detallado",
+): BankParser {
   const key = bank.toUpperCase();
-  if (key === 'BCI') {
-    return fileType === 'historico' ? new BciHistoricoParser() : new BciBankParser();
+  if (key === "BCI") {
+    return fileType === "historico"
+      ? new BciHistoricoParser()
+      : new BciBankParser();
   }
   throw new Error(`Parser no disponible para banco: ${bank}. Disponibles: BCI`);
 }

@@ -1,14 +1,49 @@
-'use client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTransactions, getCompanies, markTransactionPaid, cancelTransaction, createTransaction, getTaxesMonthly, getTaxesAnnual, getTransaction, addPayment, moveTransactionCompany, getAccounts, importBankFile, getCategories, getCounterparties, updateTransaction, createCounterparty, updateCounterparty, getCategorizationRules, createCategorizationRule, updateCategorizationRule, deleteCategorizationRule, getDocuments, linkDocument, unlinkDocument, addTransactionNote, updateTransactionStatus } from './api';
-import type { CreateTransactionInput, CreatePaymentInput, UpdateTransactionInput, CreateCategorizationRuleInput } from './types';
+"use client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getTransactions,
+  getCompanies,
+  markTransactionPaid,
+  cancelTransaction,
+  createTransaction,
+  getTaxesMonthly,
+  getTaxesAnnual,
+  getTransaction,
+  addPayment,
+  moveTransactionCompany,
+  getAccounts,
+  importBankFile,
+  getCategories,
+  getCounterparties,
+  updateTransaction,
+  createCounterparty,
+  updateCounterparty,
+  getCategorizationRules,
+  createCategorizationRule,
+  updateCategorizationRule,
+  deleteCategorizationRule,
+  getDocuments,
+  linkDocument,
+  unlinkDocument,
+  addTransactionNote,
+  updateTransactionStatus,
+} from "./api";
+import type {
+  CreateTransactionInput,
+  CreatePaymentInput,
+  UpdateTransactionInput,
+  CreateCategorizationRuleInput,
+} from "./types";
 
 export const queryKeys = {
-  companies: ['companies'] as const,
-  transactions: (params: Record<string, string>) => ['transactions', params] as const,
-  transaction: (id: string) => ['transactions', id] as const,
-  taxesMonthly: (companyId: string, year: number, month: number) => ['taxes', 'monthly', companyId, year, month] as const,
-  taxesAnnual: (companyId: string, year: number) => ['taxes', 'annual', companyId, year] as const,
+  companies: ["companies"] as const,
+  transactions: (params: Record<string, string>) =>
+    ["transactions", params] as const,
+  transaction: (id: string) => ["transactions", id] as const,
+  taxesMonthly: (companyId: string, year: number, month: number) =>
+    ["taxes", "monthly", companyId, year, month] as const,
+  taxesAnnual: (companyId: string, year: number) =>
+    ["taxes", "annual", companyId, year] as const,
 };
 
 export function useCompanies() {
@@ -26,7 +61,8 @@ export function useMarkPaid() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: markTransactionPaid,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["transactions"] }),
   });
 }
 
@@ -42,18 +78,26 @@ export function useCancelTransaction() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: cancelTransaction,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["transactions"] }),
   });
 }
 
 export function useAddPayment() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ transactionId, dto }: { transactionId: string; dto: CreatePaymentInput }) =>
-      addPayment(transactionId, dto),
+    mutationFn: ({
+      transactionId,
+      dto,
+    }: {
+      transactionId: string;
+      dto: CreatePaymentInput;
+    }) => addPayment(transactionId, dto),
     onSuccess: (_, { transactionId }) => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: queryKeys.transaction(transactionId) });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.transaction(transactionId),
+      });
     },
   });
 }
@@ -63,7 +107,8 @@ export function useMoveTransaction() {
   return useMutation({
     mutationFn: ({ id, companyId }: { id: string; companyId: string }) =>
       moveTransactionCompany(id, companyId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["transactions"] }),
   });
 }
 
@@ -71,11 +116,16 @@ export function useCreateTransaction() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (dto: CreateTransactionInput) => createTransaction(dto),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["transactions"] }),
   });
 }
 
-export function useTaxesMonthly(companyId: string, year: number, month: number) {
+export function useTaxesMonthly(
+  companyId: string,
+  year: number,
+  month: number,
+) {
   return useQuery({
     queryKey: queryKeys.taxesMonthly(companyId, year, month),
     queryFn: () => getTaxesMonthly(companyId, year, month),
@@ -93,33 +143,55 @@ export function useTaxesAnnual(companyId: string, year: number) {
 
 export function useAccounts(companyId?: string) {
   return useQuery({
-    queryKey: ['accounts', companyId],
+    queryKey: ["accounts", companyId],
     queryFn: () => getAccounts(companyId),
   });
 }
 
 export function useCategories() {
-  return useQuery({ queryKey: ['categories'], queryFn: getCategories });
+  return useQuery({ queryKey: ["categories"], queryFn: getCategories });
 }
 
 export function useCounterparties() {
-  return useQuery({ queryKey: ['counterparties'], queryFn: getCounterparties });
+  return useQuery({ queryKey: ["counterparties"], queryFn: getCounterparties });
 }
 
 export function useCreateCounterparty() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (dto: { name: string; type: string; rut?: string; razonSocial?: string; isPersonaNatural?: boolean }) => createCounterparty(dto),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['counterparties'] }),
+    mutationFn: (dto: {
+      name: string;
+      type: string;
+      rut?: string;
+      razonSocial?: string;
+      isPersonaNatural?: boolean;
+    }) => createCounterparty(dto),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["counterparties"] }),
   });
 }
 
 export function useUpdateCounterparty() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: { name?: string; type?: string; rut?: string; razonSocial?: string; isPersonaNatural?: boolean; email?: string; phone?: string; notes?: string } }) =>
-      updateCounterparty(id, dto),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['counterparties'] }),
+    mutationFn: ({
+      id,
+      dto,
+    }: {
+      id: string;
+      dto: {
+        name?: string;
+        type?: string;
+        rut?: string;
+        razonSocial?: string;
+        isPersonaNatural?: boolean;
+        email?: string;
+        phone?: string;
+        notes?: string;
+      };
+    }) => updateCounterparty(id, dto),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["counterparties"] }),
   });
 }
 
@@ -128,37 +200,57 @@ export function useUpdateTransaction() {
   return useMutation({
     mutationFn: ({ id, dto }: { id: string; dto: UpdateTransactionInput }) =>
       updateTransaction(id, dto),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["transactions"] }),
   });
 }
 
 export function useBankImport() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ file, accountId, fileType }: { file: File; accountId: string; fileType: 'detallado' | 'historico' }) =>
-      importBankFile(file, accountId, fileType),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+    mutationFn: ({
+      file,
+      accountId,
+      fileType,
+    }: {
+      file: File;
+      accountId: string;
+      fileType: "detallado" | "historico";
+    }) => importBankFile(file, accountId, fileType),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["transactions"] }),
   });
 }
 
 export function useCategorizationRules() {
-  return useQuery({ queryKey: ['categorization-rules'], queryFn: getCategorizationRules });
+  return useQuery({
+    queryKey: ["categorization-rules"],
+    queryFn: getCategorizationRules,
+  });
 }
 
 export function useCreateCategorizationRule() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (dto: CreateCategorizationRuleInput) => createCategorizationRule(dto),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['categorization-rules'] }),
+    mutationFn: (dto: CreateCategorizationRuleInput) =>
+      createCategorizationRule(dto),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["categorization-rules"] }),
   });
 }
 
 export function useUpdateCategorizationRule() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: Partial<CreateCategorizationRuleInput & { isActive: boolean }> }) =>
-      updateCategorizationRule(id, dto),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['categorization-rules'] }),
+    mutationFn: ({
+      id,
+      dto,
+    }: {
+      id: string;
+      dto: Partial<CreateCategorizationRuleInput & { isActive: boolean }>;
+    }) => updateCategorizationRule(id, dto),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["categorization-rules"] }),
   });
 }
 
@@ -166,16 +258,25 @@ export function useDeleteCategorizationRule() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteCategorizationRule(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['categorization-rules'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["categorization-rules"] }),
   });
 }
 
 export function useLinkDocument() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ transactionId, documentId, note }: { transactionId: string; documentId: string; note?: string }) =>
-      linkDocument(transactionId, documentId, note),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+    mutationFn: ({
+      transactionId,
+      documentId,
+      note,
+    }: {
+      transactionId: string;
+      documentId: string;
+      note?: string;
+    }) => linkDocument(transactionId, documentId, note),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["transactions"] }),
   });
 }
 
@@ -183,30 +284,39 @@ export function useUnlinkDocument() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (linkId: string) => unlinkDocument(linkId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["transactions"] }),
   });
 }
 
 export function useAddTransactionNote() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ transactionId, content }: { transactionId: string; content: string }) =>
-      addTransactionNote(transactionId, content),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+    mutationFn: ({
+      transactionId,
+      content,
+    }: {
+      transactionId: string;
+      content: string;
+    }) => addTransactionNote(transactionId, content),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["transactions"] }),
   });
 }
 
 export function useUpdateTransactionStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => updateTransactionStatus(id, status),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      updateTransactionStatus(id, status),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["transactions"] }),
   });
 }
 
 export function useDocuments(params: Record<string, string> = {}) {
   return useQuery({
-    queryKey: ['documents', params],
+    queryKey: ["documents", params],
     queryFn: () => getDocuments(params),
   });
 }

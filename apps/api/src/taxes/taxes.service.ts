@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
-const PPM_RATE = 0.1;      // ~10% ingresos afectos
-const IVA_RATE = 0.19;     // 19%
+const PPM_RATE = 0.1; // ~10% ingresos afectos
+const IVA_RATE = 0.19; // 19%
 const RETENCION_RATE = 0.1375; // 13.75% boletas honorarios
 
 export interface TaxBreakdown {
@@ -28,7 +28,11 @@ export interface MonthlyTax {
 export class TaxesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getMonthly(companyId: string, year: number, month: number): Promise<MonthlyTax> {
+  async getMonthly(
+    companyId: string,
+    year: number,
+    month: number,
+  ): Promise<MonthlyTax> {
     const from = new Date(year, month - 1, 1);
     const to = new Date(year, month, 1);
 
@@ -55,7 +59,8 @@ export class TaxesService {
         if (tx.isAfecta) incomeAfecta += amount;
         else incomeExenta += amount;
       } else if (tx.type === 'EXPENSE') {
-        if (tx.isAfecta && tx.docType === 'FACTURA') expenseAfectaFactura += amount;
+        if (tx.isAfecta && tx.docType === 'FACTURA')
+          expenseAfectaFactura += amount;
         if (tx.docType === 'BOLETA_HONORARIOS') retencionBase += amount;
       }
     }

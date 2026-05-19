@@ -1,6 +1,6 @@
-import { PrismaClient, Prisma, TransactionSource } from '@prisma/client';
-import { endOfMonth, startOfMonth, parseISO } from 'date-fns';
-import { applyCategorizationRules } from '../categorization';
+import { PrismaClient, Prisma, TransactionSource } from "@prisma/client";
+import { endOfMonth, startOfMonth, parseISO } from "date-fns";
+import { applyCategorizationRules } from "../categorization";
 
 export interface SheetImportData {
   month: string;
@@ -22,7 +22,7 @@ interface Payment {
 interface Invoice {
   rut: string;
   number: string;
-  type: 'AFECTA' | 'EXENTA';
+  type: "AFECTA" | "EXENTA";
   counterparty: string;
   service: string;
   net: number;
@@ -45,25 +45,25 @@ interface OpportunityImport {
 }
 
 const ITEM_TO_CATEGORY: Record<string, string> = {
-  'IVA + PPM': 'IVA + PPM',
-  'F29': 'F29',
-  'PPM': 'IVA + PPM',
-  'Pagos previsionales': 'Pagos previsionales',
-  'Sueldo Damian': 'Sueldo developers',
-  'Sueldo Juan': 'Sueldo socios',
-  'Bryan Cartagena': 'Sueldo developers',
-  'Luis Silva': 'Sueldo developers',
-  'Luis Farías': 'Honorarios externos',
-  'Eduardo Ricci': 'Honorarios externos',
-  'Cuota Fogape': 'Cuota Fogape',
-  'Préstamo BCI Celulares': 'Préstamo BCI',
-  'Visa': 'Tarjeta Visa',
-  'Mails de AW': 'Mails corporativos',
-  'Canva': 'Canva',
-  'Google Workspace Maxiclima': 'Google Workspace',
-  'ChatGPT': 'ChatGPT',
-  'Claude': 'Claude',
-  'Notion': 'Notion',
+  "IVA + PPM": "IVA + PPM",
+  F29: "F29",
+  PPM: "IVA + PPM",
+  "Pagos previsionales": "Pagos previsionales",
+  "Sueldo Damian": "Sueldo developers",
+  "Sueldo Juan": "Sueldo socios",
+  "Bryan Cartagena": "Sueldo developers",
+  "Luis Silva": "Sueldo developers",
+  "Luis Farías": "Honorarios externos",
+  "Eduardo Ricci": "Honorarios externos",
+  "Cuota Fogape": "Cuota Fogape",
+  "Préstamo BCI Celulares": "Préstamo BCI",
+  Visa: "Tarjeta Visa",
+  "Mails de AW": "Mails corporativos",
+  Canva: "Canva",
+  "Google Workspace Maxiclima": "Google Workspace",
+  ChatGPT: "ChatGPT",
+  Claude: "Claude",
+  Notion: "Notion",
 };
 
 async function resolveCategoryId(
@@ -81,12 +81,28 @@ async function resolveCategoryId(
 export async function importFromSheet(
   data: SheetImportData,
   prisma: PrismaClient,
-): Promise<{ payments: number; invoices: number; visa: number; opportunities: number }> {
+): Promise<{
+  payments: number;
+  invoices: number;
+  visa: number;
+  opportunities: number;
+}> {
   const companies = await prisma.company.findMany();
-  const companiesMap = Object.fromEntries(companies.map((c: { shortCode: string; id: string; [key: string]: unknown }) => [c.shortCode, c]));
+  const companiesMap = Object.fromEntries(
+    companies.map(
+      (c: { shortCode: string; id: string; [key: string]: unknown }) => [
+        c.shortCode,
+        c,
+      ],
+    ),
+  );
 
   const categories = await prisma.category.findMany();
-  const categoriesMap = Object.fromEntries(categories.map((c: { name: string; id: string; [key: string]: unknown }) => [c.name, c]));
+  const categoriesMap = Object.fromEntries(
+    categories.map(
+      (c: { name: string; id: string; [key: string]: unknown }) => [c.name, c],
+    ),
+  );
 
   const monthDate = parseISO(`${data.month}-01`);
   const monthStart = startOfMonth(monthDate);
@@ -97,11 +113,11 @@ export async function importFromSheet(
   let visaCount = 0;
   let opportunityCount = 0;
 
-  const awCompany = companiesMap['AW'];
+  const awCompany = companiesMap["AW"];
 
   await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     for (const p of data.payments) {
-      const codes = p.company.split(',').map((c) => c.trim());
+      const codes = p.company.split(",").map((c) => c.trim());
       const primary = companiesMap[codes[0]];
       if (!primary) {
         console.warn(`⚠️  Empresa no encontrada: ${codes[0]}`);
@@ -112,12 +128,12 @@ export async function importFromSheet(
 
       const transaction = await tx.transaction.create({
         data: {
-          type: 'EXPENSE',
-          status: p.paid ? 'PAID' : 'PENDING',
+          type: "EXPENSE",
+          status: p.paid ? "PAID" : "PENDING",
           source: TransactionSource.SHEET_IMPORT,
           amount: p.amount,
           amountCLP: p.amount,
-          currency: 'CLP',
+          currency: "CLP",
           date: monthEnd,
           description: p.item,
           comment: p.comment || null,
@@ -143,7 +159,8 @@ export async function importFromSheet(
       paymentCount++;
     }
 
-    if (!awCompany) throw new Error('Empresa AW no encontrada — ejecutar seed primero');
+    if (!awCompany)
+      throw new Error("Empresa AW no encontrada — ejecutar seed primero");
 
     for (const inv of data.invoices) {
       const cp = await upsertCounterparty(tx, inv.rut, inv.counterparty);
@@ -152,12 +169,12 @@ export async function importFromSheet(
         data: {
           companyId: awCompany.id,
           counterpartyId: cp.id,
-          type: inv.type as 'AFECTA' | 'EXENTA',
+          type: inv.type as "AFECTA" | "EXENTA",
           number: inv.number || null,
           netAmount: inv.net,
           ivaAmount: inv.iva,
           totalAmount: inv.total,
-          currency: 'CLP',
+          currency: "CLP",
           description: inv.service || null,
           isSent: inv.sent,
         },
@@ -165,15 +182,15 @@ export async function importFromSheet(
 
       const incTx = await tx.transaction.create({
         data: {
-          type: 'INCOME',
-          status: inv.paidAt ? 'PAID' : 'PENDING',
+          type: "INCOME",
+          status: inv.paidAt ? "PAID" : "PENDING",
           source: TransactionSource.SHEET_IMPORT,
           amount: inv.total,
           amountCLP: inv.total,
-          currency: 'CLP',
+          currency: "CLP",
           date: monthStart,
           paidAt: inv.paidAt ? new Date(inv.paidAt) : null,
-          description: `Factura ${inv.number || 'S/N'} - ${inv.counterparty}`,
+          description: `Factura ${inv.number || "S/N"} - ${inv.counterparty}`,
           companyId: awCompany.id,
           counterpartyId: cp.id,
         },
@@ -198,17 +215,19 @@ export async function importFromSheet(
     for (const v of data.visa) {
       const isUSD = v.amountUSD !== null;
       const amount = isUSD ? v.amountUSD! : v.amountCLP!;
-      const amountCLP = isUSD ? v.amountUSD! * data.exchangeRate.USD_CLP : v.amountCLP!;
+      const amountCLP = isUSD
+        ? v.amountUSD! * data.exchangeRate.USD_CLP
+        : v.amountCLP!;
 
       const categoryId = await resolveCategoryId(v.item, categoriesMap, tx);
 
       const visaTx = await tx.transaction.create({
         data: {
-          type: 'EXPENSE',
-          status: 'PAID',
+          type: "EXPENSE",
+          status: "PAID",
           source: TransactionSource.SHEET_IMPORT,
           amount,
-          currency: isUSD ? 'USD' : 'CLP',
+          currency: isUSD ? "USD" : "CLP",
           exchangeRate: isUSD ? data.exchangeRate.USD_CLP : null,
           amountCLP,
           date: monthStart,
@@ -232,7 +251,9 @@ export async function importFromSheet(
     for (const o of data.opportunities) {
       const co = companiesMap[o.company];
       if (!co) {
-        console.warn(`⚠️  Empresa no encontrada para oportunidad: ${o.company}`);
+        console.warn(
+          `⚠️  Empresa no encontrada para oportunidad: ${o.company}`,
+        );
         continue;
       }
 
@@ -240,8 +261,8 @@ export async function importFromSheet(
         data: {
           name: o.name,
           estimatedAmount: o.amount,
-          currency: 'CLP',
-          stage: 'PROPOSAL_SENT',
+          currency: "CLP",
+          stage: "PROPOSAL_SENT",
           probability: 50,
           companyId: co.id,
         },
@@ -251,9 +272,16 @@ export async function importFromSheet(
     }
   });
 
-  console.log(`✅ Importación completada: ${paymentCount} pagos, ${invoiceCount} facturas, ${visaCount} visa, ${opportunityCount} oportunidades`);
+  console.log(
+    `✅ Importación completada: ${paymentCount} pagos, ${invoiceCount} facturas, ${visaCount} visa, ${opportunityCount} oportunidades`,
+  );
 
-  return { payments: paymentCount, invoices: invoiceCount, visa: visaCount, opportunities: opportunityCount };
+  return {
+    payments: paymentCount,
+    invoices: invoiceCount,
+    visa: visaCount,
+    opportunities: opportunityCount,
+  };
 }
 
 async function upsertCounterparty(
@@ -265,12 +293,12 @@ async function upsertCounterparty(
     return tx.counterparty.upsert({
       where: { rut },
       update: { name },
-      create: { type: 'CUSTOMER', name, rut },
+      create: { type: "CUSTOMER", name, rut },
     });
   }
 
   const existing = await tx.counterparty.findFirst({ where: { name } });
   if (existing) return existing;
 
-  return tx.counterparty.create({ data: { type: 'CUSTOMER', name } });
+  return tx.counterparty.create({ data: { type: "CUSTOMER", name } });
 }

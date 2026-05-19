@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma } from "@prisma/client";
 
 type AnyPrismaClient = PrismaClient | Prisma.TransactionClient;
 
@@ -8,7 +8,7 @@ export async function applyCategorizationRules(
 ): Promise<string | null> {
   const rules = await client.categorizationRule.findMany({
     where: { isActive: true },
-    orderBy: { priority: 'desc' },
+    orderBy: { priority: "desc" },
     select: { pattern: true, isRegex: true, categoryId: true },
   });
 
@@ -17,7 +17,7 @@ export async function applyCategorizationRules(
   for (const rule of rules) {
     if (rule.isRegex) {
       try {
-        const re = new RegExp(rule.pattern, 'i');
+        const re = new RegExp(rule.pattern, "i");
         if (re.test(text)) return rule.categoryId;
       } catch {
         // patrón regex inválido — saltar

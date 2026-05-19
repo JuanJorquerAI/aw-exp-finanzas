@@ -17,6 +17,7 @@ Soy **Juan**, founder de AplicacionesWeb (servicios web/SaaS) y Expande PRO (su 
 ## Objetivo de Phase 0
 
 Dejar el monorepo funcionando en local con:
+
 1. ✅ Estructura monorepo (apps/api, apps/web, packages/database)
 2. ✅ NestJS API booteando con health endpoint
 3. ✅ Next.js web booteando con página de inicio
@@ -104,6 +105,7 @@ aw-finanzas/
 ## Paso a paso (ejecuta en este orden)
 
 ### Paso 1: Inicializar monorepo
+
 - `pnpm init` en root
 - Crear `pnpm-workspace.yaml` con `apps/*` y `packages/*`
 - `.gitignore` estándar (node_modules, .env, dist, .next, etc.)
@@ -111,6 +113,7 @@ aw-finanzas/
 - `.env.example` con `DATABASE_URL`, `API_PORT=3001`, `WEB_PORT=3000`
 
 ### Paso 2: packages/database
+
 - Inicializar package con dependencias `prisma`, `@prisma/client`
 - Pegar el `schema.prisma` completo (ver sección "Prisma Schema" abajo)
 - `pnpm prisma generate` y `pnpm prisma migrate dev --name init`
@@ -119,10 +122,12 @@ aw-finanzas/
 - `src/index.ts` que exporta una instancia singleton de PrismaClient
 
 ### Paso 3: packages/shared
+
 - Crear schemas zod para las entidades principales (Transaction, Document, Counterparty, Opportunity)
 - Estos schemas se importarán desde api y web
 
 ### Paso 4: apps/api (NestJS)
+
 - `nest new api` configurado para usar pnpm
 - Instalar dependencias: `@aw-finanzas/database`, `@aw-finanzas/shared`, `class-validator`, `class-transformer`
 - `PrismaService` que extiende PrismaClient (patrón estándar Nest)
@@ -140,6 +145,7 @@ aw-finanzas/
 - Health endpoint en `/health` que retorna `{ status: "ok", db: "connected" }`
 
 ### Paso 5: apps/web (Next.js)
+
 - `npx create-next-app@latest web --typescript --tailwind --app --no-src-dir`
 - Instalar shadcn/ui: `npx shadcn@latest init` (estilo: New York, color: Slate)
 - Instalar componentes base: `button card input label table tabs toast dialog`
@@ -148,10 +154,13 @@ aw-finanzas/
 - Variables de entorno: `NEXT_PUBLIC_API_URL=http://localhost:3001`
 
 ### Paso 6: Importer del Google Sheet
+
 Ver sección dedicada abajo. Crítico que esto funcione end-to-end.
 
 ### Paso 7: README.md
+
 Documentar:
+
 - Requisitos previos (Node 20, pnpm, Docker)
 - Setup en 5 comandos: `pnpm install` → `docker-compose up -d` → `pnpm db:migrate` → `pnpm db:seed` → `pnpm dev`
 - Cómo correr el importer con el archivo `data/sheet-mayo-2026.json`
@@ -172,142 +181,173 @@ Documentar:
 ```typescript
 // packages/database/prisma/seed.ts
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
   // ============= COMPANIES =============
   const aw = await prisma.company.upsert({
-    where: { shortCode: 'AW' },
+    where: { shortCode: "AW" },
     update: {},
     create: {
-      name: 'AplicacionesWeb',
-      shortCode: 'AW',
+      name: "AplicacionesWeb",
+      shortCode: "AW",
       // RUT real lo completa Juan después
     },
   });
 
   const expro = await prisma.company.upsert({
-    where: { shortCode: 'EXPRO' },
+    where: { shortCode: "EXPRO" },
     update: {},
     create: {
-      name: 'Expande PRO',
-      shortCode: 'EXPRO',
+      name: "Expande PRO",
+      shortCode: "EXPRO",
     },
   });
 
   // ============= ACCOUNTS (placeholders) =============
   await prisma.account.createMany({
     data: [
-      { companyId: aw.id, name: 'Banco Estado CC', type: 'BANK_CHECKING', currency: 'CLP' },
-      { companyId: aw.id, name: 'Visa', type: 'CREDIT_CARD', currency: 'CLP' },
-      { companyId: aw.id, name: 'Caja', type: 'CASH', currency: 'CLP' },
-      { companyId: expro.id, name: 'Banco Estado CC', type: 'BANK_CHECKING', currency: 'CLP' },
-      { companyId: expro.id, name: 'Caja', type: 'CASH', currency: 'CLP' },
+      {
+        companyId: aw.id,
+        name: "Banco Estado CC",
+        type: "BANK_CHECKING",
+        currency: "CLP",
+      },
+      { companyId: aw.id, name: "Visa", type: "CREDIT_CARD", currency: "CLP" },
+      { companyId: aw.id, name: "Caja", type: "CASH", currency: "CLP" },
+      {
+        companyId: expro.id,
+        name: "Banco Estado CC",
+        type: "BANK_CHECKING",
+        currency: "CLP",
+      },
+      { companyId: expro.id, name: "Caja", type: "CASH", currency: "CLP" },
     ],
   });
 
   // ============= CATEGORIES (jerárquicas) =============
   // INGRESOS
   const incServicios = await prisma.category.create({
-    data: { name: 'Servicios recurrentes', type: 'INCOME', icon: '🔄' },
+    data: { name: "Servicios recurrentes", type: "INCOME", icon: "🔄" },
   });
   await prisma.category.createMany({
     data: [
-      { name: 'Fee mensual web', type: 'INCOME', parentId: incServicios.id },
-      { name: 'Hosting / Mailhosting', type: 'INCOME', parentId: incServicios.id },
-      { name: 'SEO / SEM', type: 'INCOME', parentId: incServicios.id },
-      { name: 'Soporte ERP', type: 'INCOME', parentId: incServicios.id },
+      { name: "Fee mensual web", type: "INCOME", parentId: incServicios.id },
+      {
+        name: "Hosting / Mailhosting",
+        type: "INCOME",
+        parentId: incServicios.id,
+      },
+      { name: "SEO / SEM", type: "INCOME", parentId: incServicios.id },
+      { name: "Soporte ERP", type: "INCOME", parentId: incServicios.id },
     ],
   });
 
   const incProyectos = await prisma.category.create({
-    data: { name: 'Proyectos one-time', type: 'INCOME', icon: '🚀' },
+    data: { name: "Proyectos one-time", type: "INCOME", icon: "🚀" },
   });
   await prisma.category.createMany({
     data: [
-      { name: 'Desarrollo web', type: 'INCOME', parentId: incProyectos.id },
-      { name: 'Implementación ERP', type: 'INCOME', parentId: incProyectos.id },
-      { name: 'Consultoría', type: 'INCOME', parentId: incProyectos.id },
+      { name: "Desarrollo web", type: "INCOME", parentId: incProyectos.id },
+      { name: "Implementación ERP", type: "INCOME", parentId: incProyectos.id },
+      { name: "Consultoría", type: "INCOME", parentId: incProyectos.id },
     ],
   });
 
   const incComisiones = await prisma.category.create({
-    data: { name: 'Comisiones', type: 'INCOME', icon: '💰' },
+    data: { name: "Comisiones", type: "INCOME", icon: "💰" },
   });
   await prisma.category.createMany({
     data: [
-      { name: 'Ventas web (% sobre ventas)', type: 'INCOME', parentId: incComisiones.id },
+      {
+        name: "Ventas web (% sobre ventas)",
+        type: "INCOME",
+        parentId: incComisiones.id,
+      },
     ],
   });
 
   // EGRESOS
   const expSueldos = await prisma.category.create({
-    data: { name: 'Sueldos y honorarios', type: 'EXPENSE', icon: '👥' },
+    data: { name: "Sueldos y honorarios", type: "EXPENSE", icon: "👥" },
   });
   await prisma.category.createMany({
     data: [
-      { name: 'Sueldo socios', type: 'EXPENSE', parentId: expSueldos.id },
-      { name: 'Sueldo developers', type: 'EXPENSE', parentId: expSueldos.id },
-      { name: 'Honorarios externos', type: 'EXPENSE', parentId: expSueldos.id },
+      { name: "Sueldo socios", type: "EXPENSE", parentId: expSueldos.id },
+      { name: "Sueldo developers", type: "EXPENSE", parentId: expSueldos.id },
+      { name: "Honorarios externos", type: "EXPENSE", parentId: expSueldos.id },
     ],
   });
 
   const expTributarios = await prisma.category.create({
-    data: { name: 'Tributarios', type: 'EXPENSE', icon: '🏛️' },
+    data: { name: "Tributarios", type: "EXPENSE", icon: "🏛️" },
   });
   await prisma.category.createMany({
     data: [
-      { name: 'IVA + PPM', type: 'EXPENSE', parentId: expTributarios.id },
-      { name: 'F29', type: 'EXPENSE', parentId: expTributarios.id },
-      { name: 'Pagos previsionales', type: 'EXPENSE', parentId: expTributarios.id },
+      { name: "IVA + PPM", type: "EXPENSE", parentId: expTributarios.id },
+      { name: "F29", type: "EXPENSE", parentId: expTributarios.id },
+      {
+        name: "Pagos previsionales",
+        type: "EXPENSE",
+        parentId: expTributarios.id,
+      },
     ],
   });
 
   const expFinancieros = await prisma.category.create({
-    data: { name: 'Financieros', type: 'EXPENSE', icon: '🏦' },
+    data: { name: "Financieros", type: "EXPENSE", icon: "🏦" },
   });
   await prisma.category.createMany({
     data: [
-      { name: 'Cuota Fogape', type: 'EXPENSE', parentId: expFinancieros.id },
-      { name: 'Préstamo BCI', type: 'EXPENSE', parentId: expFinancieros.id },
-      { name: 'Comisiones bancarias', type: 'EXPENSE', parentId: expFinancieros.id },
-      { name: 'Tarjeta Visa', type: 'EXPENSE', parentId: expFinancieros.id },
+      { name: "Cuota Fogape", type: "EXPENSE", parentId: expFinancieros.id },
+      { name: "Préstamo BCI", type: "EXPENSE", parentId: expFinancieros.id },
+      {
+        name: "Comisiones bancarias",
+        type: "EXPENSE",
+        parentId: expFinancieros.id,
+      },
+      { name: "Tarjeta Visa", type: "EXPENSE", parentId: expFinancieros.id },
     ],
   });
 
   const expSoftware = await prisma.category.create({
-    data: { name: 'Software / SaaS', type: 'EXPENSE', icon: '💻' },
+    data: { name: "Software / SaaS", type: "EXPENSE", icon: "💻" },
   });
   await prisma.category.createMany({
     data: [
-      { name: 'Canva', type: 'EXPENSE', parentId: expSoftware.id },
-      { name: 'Google Workspace', type: 'EXPENSE', parentId: expSoftware.id },
-      { name: 'ChatGPT', type: 'EXPENSE', parentId: expSoftware.id },
-      { name: 'Claude', type: 'EXPENSE', parentId: expSoftware.id },
-      { name: 'Notion', type: 'EXPENSE', parentId: expSoftware.id },
-      { name: 'Otros SaaS', type: 'EXPENSE', parentId: expSoftware.id },
+      { name: "Canva", type: "EXPENSE", parentId: expSoftware.id },
+      { name: "Google Workspace", type: "EXPENSE", parentId: expSoftware.id },
+      { name: "ChatGPT", type: "EXPENSE", parentId: expSoftware.id },
+      { name: "Claude", type: "EXPENSE", parentId: expSoftware.id },
+      { name: "Notion", type: "EXPENSE", parentId: expSoftware.id },
+      { name: "Otros SaaS", type: "EXPENSE", parentId: expSoftware.id },
     ],
   });
 
   const expOps = await prisma.category.create({
-    data: { name: 'Operacionales', type: 'EXPENSE', icon: '⚙️' },
+    data: { name: "Operacionales", type: "EXPENSE", icon: "⚙️" },
   });
   await prisma.category.createMany({
     data: [
-      { name: 'Hosting propio', type: 'EXPENSE', parentId: expOps.id },
-      { name: 'Mails corporativos', type: 'EXPENSE', parentId: expOps.id },
-      { name: 'Otros', type: 'EXPENSE', parentId: expOps.id },
+      { name: "Hosting propio", type: "EXPENSE", parentId: expOps.id },
+      { name: "Mails corporativos", type: "EXPENSE", parentId: expOps.id },
+      { name: "Otros", type: "EXPENSE", parentId: expOps.id },
     ],
   });
 
-  console.log('✅ Seed completed');
+  console.log("✅ Seed completed");
 }
 
 main()
-  .catch((e) => { console.error(e); process.exit(1); })
-  .finally(async () => { await prisma.$disconnect(); });
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
 ```
 
 ---
@@ -484,31 +524,33 @@ async importFromSheet(data: SheetImportDto) {
 ### Matcher de categorías por nombre (helper)
 
 Crear un mapping inicial:
+
 ```typescript
 const ITEM_TO_CATEGORY: Record<string, string> = {
-  'IVA + PPM': 'IVA + PPM',
-  'F29': 'F29',
-  'PPM': 'IVA + PPM',
-  'Pagos previsionales': 'Pagos previsionales',
-  'Sueldo Damian': 'Sueldo developers',
-  'Sueldo Juan': 'Sueldo socios',
-  'Bryan Cartagena': 'Sueldo developers',
-  'Luis Silva': 'Sueldo developers',
-  'Luis Farías': 'Honorarios externos',
-  'Eduardo Ricci': 'Honorarios externos',
-  'Cuota Fogape': 'Cuota Fogape',
-  'Préstamo BCI Celulares': 'Préstamo BCI',
-  'Visa': 'Tarjeta Visa',
-  'Mails de AW': 'Mails corporativos',
-  'Canva': 'Canva',
-  'Google Workspace Maxiclima': 'Google Workspace',
-  'ChatGPT': 'ChatGPT',
-  'Claude': 'Claude',
-  'Notion': 'Notion',
+  "IVA + PPM": "IVA + PPM",
+  F29: "F29",
+  PPM: "IVA + PPM",
+  "Pagos previsionales": "Pagos previsionales",
+  "Sueldo Damian": "Sueldo developers",
+  "Sueldo Juan": "Sueldo socios",
+  "Bryan Cartagena": "Sueldo developers",
+  "Luis Silva": "Sueldo developers",
+  "Luis Farías": "Honorarios externos",
+  "Eduardo Ricci": "Honorarios externos",
+  "Cuota Fogape": "Cuota Fogape",
+  "Préstamo BCI Celulares": "Préstamo BCI",
+  Visa: "Tarjeta Visa",
+  "Mails de AW": "Mails corporativos",
+  Canva: "Canva",
+  "Google Workspace Maxiclima": "Google Workspace",
+  ChatGPT: "ChatGPT",
+  Claude: "Claude",
+  Notion: "Notion",
 };
 ```
 
 ### Endpoint
+
 - `POST /importers/sheet` recibe el JSON, ejecuta dentro de una transacción Prisma (`$transaction`), retorna summary: `{ payments: 14, invoices: 14, visa: 5, opportunities: 4 }`.
 - También crear un script CLI: `pnpm db:import-sheet data/sheet-mayo-2026.json` para correrlo sin pasar por HTTP.
 
@@ -548,22 +590,26 @@ Después de correr setup, verificar:
 ## Después de Phase 0
 
 Phase 1 (siguiente sesión) traerá:
+
 - Dashboard "Resumen del mes" por empresa
 - Vistas CxC y CxP con marcado rápido de pagos
 - Form de nueva transacción con autocomplete
 - Toggle USD/CLP
 
 Phase 2:
+
 - Importer de cartolas bancarias (CSV de Banco Estado, BCI)
 - Reglas de categorización automática
 - Alertas WhatsApp/email de vencimientos
 
 Phase 3:
+
 - Auth + multi-usuario (cuando entren los 2 devs)
 - Deploy AWS Lightsail
 - Integración con SII (lectura de facturas emitidas/recibidas)
 
 Phase 4:
+
 - Webhook bidireccional con ExpandERP
 
 ---

@@ -356,52 +356,70 @@ model ExchangeRate {
 // prisma/seed.ts (extracto)
 
 const categoriesIncome = [
-  { name: 'Servicios recurrentes', type: 'INCOME', children: [
-    'Fee mensual web',
-    'Hosting / Mailhosting',
-    'SEO / SEM',
-    'Soporte ERP',
-  ]},
-  { name: 'Proyectos one-time', type: 'INCOME', children: [
-    'Desarrollo web',
-    'Implementación ERP',
-    'Consultoría',
-  ]},
-  { name: 'Comisiones', type: 'INCOME', children: [
-    'Ventas web (% sobre ventas cliente)',
-  ]},
+  {
+    name: "Servicios recurrentes",
+    type: "INCOME",
+    children: [
+      "Fee mensual web",
+      "Hosting / Mailhosting",
+      "SEO / SEM",
+      "Soporte ERP",
+    ],
+  },
+  {
+    name: "Proyectos one-time",
+    type: "INCOME",
+    children: ["Desarrollo web", "Implementación ERP", "Consultoría"],
+  },
+  {
+    name: "Comisiones",
+    type: "INCOME",
+    children: ["Ventas web (% sobre ventas cliente)"],
+  },
 ];
 
 const categoriesExpense = [
-  { name: 'Sueldos y honorarios', type: 'EXPENSE', children: [
-    'Sueldo socios',
-    'Sueldo developers',
-    'Honorarios externos (contador, abogado)',
-  ]},
-  { name: 'Tributarios', type: 'EXPENSE', children: [
-    'IVA + PPM',
-    'F29',
-    'Pagos previsionales',
-  ]},
-  { name: 'Financieros', type: 'EXPENSE', children: [
-    'Cuota Fogape',
-    'Préstamo BCI',
-    'Comisiones bancarias',
-    'Tarjeta Visa',
-  ]},
-  { name: 'Software / SaaS', type: 'EXPENSE', children: [
-    'Canva',
-    'Google Workspace',
-    'ChatGPT',
-    'Claude',
-    'Notion',
-    'Otros SaaS',
-  ]},
-  { name: 'Operacionales', type: 'EXPENSE', children: [
-    'Hosting propio',
-    'Mails corporativos',
-    'Otros',
-  ]},
+  {
+    name: "Sueldos y honorarios",
+    type: "EXPENSE",
+    children: [
+      "Sueldo socios",
+      "Sueldo developers",
+      "Honorarios externos (contador, abogado)",
+    ],
+  },
+  {
+    name: "Tributarios",
+    type: "EXPENSE",
+    children: ["IVA + PPM", "F29", "Pagos previsionales"],
+  },
+  {
+    name: "Financieros",
+    type: "EXPENSE",
+    children: [
+      "Cuota Fogape",
+      "Préstamo BCI",
+      "Comisiones bancarias",
+      "Tarjeta Visa",
+    ],
+  },
+  {
+    name: "Software / SaaS",
+    type: "EXPENSE",
+    children: [
+      "Canva",
+      "Google Workspace",
+      "ChatGPT",
+      "Claude",
+      "Notion",
+      "Otros SaaS",
+    ],
+  },
+  {
+    name: "Operacionales",
+    type: "EXPENSE",
+    children: ["Hosting propio", "Mails corporativos", "Otros"],
+  },
 ];
 ```
 
@@ -410,6 +428,7 @@ const categoriesExpense = [
 ## Vistas / queries derivadas (sin tabla nueva)
 
 **Cuentas por pagar (CxP)**:
+
 ```sql
 SELECT * FROM transactions
 WHERE type = 'EXPENSE' AND status = 'PENDING'
@@ -417,6 +436,7 @@ ORDER BY due_date ASC;
 ```
 
 **Cuentas por cobrar (CxC)**:
+
 ```sql
 SELECT * FROM transactions
 WHERE type = 'INCOME' AND status = 'PENDING'
@@ -424,6 +444,7 @@ ORDER BY due_date ASC;
 ```
 
 **Resumen mensual por empresa** (con allocations):
+
 ```sql
 SELECT
   c.short_code,
@@ -438,6 +459,7 @@ ORDER BY month DESC, c.short_code;
 ```
 
 **Pipeline ponderado**:
+
 ```sql
 SELECT
   company_id,
@@ -453,29 +475,29 @@ GROUP BY company_id;
 
 ### Sección "Pagos" (B-G) → `Transaction` con `type: EXPENSE`
 
-| Sheet column | Maps to |
-|---|---|
-| `ITEM` | `transaction.description` |
-| `MONTO` | `transaction.amount` (CLP) |
-| `Pagado` | Si "Si" → `status: PAID`; "No" → `PENDING` |
-| `Comentario` | `transaction.comment` |
-| `Por pagar` | (calculado, no se guarda) |
+| Sheet column                         | Maps to                                                                                            |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `ITEM`                               | `transaction.description`                                                                          |
+| `MONTO`                              | `transaction.amount` (CLP)                                                                         |
+| `Pagado`                             | Si "Si" → `status: PAID`; "No" → `PENDING`                                                         |
+| `Comentario`                         | `transaction.comment`                                                                              |
+| `Por pagar`                          | (calculado, no se guarda)                                                                          |
 | `Empresa` (AW / EXPRO / "AW, EXPRO") | Si tiene 1 empresa → `companyId` directo + 1 allocation 100%. Si tiene varias → 1 allocation 50/50 |
 
 ### Sección "Facturación" (I-U) → `Document` + `Transaction` con `type: INCOME`
 
-| Sheet column | Maps to |
-|---|---|
-| `RUT` | `counterparty.rut` (crear si no existe) |
-| `Nro factura` | `document.number` |
-| `Tipo factura` | `document.type` (AFECTA / EXENTA) |
-| `Empresa` (col L, ej "CyR", "ICB SA") | `counterparty.name` |
-| `Servicio en facto` | `document.description` |
-| `Neto` / `IVA` / `Total` | `document.netAmount` / `ivaAmount` / `totalAmount` |
-| `Enviada` | `document.isSent` |
-| `Fecha de pago` | Si tiene fecha → `transaction.paidAt` + `status: PAID` |
-| `Glosa` | `document.description` |
-| `Detalle` | `document.detail` |
+| Sheet column                          | Maps to                                                |
+| ------------------------------------- | ------------------------------------------------------ |
+| `RUT`                                 | `counterparty.rut` (crear si no existe)                |
+| `Nro factura`                         | `document.number`                                      |
+| `Tipo factura`                        | `document.type` (AFECTA / EXENTA)                      |
+| `Empresa` (col L, ej "CyR", "ICB SA") | `counterparty.name`                                    |
+| `Servicio en facto`                   | `document.description`                                 |
+| `Neto` / `IVA` / `Total`              | `document.netAmount` / `ivaAmount` / `totalAmount`     |
+| `Enviada`                             | `document.isSent`                                      |
+| `Fecha de pago`                       | Si tiene fecha → `transaction.paidAt` + `status: PAID` |
+| `Glosa`                               | `document.description`                                 |
+| `Detalle`                             | `document.detail`                                      |
 
 > **Nota**: La columna "Empresa" emisora (¿AW o EXPRO?) no está explícita en el sheet de facturación. El importer asumirá AW por defecto y permitirá corregir manual luego.
 
@@ -485,9 +507,9 @@ Cada fila es una transaction recurrente con `category: Software/SaaS`, `account:
 
 ### Sección "Proyectos por salir" → `Opportunity`
 
-| Sheet column | Maps to |
-|---|---|
-| `Nombre del proyecto` | `opportunity.name` |
-| `Monto` | `opportunity.estimatedAmount` |
+| Sheet column          | Maps to                       |
+| --------------------- | ----------------------------- |
+| `Nombre del proyecto` | `opportunity.name`            |
+| `Monto`               | `opportunity.estimatedAmount` |
 
 Stage default: `PROPOSAL_SENT`, probability default: 50%.

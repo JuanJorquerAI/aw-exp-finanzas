@@ -1,21 +1,27 @@
-import type { Counterparty } from './types';
+import type { Counterparty } from "./types";
 
 export function formatRut(rut: string): string {
-  const clean = rut.replace(/[.\-]/g, '').toUpperCase();
+  const clean = rut.replace(/[.\-]/g, "").toUpperCase();
   if (clean.length < 2) return rut;
   const body = clean.slice(0, -1);
   const dv = clean.slice(-1);
-  return body.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '-' + dv;
+  return body.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "-" + dv;
 }
 
-export function cpLabel(cp: Pick<Counterparty, 'name' | 'razonSocial' | 'rut'>): string {
+export function cpLabel(
+  cp: Pick<Counterparty, "name" | "razonSocial" | "rut">,
+): string {
   const parts: string[] = [cp.name];
-  if (cp.razonSocial && cp.razonSocial !== cp.name) parts.push(`(${cp.razonSocial})`);
+  if (cp.razonSocial && cp.razonSocial !== cp.name)
+    parts.push(`(${cp.razonSocial})`);
   if (cp.rut) parts.push(`· ${cp.rut}`);
-  return parts.join(' ');
+  return parts.join(" ");
 }
 
-export function cpMatchesQuery(cp: Pick<Counterparty, 'name' | 'razonSocial' | 'rut'>, q: string): boolean {
+export function cpMatchesQuery(
+  cp: Pick<Counterparty, "name" | "razonSocial" | "rut">,
+  q: string,
+): boolean {
   const lower = q.toLowerCase();
   return (
     cp.name.toLowerCase().includes(lower) ||

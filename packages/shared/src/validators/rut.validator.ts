@@ -3,13 +3,13 @@ import {
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-} from 'class-validator';
+} from "class-validator";
 
 /**
  * Normaliza un RUT chileno: quita puntos, guiones y espacios; uppercase DV.
  */
 export function normalizeRut(rut: string): string {
-  return rut.replace(/[\.\-\s]/g, '').toUpperCase();
+  return rut.replace(/[\.\-\s]/g, "").toUpperCase();
 }
 
 /**
@@ -24,8 +24,8 @@ export function computeRutDv(body: string): string {
     multiplier = multiplier === 7 ? 2 : multiplier + 1;
   }
   const remainder = 11 - (sum % 11);
-  if (remainder === 11) return '0';
-  if (remainder === 10) return 'K';
+  if (remainder === 11) return "0";
+  if (remainder === 10) return "K";
   return String(remainder);
 }
 
@@ -36,7 +36,7 @@ export function computeRutDv(body: string): string {
  *  - 111111111  (sin separador, último char = DV)
  */
 export function isValidRut(rut: unknown): boolean {
-  if (typeof rut !== 'string') return false;
+  if (typeof rut !== "string") return false;
   const normalized = normalizeRut(rut);
   if (!/^[0-9]+[0-9K]$/.test(normalized)) return false;
   if (normalized.length < 2 || normalized.length > 9) return false;
@@ -61,21 +61,21 @@ export function formatRut(rut: string): string {
   const body = normalized.slice(0, -1);
   const dv = normalized.slice(-1);
   const formattedBody = body
-    .split('')
+    .split("")
     .reverse()
     .reduce((acc, char, i) => {
-      return char + (i > 0 && i % 3 === 0 ? '.' : '') + acc;
-    }, '');
+      return char + (i > 0 && i % 3 === 0 ? "." : "") + acc;
+    }, "");
   return `${formattedBody}-${dv}`;
 }
 
-@ValidatorConstraint({ name: 'isRut', async: false })
+@ValidatorConstraint({ name: "isRut", async: false })
 class IsRutConstraint implements ValidatorConstraintInterface {
   validate(value: unknown): boolean {
     return isValidRut(value);
   }
   defaultMessage(): string {
-    return 'RUT chileno inválido (formato: 11.111.111-1 o 111111111)';
+    return "RUT chileno inválido (formato: 11.111.111-1 o 111111111)";
   }
 }
 

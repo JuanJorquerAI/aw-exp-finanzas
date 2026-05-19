@@ -1,12 +1,28 @@
-'use client';
-import { useState } from 'react';
-import { Plus, Trash2, ToggleLeft, ToggleRight, TestTube2, ChevronUp, ChevronDown, RefreshCw } from 'lucide-react';
-import { useCategorizationRules, useCreateCategorizationRule, useUpdateCategorizationRule, useDeleteCategorizationRule, useCategories } from '@/lib/queries';
-import { testCategorizationRule } from '@/lib/api';
-import type { CategorizationRule, TestRuleResult } from '@/lib/types';
-import { cn } from '@/lib/utils';
+"use client";
+import { useState } from "react";
+import {
+  Plus,
+  Trash2,
+  ToggleLeft,
+  ToggleRight,
+  TestTube2,
+  ChevronUp,
+  ChevronDown,
+  RefreshCw,
+} from "lucide-react";
+import {
+  useCategorizationRules,
+  useCreateCategorizationRule,
+  useUpdateCategorizationRule,
+  useDeleteCategorizationRule,
+  useCategories,
+} from "@/lib/queries";
+import { testCategorizationRule } from "@/lib/api";
+import type { CategorizationRule, TestRuleResult } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
-const INPUT_CLS = 'w-full rounded-md border dark:border-slate-700 border-slate-200 dark:bg-slate-900 bg-white dark:text-slate-200 text-slate-900 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 dark:focus:ring-slate-600 focus:ring-slate-300 placeholder:dark:text-slate-600 placeholder:text-slate-400';
+const INPUT_CLS =
+  "w-full rounded-md border dark:border-slate-700 border-slate-200 dark:bg-slate-900 bg-white dark:text-slate-200 text-slate-900 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 dark:focus:ring-slate-600 focus:ring-slate-300 placeholder:dark:text-slate-600 placeholder:text-slate-400";
 const SELECT_CLS = INPUT_CLS;
 
 interface NewRuleForm {
@@ -17,10 +33,16 @@ interface NewRuleForm {
 }
 
 function emptyForm(): NewRuleForm {
-  return { pattern: '', isRegex: false, categoryId: '', priority: 0 };
+  return { pattern: "", isRegex: false, categoryId: "", priority: 0 };
 }
 
-function CategoryBadge({ name, color }: { name: string; color: string | null }) {
+function CategoryBadge({
+  name,
+  color,
+}: {
+  name: string;
+  color: string | null;
+}) {
   return (
     <span
       className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
@@ -37,17 +59,22 @@ function CategoryBadge({ name, color }: { name: string; color: string | null }) 
 export default function ReglasPage() {
   const { data: rules = [], isLoading } = useCategorizationRules();
   const { data: categories = [] } = useCategories();
-  const { mutateAsync: create, isPending: creating } = useCreateCategorizationRule();
+  const { mutateAsync: create, isPending: creating } =
+    useCreateCategorizationRule();
   const { mutateAsync: update } = useUpdateCategorizationRule();
   const { mutateAsync: remove } = useDeleteCategorizationRule();
 
   const [showNew, setShowNew] = useState(false);
   const [form, setForm] = useState<NewRuleForm>(emptyForm());
-  const [testText, setTestText] = useState('');
+  const [testText, setTestText] = useState("");
   const [testResult, setTestResult] = useState<TestRuleResult | null>(null);
   const [testing, setTesting] = useState(false);
   const [recategorizing, setRecategorizing] = useState(false);
-  const [recatResult, setRecatResult] = useState<{ processed: number; updated: number; skipped: number } | null>(null);
+  const [recatResult, setRecatResult] = useState<{
+    processed: number;
+    updated: number;
+    skipped: number;
+  } | null>(null);
 
   const sorted = [...rules].sort((a, b) => b.priority - a.priority);
 
@@ -72,7 +99,7 @@ export default function ReglasPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar esta regla?')) return;
+    if (!confirm("¿Eliminar esta regla?")) return;
     await remove(id);
   }
 
@@ -80,10 +107,17 @@ export default function ReglasPage() {
     setRecategorizing(true);
     setRecatResult(null);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/rules/recategorize`, {
-        method: 'POST',
-      });
-      const data = await res.json() as { processed: number; updated: number; skipped: number };
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/categories/rules/recategorize`,
+        {
+          method: "POST",
+        },
+      );
+      const data = (await res.json()) as {
+        processed: number;
+        updated: number;
+        skipped: number;
+      };
       setRecatResult(data);
     } finally {
       setRecategorizing(false);
@@ -105,9 +139,12 @@ export default function ReglasPage() {
     <div className="p-8 w-full">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold dark:text-slate-100 text-slate-900">Reglas de categorización</h2>
+          <h2 className="text-lg font-semibold dark:text-slate-100 text-slate-900">
+            Reglas de categorización
+          </h2>
           <p className="mt-0.5 text-xs dark:text-slate-500 text-slate-400">
-            Se aplican automáticamente al importar desde banco. Mayor prioridad = se evalúa primero.
+            Se aplican automáticamente al importar desde banco. Mayor prioridad
+            = se evalúa primero.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -116,8 +153,10 @@ export default function ReglasPage() {
             disabled={recategorizing}
             className="flex items-center gap-1.5 rounded-md border dark:border-slate-700 border-slate-200 dark:text-slate-300 text-slate-600 dark:hover:bg-slate-800 hover:bg-slate-100 px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40"
           >
-            <RefreshCw className={cn('h-3.5 w-3.5', recategorizing && 'animate-spin')} />
-            {recategorizing ? 'Recategorizando...' : 'Re-categorizar txs'}
+            <RefreshCw
+              className={cn("h-3.5 w-3.5", recategorizing && "animate-spin")}
+            />
+            {recategorizing ? "Recategorizando..." : "Re-categorizar txs"}
           </button>
           <button
             onClick={() => setShowNew((v) => !v)}
@@ -131,14 +170,19 @@ export default function ReglasPage() {
 
       {/* Tester */}
       <div className="mb-6 rounded-lg border dark:border-slate-800 border-slate-200 dark:bg-slate-900/50 bg-slate-50 p-4">
-        <p className="mb-2 text-xs font-medium dark:text-slate-400 text-slate-600">Probar descripción</p>
+        <p className="mb-2 text-xs font-medium dark:text-slate-400 text-slate-600">
+          Probar descripción
+        </p>
         <div className="flex gap-2">
           <input
-            className={cn(INPUT_CLS, 'flex-1')}
+            className={cn(INPUT_CLS, "flex-1")}
             placeholder="Ej: TRANSFERENCIA SUELDO MARZO"
             value={testText}
-            onChange={(e) => { setTestText(e.target.value); setTestResult(null); }}
-            onKeyDown={(e) => e.key === 'Enter' && handleTest()}
+            onChange={(e) => {
+              setTestText(e.target.value);
+              setTestResult(null);
+            }}
+            onKeyDown={(e) => e.key === "Enter" && handleTest()}
           />
           <button
             onClick={handleTest}
@@ -150,11 +194,21 @@ export default function ReglasPage() {
           </button>
         </div>
         {testResult !== null && (
-          <div className={cn('mt-2 flex items-center gap-2 text-xs', testResult.matched ? 'text-emerald-500' : 'dark:text-slate-500 text-slate-400')}>
+          <div
+            className={cn(
+              "mt-2 flex items-center gap-2 text-xs",
+              testResult.matched
+                ? "text-emerald-500"
+                : "dark:text-slate-500 text-slate-400",
+            )}
+          >
             {testResult.matched && testResult.category ? (
               <>
                 <span className="font-medium">Coincide →</span>
-                <CategoryBadge name={testResult.category.name} color={testResult.category.color} />
+                <CategoryBadge
+                  name={testResult.category.name}
+                  color={testResult.category.color}
+                />
               </>
             ) : (
               <span>Sin coincidencia — quedará sin categoría</span>
@@ -168,46 +222,69 @@ export default function ReglasPage() {
         <div className="mb-4 flex items-center gap-3 rounded-lg border dark:border-emerald-800/40 border-emerald-200 dark:bg-emerald-900/20 bg-emerald-50 px-4 py-3 text-xs">
           <RefreshCw className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
           <span className="dark:text-emerald-300 text-emerald-700">
-            Procesadas: <strong>{recatResult.processed}</strong> · Actualizadas: <strong>{recatResult.updated}</strong> · Sin match: <strong>{recatResult.skipped}</strong>
+            Procesadas: <strong>{recatResult.processed}</strong> · Actualizadas:{" "}
+            <strong>{recatResult.updated}</strong> · Sin match:{" "}
+            <strong>{recatResult.skipped}</strong>
           </span>
-          <button onClick={() => setRecatResult(null)} className="ml-auto dark:text-emerald-600 text-emerald-400 dark:hover:text-emerald-400 hover:text-emerald-600">✕</button>
+          <button
+            onClick={() => setRecatResult(null)}
+            className="ml-auto dark:text-emerald-600 text-emerald-400 dark:hover:text-emerald-400 hover:text-emerald-600"
+          >
+            ✕
+          </button>
         </div>
       )}
 
       {/* Formulario nueva regla */}
       {showNew && (
         <div className="mb-4 rounded-lg border dark:border-slate-700 border-slate-200 dark:bg-slate-900 bg-white p-4">
-          <p className="mb-3 text-xs font-semibold dark:text-slate-300 text-slate-700">Nueva regla</p>
+          <p className="mb-3 text-xs font-semibold dark:text-slate-300 text-slate-700">
+            Nueva regla
+          </p>
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="mb-1 block text-xs dark:text-slate-500 text-slate-500">Patrón</label>
+              <label className="mb-1 block text-xs dark:text-slate-500 text-slate-500">
+                Patrón
+              </label>
               <input
                 className={INPUT_CLS}
-                placeholder={form.isRegex ? 'Ej: SUELDO\\s+\\d+' : 'Ej: SUELDO'}
+                placeholder={form.isRegex ? "Ej: SUELDO\\s+\\d+" : "Ej: SUELDO"}
                 value={form.pattern}
-                onChange={(e) => setForm((f) => ({ ...f, pattern: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, pattern: e.target.value }))
+                }
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs dark:text-slate-500 text-slate-500">Categoría</label>
+              <label className="mb-1 block text-xs dark:text-slate-500 text-slate-500">
+                Categoría
+              </label>
               <select
                 className={SELECT_CLS}
                 value={form.categoryId}
-                onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, categoryId: e.target.value }))
+                }
               >
                 <option value="">— seleccionar —</option>
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs dark:text-slate-500 text-slate-500">Prioridad</label>
+              <label className="mb-1 block text-xs dark:text-slate-500 text-slate-500">
+                Prioridad
+              </label>
               <input
                 type="number"
                 className={INPUT_CLS}
                 value={form.priority}
-                onChange={(e) => setForm((f) => ({ ...f, priority: Number(e.target.value) }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, priority: Number(e.target.value) }))
+                }
               />
             </div>
             <div className="col-span-2 flex items-center gap-2">
@@ -215,17 +292,25 @@ export default function ReglasPage() {
                 id="isRegex"
                 type="checkbox"
                 checked={form.isRegex}
-                onChange={(e) => setForm((f) => ({ ...f, isRegex: e.target.checked }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, isRegex: e.target.checked }))
+                }
                 className="rounded border-slate-600"
               />
-              <label htmlFor="isRegex" className="text-xs dark:text-slate-400 text-slate-600 cursor-pointer">
+              <label
+                htmlFor="isRegex"
+                className="text-xs dark:text-slate-400 text-slate-600 cursor-pointer"
+              >
                 Usar como expresión regular (regex)
               </label>
             </div>
           </div>
           <div className="mt-3 flex justify-end gap-2">
             <button
-              onClick={() => { setShowNew(false); setForm(emptyForm()); }}
+              onClick={() => {
+                setShowNew(false);
+                setForm(emptyForm());
+              }}
               className="rounded-md px-3 py-1.5 text-xs dark:text-slate-500 text-slate-400 dark:hover:text-slate-300 hover:text-slate-600"
             >
               Cancelar
@@ -235,7 +320,7 @@ export default function ReglasPage() {
               disabled={creating || !form.pattern.trim() || !form.categoryId}
               className="rounded-md bg-indigo-600 hover:bg-indigo-500 px-4 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-40"
             >
-              {creating ? 'Guardando...' : 'Crear regla'}
+              {creating ? "Guardando..." : "Crear regla"}
             </button>
           </div>
         </div>
@@ -243,12 +328,17 @@ export default function ReglasPage() {
 
       {/* Tabla de reglas */}
       {isLoading ? (
-        <p className="text-sm dark:text-slate-500 text-slate-400">Cargando...</p>
+        <p className="text-sm dark:text-slate-500 text-slate-400">
+          Cargando...
+        </p>
       ) : sorted.length === 0 ? (
         <div className="rounded-lg border dark:border-slate-800 border-slate-200 p-8 text-center">
-          <p className="text-sm dark:text-slate-500 text-slate-400">Sin reglas configuradas.</p>
+          <p className="text-sm dark:text-slate-500 text-slate-400">
+            Sin reglas configuradas.
+          </p>
           <p className="mt-1 text-xs dark:text-slate-600 text-slate-400">
-            Crea una regla para que las importaciones bancarias se categoricen automáticamente.
+            Crea una regla para que las importaciones bancarias se categoricen
+            automáticamente.
           </p>
         </div>
       ) : (
@@ -256,11 +346,21 @@ export default function ReglasPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b dark:border-slate-800 border-slate-200 dark:bg-slate-900 bg-slate-50">
-                <th className="px-4 py-2.5 text-left text-xs font-medium dark:text-slate-500 text-slate-500">Patrón</th>
-                <th className="px-4 py-2.5 text-left text-xs font-medium dark:text-slate-500 text-slate-500">Categoría</th>
-                <th className="px-4 py-2.5 text-center text-xs font-medium dark:text-slate-500 text-slate-500 w-20">Tipo</th>
-                <th className="px-4 py-2.5 text-center text-xs font-medium dark:text-slate-500 text-slate-500 w-24">Prioridad</th>
-                <th className="px-4 py-2.5 text-center text-xs font-medium dark:text-slate-500 text-slate-500 w-20">Activa</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium dark:text-slate-500 text-slate-500">
+                  Patrón
+                </th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium dark:text-slate-500 text-slate-500">
+                  Categoría
+                </th>
+                <th className="px-4 py-2.5 text-center text-xs font-medium dark:text-slate-500 text-slate-500 w-20">
+                  Tipo
+                </th>
+                <th className="px-4 py-2.5 text-center text-xs font-medium dark:text-slate-500 text-slate-500 w-24">
+                  Prioridad
+                </th>
+                <th className="px-4 py-2.5 text-center text-xs font-medium dark:text-slate-500 text-slate-500 w-20">
+                  Activa
+                </th>
                 <th className="px-4 py-2.5 w-10" />
               </tr>
             </thead>
@@ -269,24 +369,29 @@ export default function ReglasPage() {
                 <tr
                   key={rule.id}
                   className={cn(
-                    'border-b last:border-0 dark:border-slate-800 border-slate-100',
-                    !rule.isActive && 'opacity-40',
+                    "border-b last:border-0 dark:border-slate-800 border-slate-100",
+                    !rule.isActive && "opacity-40",
                   )}
                 >
                   <td className="px-4 py-2.5 font-mono text-xs dark:text-slate-300 text-slate-700">
                     {rule.pattern}
                   </td>
                   <td className="px-4 py-2.5">
-                    <CategoryBadge name={rule.category.name} color={rule.category.color} />
+                    <CategoryBadge
+                      name={rule.category.name}
+                      color={rule.category.color}
+                    />
                   </td>
                   <td className="px-4 py-2.5 text-center">
-                    <span className={cn(
-                      'rounded px-1.5 py-0.5 text-xs',
-                      rule.isRegex
-                        ? 'dark:bg-purple-900/30 bg-purple-50 dark:text-purple-400 text-purple-600'
-                        : 'dark:bg-slate-800 bg-slate-100 dark:text-slate-400 text-slate-500',
-                    )}>
-                      {rule.isRegex ? 'regex' : 'texto'}
+                    <span
+                      className={cn(
+                        "rounded px-1.5 py-0.5 text-xs",
+                        rule.isRegex
+                          ? "dark:bg-purple-900/30 bg-purple-50 dark:text-purple-400 text-purple-600"
+                          : "dark:bg-slate-800 bg-slate-100 dark:text-slate-400 text-slate-500",
+                      )}
+                    >
+                      {rule.isRegex ? "regex" : "texto"}
                     </span>
                   </td>
                   <td className="px-4 py-2.5 text-center">
@@ -310,9 +415,11 @@ export default function ReglasPage() {
                   </td>
                   <td className="px-4 py-2.5 text-center">
                     <button onClick={() => handleToggleActive(rule)}>
-                      {rule.isActive
-                        ? <ToggleRight className="h-5 w-5 text-indigo-500" />
-                        : <ToggleLeft className="h-5 w-5 dark:text-slate-600 text-slate-400" />}
+                      {rule.isActive ? (
+                        <ToggleRight className="h-5 w-5 text-indigo-500" />
+                      ) : (
+                        <ToggleLeft className="h-5 w-5 dark:text-slate-600 text-slate-400" />
+                      )}
                     </button>
                   </td>
                   <td className="px-4 py-2.5 text-center">

@@ -12,7 +12,11 @@ import {
   Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { TransactionType, Currency, TransactionDocType } from '@aw-finanzas/database';
+import {
+  TransactionType,
+  Currency,
+  TransactionDocType,
+} from '@aw-finanzas/database';
 
 export class AllocationDto {
   @IsString()

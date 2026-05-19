@@ -1,7 +1,12 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const CounterpartyTypeSchema = z.enum([
-  'CUSTOMER', 'SUPPLIER', 'EMPLOYEE', 'GOVERNMENT', 'BANK', 'OTHER',
+  "CUSTOMER",
+  "SUPPLIER",
+  "EMPLOYEE",
+  "GOVERNMENT",
+  "BANK",
+  "OTHER",
 ]);
 
 export const CreateCounterpartySchema = z.object({

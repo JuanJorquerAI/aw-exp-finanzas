@@ -7,7 +7,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      process.env.WEB_URL ?? 'http://localhost:3000',
+      process.env.WEB_URL ?? 'http://localhost:41890',
       'http://finanzas.local:4001',
       /^http:\/\/localhost(:\d+)?$/,
     ],
@@ -22,7 +22,7 @@ async function bootstrap() {
     }),
   );
 
-  const port = process.env.PORT ?? process.env.API_PORT ?? 3001;
+  const port = process.env.PORT ?? process.env.API_PORT ?? 41891;
   await app.listen(port, '0.0.0.0');
   console.log(`API corriendo en http://localhost:${port}`);
 }

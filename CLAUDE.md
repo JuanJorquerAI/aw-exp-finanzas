@@ -28,7 +28,7 @@ pnpm install
 docker-compose up -d
 pnpm db:migrate          # prisma migrate dev
 pnpm db:seed             # tsx prisma/seed.ts
-pnpm dev                 # api en :3001, web en :3000
+pnpm dev                 # api en :41891, web en :41890
 
 # Database
 pnpm --filter @aw-finanzas/database prisma migrate dev --name <nombre>
@@ -80,17 +80,17 @@ Reservado para mapeo bidireccional con ExpandERP (Phase 4).
 
 ## Módulos NestJS (apps/api)
 
-| Módulo | Endpoints principales |
-|--------|----------------------|
-| CompaniesModule | GET/POST /companies |
-| CounterpartiesModule | CRUD /counterparties |
-| CategoriesModule | GET /categories (árbol), POST /categories |
-| AccountsModule | CRUD /accounts |
-| DocumentsModule | CRUD /documents |
-| TransactionsModule | CRUD /transactions + filtros (companyId, dateFrom, dateTo, type, status) |
-| OpportunitiesModule | CRUD /opportunities |
-| ImportersModule | POST /importers/sheet |
-| Health | GET /health → `{ status: "ok", db: "connected" }` |
+| Módulo               | Endpoints principales                                                    |
+| -------------------- | ------------------------------------------------------------------------ |
+| CompaniesModule      | GET/POST /companies                                                      |
+| CounterpartiesModule | CRUD /counterparties                                                     |
+| CategoriesModule     | GET /categories (árbol), POST /categories                                |
+| AccountsModule       | CRUD /accounts                                                           |
+| DocumentsModule      | CRUD /documents                                                          |
+| TransactionsModule   | CRUD /transactions + filtros (companyId, dateFrom, dateTo, type, status) |
+| OpportunitiesModule  | CRUD /opportunities                                                      |
+| ImportersModule      | POST /importers/sheet                                                    |
+| Health               | GET /health → `{ status: "ok", db: "connected" }`                        |
 
 ## Reglas críticas
 
@@ -106,23 +106,42 @@ Reservado para mapeo bidireccional con ExpandERP (Phase 4).
 ## Variables de entorno
 
 Ver `.env.example`. Variables requeridas:
+
 - `DATABASE_URL` — PostgreSQL connection string
-- `API_PORT=3001`
-- `WEB_PORT=3000`
-- `NEXT_PUBLIC_API_URL=http://localhost:3001`
+- `API_PORT=41891`
+- `WEB_PORT=41890`
+- `NEXT_PUBLIC_API_URL=http://localhost:41891`
 
 ## Checklist de validación (Phase 0)
 
 ```bash
 docker ps                                              # postgres corriendo
-curl http://localhost:3001/health                      # {"status":"ok","db":"connected"}
-curl http://localhost:3001/companies                   # AW + EXPRO
-curl http://localhost:3001/categories                  # árbol de categorías
+curl http://localhost:41891/health                      # {"status":"ok","db":"connected"}
+curl http://localhost:41891/companies                   # AW + EXPRO
+curl http://localhost:41891/categories                  # árbol de categorías
 pnpm db:import-sheet data/sheet-mayo-2026.json        # sin errores
-curl "http://localhost:3001/transactions?type=EXPENSE" # 19 registros (14 payments + 5 visa)
-curl "http://localhost:3001/transactions?type=INCOME"  # 14 registros
-curl http://localhost:3001/opportunities               # 4 registros
+curl "http://localhost:41891/transactions?type=EXPENSE" # 19 registros (14 payments + 5 visa)
+curl "http://localhost:41891/transactions?type=INCOME"  # 14 registros
+curl http://localhost:41891/opportunities               # 4 registros
 ```
+
+## Servidor local (finanzas.local)
+
+Caddy en `:4001` proxía `finanzas.local` → `localhost:41890` (web Next.js).
+
+**502 Bad Gateway** = Next.js en `:41890` caído. El SessionStart hook reinicia ambos servicios si detecta alguno caído (API `:41891` o Web `:41890`). Si ves 502 manualmente:
+
+```bash
+# Diagnóstico rápido
+curl http://localhost:41891/health   # API: debe retornar {"ok":true}
+curl -sf http://localhost:41890      # Web: debe retornar HTML
+
+# Reinicio manual (si tmux no arrancó)
+tmux kill-session -t finanzas-dev 2>/dev/null; tmux kill-session -t finanzas-web 2>/dev/null
+tmux new-session -d -s finanzas-dev -c "$(pwd)" 'pnpm dev:fresh'
+```
+
+**Causa raíz histórica (2026-05-18)**: el hook solo verificaba `:41891`. Si la API estaba up pero Next.js había crasheado, el hook no reiniciaba el web. Corregido: ahora verifica ambos puertos.
 
 ## Roadmap
 

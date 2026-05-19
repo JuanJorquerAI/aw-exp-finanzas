@@ -27,9 +27,9 @@ pnpm db:seed
 pnpm dev
 ```
 
-- API: http://localhost:3001
-- Web: http://localhost:3000
-- Health: http://localhost:3001/health
+- API: http://localhost:41891
+- Web: http://localhost:41890
+- Health: http://localhost:41891/health
 
 ## Importar datos del Google Sheet
 
@@ -40,8 +40,8 @@ pnpm db:import-sheet data/sheet-mayo-2026.json
 ## Estructura
 
 ```
-apps/api/              NestJS API (puerto 3001)
-apps/web/              Next.js web (puerto 3000)
+apps/api/              NestJS API (puerto 41891)
+apps/web/              Next.js web (puerto 41890)
 packages/database/     Prisma schema + seed + importer core
 packages/shared/       Zod schemas compartidos
 data/                  JSONs de importación mensual
@@ -49,15 +49,15 @@ data/                  JSONs de importación mensual
 
 ## Endpoints principales
 
-| Endpoint | Descripción |
-|---|---|
-| `GET /health` | Estado del servidor y DB |
-| `GET /companies` | Empresas (AW, EXPRO) |
-| `GET /categories?tree=true` | Categorías jerárquicas |
-| `GET /transactions?type=EXPENSE&companyId=X` | Transacciones filtradas |
-| `PATCH /transactions/:id/paid` | Marcar transacción como pagada |
-| `GET /opportunities` | Pipeline de oportunidades |
-| `POST /importers/sheet` | Importar JSON del Google Sheet |
+| Endpoint                                     | Descripción                    |
+| -------------------------------------------- | ------------------------------ |
+| `GET /health`                                | Estado del servidor y DB       |
+| `GET /companies`                             | Empresas (AW, EXPRO)           |
+| `GET /categories?tree=true`                  | Categorías jerárquicas         |
+| `GET /transactions?type=EXPENSE&companyId=X` | Transacciones filtradas        |
+| `PATCH /transactions/:id/paid`               | Marcar transacción como pagada |
+| `GET /opportunities`                         | Pipeline de oportunidades      |
+| `POST /importers/sheet`                      | Importar JSON del Google Sheet |
 
 ## Variables de entorno
 

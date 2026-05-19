@@ -4,5 +4,5 @@
 }
 
 http://finanzas.local:4001 {
-  reverse_proxy localhost:3000
+  reverse_proxy localhost:41890
 }

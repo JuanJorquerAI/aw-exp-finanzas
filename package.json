@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "concurrently --names api,web --prefix-colors blue,green \"PORT=3001 pnpm --filter api dev\" \"PORT=3000 pnpm --filter web dev\"",
-    "dev:fresh": "pkill -f 'nest.js start' 2>/dev/null; pkill -f 'concurrently' 2>/dev/null; sleep 0.3; lsof -ti:3000 | xargs kill -9 2>/dev/null; lsof -ti:3001 | xargs kill -9 2>/dev/null; sleep 0.7 && pnpm dev",
+    "dev": "concurrently --names api,web --prefix-colors blue,green \"PORT=41891 pnpm --filter api dev\" \"PORT=41890 pnpm --filter web dev\"",
+    "dev:fresh": "pkill -f 'nest.js start' 2>/dev/null; pkill -f 'concurrently' 2>/dev/null; sleep 0.3; lsof -ti:41890 | xargs kill -9 2>/dev/null; lsof -ti:41891 | xargs kill -9 2>/dev/null; sleep 0.7 && pnpm dev",
     "build": "pnpm --filter @aw-finanzas/database build && pnpm --filter @aw-finanzas/shared build && pnpm --filter api build && pnpm --filter web build",
     "build:api": "pnpm --filter @aw-finanzas/database exec prisma generate && pnpm --filter @aw-finanzas/database build && pnpm --filter @aw-finanzas/shared build && pnpm --filter api build && node apps/api/build-serverless.js",
     "db:migrate": "pnpm --filter @aw-finanzas/database migrate",

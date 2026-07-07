@@ -80,17 +80,17 @@ Reservado para mapeo bidireccional con ExpandERP (Phase 4).
 
 ## Módulos NestJS (apps/api)
 
-| Módulo | Endpoints principales |
-|--------|----------------------|
-| CompaniesModule | GET/POST /companies |
-| CounterpartiesModule | CRUD /counterparties |
-| CategoriesModule | GET /categories (árbol), POST /categories |
-| AccountsModule | CRUD /accounts |
-| DocumentsModule | CRUD /documents |
-| TransactionsModule | CRUD /transactions + filtros (companyId, dateFrom, dateTo, type, status) |
-| OpportunitiesModule | CRUD /opportunities |
-| ImportersModule | POST /importers/sheet |
-| Health | GET /health → `{ status: "ok", db: "connected" }` |
+| Módulo               | Endpoints principales                                                    |
+| -------------------- | ------------------------------------------------------------------------ |
+| CompaniesModule      | GET/POST /companies                                                      |
+| CounterpartiesModule | CRUD /counterparties                                                     |
+| CategoriesModule     | GET /categories (árbol), POST /categories                                |
+| AccountsModule       | CRUD /accounts                                                           |
+| DocumentsModule      | CRUD /documents                                                          |
+| TransactionsModule   | CRUD /transactions + filtros (companyId, dateFrom, dateTo, type, status) |
+| OpportunitiesModule  | CRUD /opportunities                                                      |
+| ImportersModule      | POST /importers/sheet                                                    |
+| Health               | GET /health → `{ status: "ok", db: "connected" }`                        |
 
 ## Reglas críticas
 
@@ -106,6 +106,7 @@ Reservado para mapeo bidireccional con ExpandERP (Phase 4).
 ## Variables de entorno
 
 Ver `.env.example`. Variables requeridas:
+
 - `DATABASE_URL` — PostgreSQL connection string
 - `API_PORT=3001`
 - `WEB_PORT=3000`
@@ -131,3 +132,8 @@ curl http://localhost:3001/opportunities               # 4 registros
 - **Phase 2**: Importer cartolas bancarias CSV, categorización automática, alertas WhatsApp/email
 - **Phase 3**: Auth multi-usuario, deploy AWS Lightsail, integración SII
 - **Phase 4**: Webhook bidireccional con ExpandERP
+
+## Pensar antes de codear (Karpathy)
+
+Ante una tarea ambigua, nombra explícitamente lo confuso y presenta interpretaciones
+alternativas antes de tocar código; no elijas en silencio. Si dudas, pregunta.

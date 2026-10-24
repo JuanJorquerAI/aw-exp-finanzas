@@ -1,0 +1,608 @@
+# Instincts generated from https://github.com/JuanJorquerAI/aw-exp-finanzas
+# Generated: 2026-05-09T18:21:37.985Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: aw-exp-finanzas-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: feat, chore, docs, fix
+
+## Evidence
+
+- 17 commits analyzed
+- Detected conventional commit pattern
+- Examples: chore: inicializar monorepo aw-finanzas, feat: agregar packages/database con schema Prisma, migración y seed
+
+---
+id: aw-exp-finanzas-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Commit Length
+
+## Action
+
+Write moderate-length commit messages (~61 characters)
+
+## Evidence
+
+- Average commit message length: 61 chars
+- Based on 17 commits
+
+---
+id: aw-exp-finanzas-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: aw-exp-finanzas-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: aw-exp-finanzas-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: aw-exp-finanzas-test-framework
+trigger: "when writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Test Framework
+
+## Action
+
+Use jest as the test framework
+
+## Evidence
+
+- Test framework detected: jest
+- File pattern: *.spec.ts
+
+---
+id: aw-exp-finanzas-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Test Naming
+
+## Action
+
+Name test files using the pattern: *.spec.ts
+
+## Evidence
+
+- File pattern: *.spec.ts
+- Consistent across test files
+
+---
+id: aw-exp-finanzas-test-types
+trigger: "when planning tests for a feature"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Test Types
+
+## Action
+
+Write unit, e2e tests to match project standards
+
+## Evidence
+
+- Test types detected: unit, e2e
+- Coverage config: no
+
+---
+id: aw-exp-finanzas-workflow-database-migration
+trigger: "when modifying the database schema or adding tables"
+confidence: 0.75
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Workflow Database Migration
+
+## Action
+
+Follow the database-migration workflow:
+1. Create migration file
+2. Update schema definitions
+3. Generate/update types
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~5x per month
+- Files: **/schema.*, migrations/*
+
+---
+id: aw-exp-finanzas-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~19x per month
+- Files: packages/database/prisma/*, packages/database/src/*, packages/shared/src/__tests__/*
+
+---
+id: aw-exp-finanzas-workflow-add-or-update-api-endpoint
+trigger: "when doing add or update api endpoint"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Workflow Add Or Update Api Endpoint
+
+## Action
+
+Follow the add-or-update-api-endpoint workflow:
+1. Create or update controller file in apps/api/src/<resource>/<resource>.controller.ts
+2. Create or update service file in apps/api/src/<resource>/<resource>.service.ts
+3. Create or update DTO files in apps/api/src/<resource>/dto/
+4. Update module file in apps/api/src/<resource>/<resource>.module.ts if needed
+5. Write or update unit tests in apps/api/src/<resource>/<resource>.service.spec.ts
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: apps/api/src/*/*.controller.ts, apps/api/src/*/*.service.ts, apps/api/src/*/dto/*.ts
+
+---
+id: aw-exp-finanzas-workflow-feature-development-web-component
+trigger: "when doing feature development web component"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Workflow Feature Development Web Component
+
+## Action
+
+Follow the feature-development-web-component workflow:
+1. Create or update page file in apps/web/app/(app)/<feature>/page.tsx
+2. Create or update component in apps/web/components/<feature>/*.tsx
+3. Create or update supporting hooks or utility files in apps/web/hooks/ or apps/web/lib/
+4. Update layout or sidebar if navigation changes
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: apps/web/app/(app)/*/page.tsx, apps/web/components/*/*.tsx, apps/web/hooks/*.ts
+
+---
+id: aw-exp-finanzas-workflow-feature-development-with-tests
+trigger: "when doing feature development with tests"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Workflow Feature Development With Tests
+
+## Action
+
+Follow the feature-development-with-tests workflow:
+1. Implement or update feature logic (API or web)
+2. Write or update corresponding unit tests (NestJS) or E2E tests (Playwright)
+3. Fix or adjust code based on test results
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: apps/api/src/**/*.ts, apps/api/src/**/*.spec.ts, apps/web/components/**/*.tsx
+
+---
+id: aw-exp-finanzas-workflow-add-shared-schema-or-type
+trigger: "when doing add shared schema or type"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Workflow Add Shared Schema Or Type
+
+## Action
+
+Follow the add-shared-schema-or-type workflow:
+1. Create or update schema file in packages/shared/src/schemas/
+2. Update index.ts to export new schema
+3. Add or update tests in packages/shared/src/__tests__/
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: packages/shared/src/schemas/*.ts, packages/shared/src/index.ts, packages/shared/src/__tests__/*.ts
+
+---
+id: aw-exp-finanzas-instinct-file-naming
+trigger: "When creating a new file in the repository"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct File Naming
+
+## Action
+
+Name the file using camelCase convention
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.files
+- Seen in files: apps/api/src/*/*.controller.ts, apps/web/components/*/*.tsx
+
+---
+id: aw-exp-finanzas-instinct-function-naming
+trigger: "When defining a new function"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Function Naming
+
+## Action
+
+Use camelCase for function names
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.functions
+
+---
+id: aw-exp-finanzas-instinct-class-naming
+trigger: "When defining a new class"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Class Naming
+
+## Action
+
+Use PascalCase for class names
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.classes
+
+---
+id: aw-exp-finanzas-instinct-constant-naming
+trigger: "When defining a constant"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Constant Naming
+
+## Action
+
+Use SCREAMING_SNAKE_CASE for constant names
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.constants
+
+---
+id: aw-exp-finanzas-instinct-import-style
+trigger: "When importing modules in TypeScript files"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Import Style
+
+## Action
+
+Use relative import paths
+
+## Evidence
+
+- Pattern in codeStyle.importStyle
+
+---
+id: aw-exp-finanzas-instinct-export-style
+trigger: "When exporting functions, classes, or constants"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Export Style
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in codeStyle.exportStyle
+
+---
+id: aw-exp-finanzas-instinct-test-file-pattern
+trigger: "When writing a test file"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Test File Pattern
+
+## Action
+
+Name the file with a .spec.ts suffix
+
+## Evidence
+
+- Pattern in testing.filePattern
+- Seen in files: apps/api/src/**/*.spec.ts
+
+---
+id: aw-exp-finanzas-instinct-test-framework
+trigger: "When writing automated tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Test Framework
+
+## Action
+
+Use Jest as the testing framework
+
+## Evidence
+
+- Pattern in testing.framework
+- Seen in config files: packages/database/jest.config.js
+
+---
+id: aw-exp-finanzas-instinct-test-types
+trigger: "When planning tests for a new feature"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Test Types
+
+## Action
+
+Write both unit and E2E tests where applicable
+
+## Evidence
+
+- Pattern in testing.testTypes
+- Seen in files: apps/api/src/**/*.spec.ts, e2e/*.spec.ts
+
+---
+id: aw-exp-finanzas-instinct-git-commit-format
+trigger: "When committing changes"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Git Commit Format
+
+## Action
+
+Use conventional commit format with prefixes: feat, chore, docs, fix
+
+## Evidence
+
+- Pattern in commits.prefixes
+- Seen in commit: feat: agregar packages/database con schema Prisma, migración y seed
+
+---
+id: aw-exp-finanzas-instinct-git-commit-length
+trigger: "When writing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Git Commit Length
+
+## Action
+
+Keep commit message around 60 characters on average
+
+## Evidence
+
+- Pattern in commits.averageLength
+
+---
+id: aw-exp-finanzas-instinct-add-or-update-api-endpoint
+trigger: "When adding or updating an API resource in the backend"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Add Or Update Api Endpoint
+
+## Action
+
+Create/update controller, service, DTOs, module, and corresponding unit tests in apps/api/src/<resource>/
+
+## Evidence
+
+- Workflow: add-or-update-api-endpoint
+- Seen in files: apps/api/src/*/*.controller.ts, apps/api/src/*/*.service.ts, apps/api/src/*/dto/*.ts, apps/api/src/*/*.module.ts, apps/api/src/*/*.service.spec.ts
+
+---
+id: aw-exp-finanzas-instinct-feature-development-web-component
+trigger: "When implementing a new user-facing feature or page in the web app"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Feature Development Web Component
+
+## Action
+
+Create/update page, component, hooks/utilities, and update navigation if needed in apps/web/
+
+## Evidence
+
+- Workflow: feature-development-web-component
+- Seen in files: apps/web/app/(app)/*/page.tsx, apps/web/components/*/*.tsx, apps/web/hooks/*.ts, apps/web/lib/*.ts
+
+---
+id: aw-exp-finanzas-instinct-feature-development-with-tests
+trigger: "When implementing a new feature (backend or frontend)"
+confidence: 0.85
+domain: workflow
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Feature Development With Tests
+
+## Action
+
+Immediately add or update corresponding unit or E2E tests
+
+## Evidence
+
+- Workflow: feature-development-with-tests
+- Seen in files: apps/api/src/**/*.spec.ts, e2e/*.spec.ts, apps/web/components/**/*.tsx
+
+---
+id: aw-exp-finanzas-instinct-add-shared-schema-or-type
+trigger: "When adding or updating shared validation schemas or types"
+confidence: 0.85
+domain: workflow
+source: repo-analysis
+source_repo: JuanJorquerAI/aw-exp-finanzas
+---
+
+# Aw Exp Finanzas Instinct Add Shared Schema Or Type
+
+## Action
+
+Create/update schema in packages/shared/src/schemas/, update index.ts, and add/update tests in __tests__/
+
+## Evidence
+
+- Workflow: add-shared-schema-or-type
+- Seen in files: packages/shared/src/schemas/*.ts, packages/shared/src/index.ts, packages/shared/src/__tests__/*.ts
+

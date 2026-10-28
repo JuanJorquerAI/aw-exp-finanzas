@@ -12,5 +12,19 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  # Base desechable para tests de integración (sin volumen: se borra al bajar).
+  # docker compose --profile test up -d postgres-test
+  postgres-test:
+    image: postgres:16
+    profiles: ["test"]
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: aw_finanzas_test
+    tmpfs:
+      - /var/lib/postgresql/data
+
 volumes:
   postgres_data:

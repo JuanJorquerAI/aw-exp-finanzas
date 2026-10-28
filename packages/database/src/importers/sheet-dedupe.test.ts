@@ -1,0 +1,195 @@
+import {
+  DedupeOpportunityRecord,
+  DedupeTransactionRecord,
+  planSheetDedupe,
+} from "./sheet-dedupe";
+
+const OLD = new Date("2026-05-12T22:31:36Z");
+const NEW = new Date("2026-05-15T17:10:41Z");
+
+function tx(
+  overrides: Partial<DedupeTransactionRecord> & { id: string },
+): DedupeTransactionRecord {
+  return {
+    groupKey: "factura|AFECTA|1190|cp1",
+    label: "Factura 1190 - Lira",
+    status: "PENDING",
+    amount: 1196747,
+    companyCode: "AW",
+    createdAt: OLD,
+    touched: false,
+    signature: "PENDING|AW",
+    payments: 0,
+    notes: 0,
+    extraDocuments: 0,
+    exclusiveDocumentIds: [],
+    ...overrides,
+  };
+}
+
+function opp(
+  overrides: Partial<DedupeOpportunityRecord> & { id: string },
+): DedupeOpportunityRecord {
+  return {
+    groupKey: "oportunidad|co1|AdOnTheGo",
+    label: "AdOnTheGo",
+    signature: "PROPOSAL_SENT|12000000|50",
+    createdAt: OLD,
+    ...overrides,
+  };
+}
+
+const ids = (items: readonly { id: string }[]): string[] =>
+  items.map((i) => i.id);
+
+describe("planSheetDedupe — transacciones", () => {
+  it("no toca registros sin duplicado", () => {
+    const plan = planSheetDedupe([tx({ id: "a" })], []);
+    expect(plan.deleteTransactions).toEqual([]);
+    expect(plan.conflicts).toEqual([]);
+  });
+
+  it("si nadie tocó las copias conserva la más antigua", () => {
+    const plan = planSheetDedupe(
+      [tx({ id: "nueva", createdAt: NEW }), tx({ id: "vieja" })],
+      [],
+    );
+    expect(ids(plan.keepTransactions)).toEqual(["vieja"]);
+    expect(ids(plan.deleteTransactions)).toEqual(["nueva"]);
+  });
+
+  it("conserva la copia editada (pagada) y borra la intacta con su documento", () => {
+    const plan = planSheetDedupe(
+      [
+        tx({ id: "intacta", createdAt: NEW, exclusiveDocumentIds: ["d1"] }),
+        tx({
+          id: "pagada",
+          status: "PAID",
+          touched: true,
+          signature: "PAID|EXPRO",
+          exclusiveDocumentIds: ["d2"],
+        }),
+      ],
+      [],
+    );
+    expect(ids(plan.keepTransactions)).toEqual(["pagada"]);
+    expect(ids(plan.deleteTransactions)).toEqual(["intacta"]);
+    expect(plan.deleteDocumentIds).toEqual(["d1"]);
+  });
+
+  it("conserva la copia con abonos aunque sea la más nueva", () => {
+    const plan = planSheetDedupe(
+      [tx({ id: "sin" }), tx({ id: "con", createdAt: NEW, payments: 1 })],
+      [],
+    );
+    expect(ids(plan.keepTransactions)).toEqual(["con"]);
+  });
+
+  it("un documento agregado a mano cuenta como dato a conservar", () => {
+    const plan = planSheetDedupe(
+      [tx({ id: "sin" }), tx({ id: "con", createdAt: NEW, extraDocuments: 1 })],
+      [],
+    );
+    expect(ids(plan.keepTransactions)).toEqual(["con"]);
+  });
+
+  it("dos copias editadas igual: conserva la más antigua", () => {
+    const paid = { status: "PAID", touched: true, signature: "PAID|EXPRO" };
+    const plan = planSheetDedupe(
+      [tx({ id: "b", createdAt: NEW, ...paid }), tx({ id: "a", ...paid })],
+      [],
+    );
+    expect(ids(plan.keepTransactions)).toEqual(["a"]);
+    expect(ids(plan.deleteTransactions)).toEqual(["b"]);
+  });
+
+  it("dos copias editadas distinto: conflicto, no borra", () => {
+    const plan = planSheetDedupe(
+      [
+        tx({ id: "a", status: "PAID", touched: true, signature: "PAID|AW" }),
+        tx({ id: "b", status: "PAID", touched: true, signature: "PAID|EXPRO" }),
+      ],
+      [],
+    );
+    expect(plan.deleteTransactions).toEqual([]);
+    expect(plan.conflicts[0].reason).toContain("editadas de forma distinta");
+  });
+
+  it("más de una copia con abonos o notas: conflicto", () => {
+    const plan = planSheetDedupe(
+      [tx({ id: "a", payments: 1 }), tx({ id: "b", notes: 2 })],
+      [],
+    );
+    expect(plan.deleteTransactions).toEqual([]);
+    expect(plan.conflicts[0].reason).toContain("abonos, notas");
+  });
+
+  it("pagada + anulada: borra la anulada", () => {
+    const plan = planSheetDedupe(
+      [
+        tx({
+          id: "pagada",
+          status: "PAID",
+          touched: true,
+          signature: "PAID|AW",
+        }),
+        tx({ id: "anulada", status: "CANCELLED", touched: true }),
+      ],
+      [],
+    );
+    expect(ids(plan.keepTransactions)).toEqual(["pagada"]);
+    expect(ids(plan.deleteTransactions)).toEqual(["anulada"]);
+  });
+
+  it("anulada + pendiente intacta: conflicto (¿anulación real o limpieza?)", () => {
+    const plan = planSheetDedupe(
+      [
+        tx({ id: "pendiente" }),
+        tx({ id: "anulada", status: "CANCELLED", touched: true }),
+      ],
+      [],
+    );
+    expect(plan.deleteTransactions).toEqual([]);
+    expect(plan.conflicts[0].reason).toContain("anulada");
+  });
+
+  it("todas anuladas: deja una", () => {
+    const plan = planSheetDedupe(
+      [
+        tx({ id: "a", status: "CANCELLED" }),
+        tx({ id: "b", status: "CANCELLED", createdAt: NEW }),
+      ],
+      [],
+    );
+    expect(ids(plan.keepTransactions)).toEqual(["a"]);
+  });
+
+  it("montos distintos: conflicto", () => {
+    const plan = planSheetDedupe(
+      [tx({ id: "a" }), tx({ id: "b", amount: 1 })],
+      [],
+    );
+    expect(plan.deleteTransactions).toEqual([]);
+    expect(plan.conflicts[0].reason).toContain("montos distintos");
+  });
+});
+
+describe("planSheetDedupe — oportunidades", () => {
+  it("borra copias idénticas y deja la más antigua", () => {
+    const plan = planSheetDedupe(
+      [],
+      [opp({ id: "o2", createdAt: NEW }), opp({ id: "o1" })],
+    );
+    expect(ids(plan.keepOpportunities)).toEqual(["o1"]);
+    expect(ids(plan.deleteOpportunities)).toEqual(["o2"]);
+  });
+
+  it("no borra copias con datos distintos", () => {
+    const plan = planSheetDedupe(
+      [],
+      [opp({ id: "o1" }), opp({ id: "o2", signature: "WON|12000000|100" })],
+    );
+    expect(plan.deleteOpportunities).toEqual([]);
+    expect(plan.conflicts).toHaveLength(1);
+  });
+});

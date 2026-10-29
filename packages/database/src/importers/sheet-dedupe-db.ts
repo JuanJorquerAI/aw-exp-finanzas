@@ -12,6 +12,7 @@ import {
   monthRange,
   normalizeFolio,
   normalizeRut,
+  opportunityKey,
 } from "./sheet-import-keys";
 import { SheetImportData } from "./sheet-importer";
 
@@ -139,13 +140,14 @@ export async function loadDedupeRecords(
             expectedCloseDate: null,
             actualCloseDate: null,
           },
+          include: { company: { select: { shortCode: true } } },
           orderBy: { createdAt: "asc" },
         });
   return {
     transactions: transactions.map(toTransactionRecord),
     opportunities: opportunities.map((o) => ({
       id: o.id,
-      groupKey: `oportunidad|${o.companyId}|${o.name.trim()}`,
+      groupKey: opportunityKey(o.name, o.company.shortCode),
       label: o.name,
       signature: [
         o.stage,
@@ -177,6 +179,9 @@ export function countExpectedOccurrencesFromSheet(
   for (const inv of sheet.invoices) {
     add(invoiceKey(inv));
   }
+  for (const o of sheet.opportunities) {
+    add(opportunityKey(o.name, o.company));
+  }
   return counts;
 }
 
@@ -193,9 +198,12 @@ export async function buildDedupePlan(
 ): Promise<DedupePlan> {
   let sheet = options?.sheetData;
   if (!sheet && options?.jsonPath && fs.existsSync(options.jsonPath)) {
-    sheet = JSON.parse(
+    const raw = JSON.parse(
       fs.readFileSync(options.jsonPath, "utf-8"),
     ) as SheetImportData;
+    if (raw.month === month) {
+      sheet = raw;
+    }
   }
   const records = await loadDedupeRecords(db, month);
   const expectedCounts =

@@ -177,12 +177,16 @@ function decideTransactions(
 function decideOpportunities(
   groupKey: string,
   group: readonly DedupeOpportunityRecord[],
+  expectedKeepCount: number = 1,
 ): GroupDecision<DedupeOpportunityRecord> {
-  if (group.length < 2) return { keep: group, remove: [], conflicts: [] };
+  if (group.length <= expectedKeepCount) {
+    return { keep: group, remove: [], conflicts: [] };
+  }
   if (new Set(group.map((o) => o.signature)).size > 1) {
     return conflict(groupKey, group, "las copias tienen datos distintos");
   }
-  return keepOne(group, [...group].sort(byOldest)[0]);
+  const sorted = [...group].sort(byOldest);
+  return keepN(group, sorted.slice(0, expectedKeepCount));
 }
 
 function decideAll<T extends { groupKey: string }>(
@@ -214,8 +218,10 @@ export function planSheetDedupe(
     decideTransactions,
     options?.expectedCounts,
   );
-  const opps = decideAll(opportunities, (key, group) =>
-    decideOpportunities(key, group),
+  const opps = decideAll(
+    opportunities,
+    decideOpportunities,
+    options?.expectedCounts,
   );
   return {
     keepTransactions: txs.keep,

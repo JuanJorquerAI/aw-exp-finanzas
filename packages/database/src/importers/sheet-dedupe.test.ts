@@ -153,6 +153,42 @@ describe("planSheetDedupe — transacciones", () => {
     expect(plan.conflicts[0].reason).toContain("anulada");
   });
 
+  it("anulada con abonos + activa pagada: conflicto, no borra para no perder abonos", () => {
+    const plan = planSheetDedupe(
+      [
+        tx({
+          id: "pagada",
+          status: "PAID",
+          touched: true,
+          signature: "PAID|AW",
+        }),
+        tx({
+          id: "anulada",
+          status: "CANCELLED",
+          touched: true,
+          payments: 1,
+        }),
+      ],
+      [],
+    );
+    expect(plan.deleteTransactions).toEqual([]);
+    expect(plan.conflicts[0].reason).toContain(
+      "una copia anulada tiene abonos, notas o documentos agregados",
+    );
+  });
+
+  it("todas anuladas pero una tiene abonos: conserva la que tiene abonos", () => {
+    const plan = planSheetDedupe(
+      [
+        tx({ id: "sin", status: "CANCELLED" }),
+        tx({ id: "con", status: "CANCELLED", createdAt: NEW, payments: 1 }),
+      ],
+      [],
+    );
+    expect(ids(plan.keepTransactions)).toEqual(["con"]);
+    expect(ids(plan.deleteTransactions)).toEqual(["sin"]);
+  });
+
   it("todas anuladas: deja una", () => {
     const plan = planSheetDedupe(
       [

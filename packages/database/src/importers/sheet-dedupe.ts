@@ -107,8 +107,33 @@ function decideTransactions(
     return conflict(groupKey, group, "montos distintos entre copias");
   }
 
+  const cancelledWithUserData = group.filter(
+    (t) => t.status === "CANCELLED" && hasUserData(t),
+  );
   const active = group.filter((t) => t.status !== "CANCELLED");
-  if (active.length === 0) return keepOne(group, [...group].sort(byOldest)[0]);
+
+  if (cancelledWithUserData.length > 0 && active.length > 0) {
+    return conflict(
+      groupKey,
+      group,
+      "una copia anulada tiene abonos, notas o documentos agregados",
+    );
+  }
+  if (group.filter(hasUserData).length > 1) {
+    return conflict(
+      groupKey,
+      group,
+      "más de una copia tiene abonos, notas o documentos agregados",
+    );
+  }
+
+  if (active.length === 0) {
+    const survivor = [...group].sort(
+      (a, b) =>
+        Number(hasUserData(b)) - Number(hasUserData(a)) || byOldest(a, b),
+    )[0];
+    return keepOne(group, survivor);
+  }
 
   const edited = active.filter((t) => t.touched || hasUserData(t));
   if (edited.length === 0) {
@@ -120,13 +145,6 @@ function decideTransactions(
       );
     }
     return keepOne(group, [...active].sort(byOldest)[0]);
-  }
-  if (edited.filter(hasUserData).length > 1) {
-    return conflict(
-      groupKey,
-      group,
-      "más de una copia tiene abonos, notas o documentos agregados",
-    );
   }
   if (new Set(edited.map((t) => t.signature)).size > 1) {
     return conflict(groupKey, group, "copias editadas de forma distinta");

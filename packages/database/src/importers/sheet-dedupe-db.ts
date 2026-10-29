@@ -95,10 +95,33 @@ export async function loadDedupeRecords(
     include: transactionInclude,
     orderBy: { createdAt: "asc" },
   });
-  // Las oportunidades no tienen mes ni origen: se revisan todas.
-  const opportunities = await db.opportunity.findMany({
-    orderBy: { createdAt: "asc" },
-  });
+  // Solo oportunidades del mismo lote de importación del mes (en ventana
+  // de creación de las transacciones del sheet) y sin campos manuales agregados.
+  const opportunities =
+    transactions.length === 0
+      ? []
+      : await db.opportunity.findMany({
+          where: {
+            createdAt: {
+              gte: new Date(
+                Math.min(...transactions.map((t) => t.createdAt.getTime())) -
+                  120_000,
+              ),
+              lte: new Date(
+                Math.max(...transactions.map((t) => t.createdAt.getTime())) +
+                  120_000,
+              ),
+            },
+            stage: "PROPOSAL_SENT",
+            probability: 50,
+            description: null,
+            notes: null,
+            counterpartyId: null,
+            expectedCloseDate: null,
+            actualCloseDate: null,
+          },
+          orderBy: { createdAt: "asc" },
+        });
   return {
     transactions: transactions.map(toTransactionRecord),
     opportunities: opportunities.map((o) => ({

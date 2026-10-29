@@ -703,4 +703,208 @@ describe("limpieza de duplicados antiguos", () => {
     });
     expect(remainingDocs).toHaveLength(2);
   });
+
+  it("documento antiguo con folio literal 'S/N' no se duplica al reimportar", async () => {
+    const aw = await prisma.company.findUniqueOrThrow({
+      where: { shortCode: "AW" },
+    });
+    const cp = await prisma.counterparty.create({
+      data: {
+        name: "Cliente Folio SN Literal",
+        rut: "761234567",
+        type: "CUSTOMER",
+      },
+    });
+
+    // Documento antiguo guardado con number = "S/N" (literal string)
+    const doc = await prisma.document.create({
+      data: {
+        companyId: aw.id,
+        counterpartyId: cp.id,
+        type: "AFECTA",
+        number: "S/N",
+        netAmount: 100000,
+        totalAmount: 119000,
+        currency: "CLP",
+      },
+    });
+    await prisma.transaction.create({
+      data: {
+        type: "INCOME",
+        status: "PENDING",
+        source: "SHEET_IMPORT",
+        amount: 119000,
+        amountCLP: 119000,
+        currency: "CLP",
+        date: new Date("2026-05-01T04:00:00.000Z"),
+        description: "Factura S/N - Cliente Folio SN Literal",
+        companyId: aw.id,
+        counterpartyId: cp.id,
+        documents: { create: { documentId: doc.id } },
+      },
+    });
+
+    const sheet: SheetImportData = {
+      month: "2026-05",
+      payments: [],
+      invoices: [
+        {
+          rut: "76.123.456-7",
+          counterparty: "Cliente Folio SN Literal",
+          type: "AFECTA",
+          number: "", // en el sheet viene vacío
+          service: "Servicio Existente",
+          net: 100000,
+          iva: 19000,
+          total: 119000,
+          sent: true,
+          paidAt: null,
+        },
+      ],
+      visa: [],
+      opportunities: [],
+      exchangeRate: { USD_CLP: 950 },
+    };
+
+    const res = await importFromSheet(sheet, prisma);
+    expect(res.invoices).toBe(0);
+    expect(res.skipped.invoices).toBe(1);
+    expect(
+      await prisma.document.count({
+        where: { counterpartyId: cp.id, companyId: aw.id },
+      }),
+    ).toBe(1);
+  });
+
+  it("dedupe con transacciones S/N repartidas entre contraparte de banco (sin guion, mas antigua) y sheet: respeta expectedCounts y falla si volviera a normalizeRut", async () => {
+    const aw = await prisma.company.findUniqueOrThrow({
+      where: { shortCode: "AW" },
+    });
+
+    // 1. cpBank es la MÁS ANTIGUA y tiene RUT sin guion
+    const cpBank = await prisma.counterparty.create({
+      data: {
+        name: "Servicios Repartidos Banco",
+        rut: "77123456K",
+        type: "CUSTOMER",
+        createdAt: new Date("2024-01-01T00:00:00.000Z"),
+      },
+    });
+    // cpSheet es más reciente y tiene RUT con puntos y guion
+    const cpSheet = await prisma.counterparty.create({
+      data: {
+        name: "Servicios Repartidos Sheet",
+        rut: "77.123.456-K",
+        type: "CUSTOMER",
+        createdAt: new Date("2024-06-01T00:00:00.000Z"),
+      },
+    });
+
+    // 2. Dos facturas S/N legítimas de 80.000 en 2026-09:
+    // Una quedó asociada a cpBank y la otra a cpSheet
+    const doc1 = await prisma.document.create({
+      data: {
+        companyId: aw.id,
+        counterpartyId: cpBank.id,
+        type: "AFECTA",
+        number: null,
+        netAmount: 67227,
+        totalAmount: 80000,
+        currency: "CLP",
+      },
+    });
+    const tx1 = await prisma.transaction.create({
+      data: {
+        type: "INCOME",
+        status: "PENDING",
+        source: "SHEET_IMPORT",
+        amount: 80000,
+        amountCLP: 80000,
+        currency: "CLP",
+        date: new Date("2026-09-01T04:00:00.000Z"),
+        description: "Factura S/N - Servicios Repartidos",
+        companyId: aw.id,
+        counterpartyId: cpBank.id,
+        documents: { create: { documentId: doc1.id } },
+      },
+    });
+
+    const doc2 = await prisma.document.create({
+      data: {
+        companyId: aw.id,
+        counterpartyId: cpSheet.id,
+        type: "AFECTA",
+        number: null,
+        netAmount: 67227,
+        totalAmount: 80000,
+        currency: "CLP",
+      },
+    });
+    const tx2 = await prisma.transaction.create({
+      data: {
+        type: "INCOME",
+        status: "PENDING",
+        source: "SHEET_IMPORT",
+        amount: 80000,
+        amountCLP: 80000,
+        currency: "CLP",
+        date: new Date("2026-09-01T04:00:00.000Z"),
+        description: "Factura S/N - Servicios Repartidos",
+        companyId: aw.id,
+        counterpartyId: cpSheet.id,
+        documents: { create: { documentId: doc2.id } },
+      },
+    });
+
+    // Simulamos un duplicado sobrante (clon de tx1)
+    const cloneTx1 = await cloneImported(tx1.id);
+    await age([tx1.id, tx2.id], 120);
+    await age([cloneTx1], 60);
+
+    // El sheet de septiembre contiene 2 facturas S/N legítimas de 80.000 con RUT con puntos y guion:
+    const snLine = {
+      rut: "77.123.456-K",
+      counterparty: "Servicios Repartidos",
+      type: "AFECTA" as const,
+      number: "",
+      service: "Cuota Septiembre",
+      net: 67227,
+      iva: 12773,
+      total: 80000,
+      sent: true,
+      paidAt: null,
+    };
+
+    const sheet: SheetImportData = {
+      month: "2026-09",
+      payments: [],
+      invoices: [snLine, snLine],
+      visa: [],
+      opportunities: [],
+      exchangeRate: { USD_CLP: 950 },
+    };
+
+    // Al construir el plan de dedupe:
+    // Con canonicalRut, la clave del sheet es: factura|AFECTA|S/N|77123456K|80000 (expectedCounts = 2)
+    // Las transacciones tx1 y cloneTx1 (con cpBank 77123456K) y tx2 (con cpSheet 77.123.456-K)
+    // producen TODAS la misma clave unificada por canonicalRut.
+    // Por lo tanto, el grupo suma 3 transacciones, se conservan 2 (tx1 y tx2) y se elimina SOLO cloneTx1.
+    const plan = await buildDedupePlan(prisma, "2026-09", { sheetData: sheet });
+    expect(plan.conflicts).toEqual([]);
+    expect(plan.deleteTransactions.map((t) => t.id)).toEqual([cloneTx1]);
+    expect(plan.keepTransactions.map((t) => t.id).sort()).toEqual([tx1.id, tx2.id].sort());
+
+    await applyDedupePlan(prisma, plan, "2026-09");
+
+    // Sobrevivieron exactamente las dos legítimas repartidas entre cpBank y cpSheet
+    const remaining = await prisma.transaction.findMany({
+      where: {
+        companyId: aw.id,
+        type: "INCOME",
+        counterpartyId: { in: [cpBank.id, cpSheet.id] },
+      },
+    });
+    expect(remaining).toHaveLength(2);
+    expect(remaining.map((r) => r.id).sort()).toEqual([tx1.id, tx2.id].sort());
+  });
 });

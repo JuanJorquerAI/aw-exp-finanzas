@@ -3,6 +3,7 @@ import {
   DedupeTransactionRecord,
   planSheetDedupe,
 } from "./sheet-dedupe";
+import { canonicalRut, normalizeRut } from "./sheet-import-keys";
 
 const OLD = new Date("2026-05-12T22:31:36Z");
 const NEW = new Date("2026-05-15T17:10:41Z");
@@ -274,6 +275,32 @@ describe("planSheetDedupe — transacciones", () => {
     const plan = planSheetDedupe([t4, t3, t2, t1], [], { expectedCounts });
     expect(ids(plan.keepTransactions)).toEqual(["t1", "t2"]);
     expect(ids(plan.deleteTransactions)).toEqual(["t4", "t3"]);
+    expect(plan.conflicts).toEqual([]);
+  });
+
+  it("claves con RUT sin guion (banco) y RUT con guion (sheet) coinciden por canonicalRut y protegen copias legítimas", () => {
+    // Si una contraparte en BD tiene el RUT guardado sin guion (formato banco):
+    const rutBanco = "769968946";
+    // Y el sheet viene con puntos y guion:
+    const rutSheet = "76.996.894-6";
+
+    // Ambos deben generar la misma clave gracias a canonicalRut:
+    const keyBanco = `factura|AFECTA|S/N|${canonicalRut(rutBanco)}|100000`;
+    const keySheet = `factura|AFECTA|S/N|${canonicalRut(rutSheet)}|100000`;
+    expect(keyBanco).toBe(keySheet);
+    expect(keyBanco).toBe("factura|AFECTA|S/N|769968946|100000");
+
+    // Con normalizeRut, keySheet tendría guion ("76996894-6") y keyBanco no ("769968946").
+    // Aquí verificamos que con canonicalRut las 2 copias legítimas se preservan con el Map del sheet:
+    const t1 = tx({ id: "t1", groupKey: keyBanco, createdAt: new Date("2026-06-01T10:00:00Z") });
+    const t2 = tx({ id: "t2", groupKey: keyBanco, createdAt: new Date("2026-06-01T10:00:01Z") });
+    const tClone = tx({ id: "tClone", groupKey: keyBanco, createdAt: new Date("2026-06-02T10:00:00Z") });
+
+    const expectedCounts = new Map([[keySheet, 2]]);
+    const plan = planSheetDedupe([tClone, t2, t1], [], { expectedCounts });
+
+    expect(ids(plan.keepTransactions)).toEqual(["t1", "t2"]);
+    expect(ids(plan.deleteTransactions)).toEqual(["tClone"]);
     expect(plan.conflicts).toEqual([]);
   });
 });

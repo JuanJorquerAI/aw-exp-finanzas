@@ -275,7 +275,10 @@ function countInvoices(
     where: {
       companyId,
       type: inv.type,
-      number: null,
+      OR: [
+        { number: null },
+        { number: { in: ["S/N", "s/n", "SN", "sn"] } },
+      ],
       counterpartyId: { in: [...counterpartyIds] },
       totalAmount: inv.total,
       transactionLinks: {
@@ -498,7 +501,7 @@ export async function resolveCounterparty(
       data: {
         type: "CUSTOMER",
         name: cleanName,
-        rut: cleanRut ?? targetCanonical,
+        rut: targetCanonical,
       },
     });
     return {

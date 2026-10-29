@@ -12,7 +12,6 @@ import {
   invoiceKey,
   monthRange,
   normalizeFolio,
-  normalizeRut,
   opportunityKey,
 } from "./sheet-import-keys";
 import { SheetImportData } from "./sheet-importer";

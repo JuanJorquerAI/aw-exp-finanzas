@@ -11,7 +11,9 @@
     "generate": "prisma generate",
     "migrate": "prisma migrate dev",
     "seed": "tsx prisma/seed.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest",
+    "test:int": "jest --config jest.int.config.js --runInBand"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

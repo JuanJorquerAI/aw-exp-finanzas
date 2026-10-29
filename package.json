@@ -2,6 +2,7 @@
   "name": "aw-finanzas",
   "version": "0.0.1",
   "private": true,
+  "packageManager": "pnpm@10.33.2",
   "scripts": {
     "dev": "concurrently --names api,web --prefix-colors blue,green \"PORT=41891 pnpm --filter api dev\" \"PORT=41890 pnpm --filter web dev\"",
     "dev:fresh": "pkill -f 'nest.js start' 2>/dev/null; pkill -f 'concurrently' 2>/dev/null; sleep 0.3; lsof -ti:41890 | xargs kill -9 2>/dev/null; lsof -ti:41891 | xargs kill -9 2>/dev/null; sleep 0.7 && pnpm dev",
@@ -10,7 +11,10 @@
     "db:migrate": "pnpm --filter @aw-finanzas/database migrate",
     "db:seed": "pnpm --filter @aw-finanzas/database seed",
     "db:generate": "pnpm --filter @aw-finanzas/database generate",
-    "db:import-sheet": "tsx packages/database/scripts/import-sheet.ts"
+    "db:import-sheet": "tsx packages/database/scripts/import-sheet.ts",
+    "db:dedupe-sheet": "tsx packages/database/scripts/dedupe-sheet-import.ts",
+    "db:test-up": "docker compose --profile test up -d postgres-test",
+    "test:db": "TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5435/aw_finanzas_test pnpm --filter @aw-finanzas/database test:int"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

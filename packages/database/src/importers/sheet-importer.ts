@@ -7,6 +7,7 @@ import {
   MonthRange,
   monthRange,
   normalizeFolio,
+  normalizeRut,
   opportunityKey,
 } from "./sheet-import-keys";
 
@@ -256,15 +257,29 @@ function countInvoices(
   ctx: ImportContext,
   inv: Invoice,
   counterpartyId: string,
+  companyId: string,
 ): Promise<number> {
   const folio = normalizeFolio(inv.number);
   if (folio) {
     return ctx.tx.document.count({
-      where: { type: inv.type, number: folio, counterpartyId },
+      where: {
+        companyId,
+        type: inv.type,
+        number: folio,
+        counterpartyId,
+        transactionLinks: {
+          some: {
+            transaction: {
+              source: TransactionSource.SHEET_IMPORT,
+            },
+          },
+        },
+      },
     });
   }
   return ctx.tx.document.count({
     where: {
+      companyId,
       type: inv.type,
       number: null,
       counterpartyId,
@@ -292,7 +307,7 @@ async function importInvoices(
     const cp = await upsertCounterparty(ctx.tx, inv.rut, inv.counterparty);
     if (
       await alreadyImported(ctx, invoiceKey(inv), () =>
-        countInvoices(ctx, inv, cp.id),
+        countInvoices(ctx, inv, cp.id, awCompanyId),
       )
     ) {
       skipped++;
@@ -441,16 +456,20 @@ async function upsertCounterparty(
   rut: string,
   name: string,
 ) {
-  if (rut) {
+  const cleanRut = normalizeRut(rut);
+  const cleanName = name.trim();
+  if (cleanRut) {
     return tx.counterparty.upsert({
-      where: { rut },
-      update: { name },
-      create: { type: "CUSTOMER", name, rut },
+      where: { rut: cleanRut },
+      update: {},
+      create: { type: "CUSTOMER", name: cleanName, rut: cleanRut },
     });
   }
 
-  const existing = await tx.counterparty.findFirst({ where: { name } });
+  const existing = await tx.counterparty.findFirst({
+    where: { name: cleanName },
+  });
   if (existing) return existing;
 
-  return tx.counterparty.create({ data: { type: "CUSTOMER", name } });
+  return tx.counterparty.create({ data: { type: "CUSTOMER", name: cleanName } });
 }

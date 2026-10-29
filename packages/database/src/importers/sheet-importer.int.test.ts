@@ -228,6 +228,53 @@ describe("importFromSheet idempotente", () => {
     expect(rows.map((t) => t.categoryId)).toEqual([hosting.id, hosting.id]);
     expect(second.skipped).toMatchObject({ payments: 1, visa: 1 });
   });
+
+  it("documento manual o de otra empresa con mismo folio no frena la factura del sheet", async () => {
+    const expro = await prisma.company.findUniqueOrThrow({
+      where: { shortCode: "EXPRO" },
+    });
+    const cp = await prisma.counterparty.create({
+      data: { name: "Cliente Compartido", rut: "76996894-6", type: "CUSTOMER" },
+    });
+    // Documento creado en EXPRO a mano (sin transaction link de SHEET_IMPORT)
+    await prisma.document.create({
+      data: {
+        companyId: expro.id,
+        counterpartyId: cp.id,
+        type: "AFECTA",
+        number: "500",
+        netAmount: 100000,
+        totalAmount: 100000,
+        currency: "CLP",
+      },
+    });
+
+    const sheet: SheetImportData = {
+      month: "2026-07",
+      payments: [],
+      invoices: [
+        {
+          rut: "76.996.894-6",
+          counterparty: "Cliente Compartido",
+          type: "AFECTA",
+          number: "500",
+          service: "Servicio AW",
+          net: 100000,
+          iva: 19000,
+          total: 119000,
+          sent: true,
+          paidAt: null,
+        },
+      ],
+      visa: [],
+      opportunities: [],
+      exchangeRate: { USD_CLP: 950 },
+    };
+
+    const res = await importFromSheet(sheet, prisma);
+    expect(res.invoices).toBe(1);
+    expect(res.skipped.invoices).toBe(0);
+  });
 });
 
 describe("limpieza de duplicados antiguos", () => {

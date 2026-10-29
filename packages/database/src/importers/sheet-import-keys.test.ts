@@ -9,10 +9,10 @@ import {
 } from "./sheet-import-keys";
 
 describe("monthRange", () => {
-  it("devuelve inicio y fin del mes en hora local", () => {
+  it("devuelve inicio y fin del mes en UTC fijado", () => {
     const { start, end } = monthRange("2026-05");
-    expect(start).toEqual(new Date(2026, 4, 1, 0, 0, 0, 0));
-    expect(end).toEqual(new Date(2026, 4, 31, 23, 59, 59, 999));
+    expect(start.toISOString()).toBe("2026-05-01T00:00:00.000Z");
+    expect(end.toISOString()).toBe("2026-05-31T23:59:59.999Z");
   });
 
   it("rechaza meses mal formados", () => {

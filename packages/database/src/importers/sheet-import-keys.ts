@@ -1,7 +1,5 @@
-import { endOfMonth, parseISO, startOfMonth } from "date-fns";
-
 // Claves naturales para que importar el mismo sheet dos veces no duplique datos.
-// Las fechas se calculan en la zona horaria del proceso, igual que el importador.
+// Las fechas de mes se calculan en UTC para no depender de la zona horaria del proceso.
 
 export interface MonthRange {
   readonly start: Date;
@@ -20,8 +18,13 @@ export function monthRange(month: string): MonthRange {
   if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
     throw new Error(`Mes inválido: "${month}" (formato esperado AAAA-MM)`);
   }
-  const date = parseISO(`${month}-01`);
-  return { start: startOfMonth(date), end: endOfMonth(date) };
+  const [yearStr, monthStr] = month.split("-");
+  const year = parseInt(yearStr, 10);
+  const m = parseInt(monthStr, 10);
+  return {
+    start: new Date(Date.UTC(year, m - 1, 1, 0, 0, 0, 0)),
+    end: new Date(Date.UTC(year, m, 0, 23, 59, 59, 999)),
+  };
 }
 
 export function normalizeFolio(

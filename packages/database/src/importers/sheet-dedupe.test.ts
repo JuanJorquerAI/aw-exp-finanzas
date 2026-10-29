@@ -246,6 +246,36 @@ describe("planSheetDedupe — transacciones", () => {
     expect(ids(plan.keepTransactions)).toEqual(["t1", "t2"]);
     expect(plan.deleteTransactions).toEqual([]);
   });
+
+  it("dos facturas S/N legítimas iguales en el sheet: con expectedCounts conserva 2 y borra los sobrantes", () => {
+    const key = "factura|AFECTA|S/N|769968946|100000";
+    const t1 = tx({
+      id: "t1",
+      groupKey: key,
+      createdAt: new Date("2026-06-01T10:00:00Z"),
+    });
+    const t2 = tx({
+      id: "t2",
+      groupKey: key,
+      createdAt: new Date("2026-06-01T10:00:01Z"),
+    });
+    const t3 = tx({
+      id: "t3",
+      groupKey: key,
+      createdAt: new Date("2026-06-02T10:00:00Z"),
+    });
+    const t4 = tx({
+      id: "t4",
+      groupKey: key,
+      createdAt: new Date("2026-06-02T10:00:01Z"),
+    });
+
+    const expectedCounts = new Map([[key, 2]]);
+    const plan = planSheetDedupe([t4, t3, t2, t1], [], { expectedCounts });
+    expect(ids(plan.keepTransactions)).toEqual(["t1", "t2"]);
+    expect(ids(plan.deleteTransactions)).toEqual(["t4", "t3"]);
+    expect(plan.conflicts).toEqual([]);
+  });
 });
 
 describe("planSheetDedupe — oportunidades", () => {
@@ -256,6 +286,29 @@ describe("planSheetDedupe — oportunidades", () => {
     );
     expect(ids(plan.keepOpportunities)).toEqual(["o1"]);
     expect(ids(plan.deleteOpportunities)).toEqual(["o2"]);
+  });
+
+  it("oportunidades respetan expectedCounts cuando hay copias legítimas múltiples", () => {
+    const o1 = opp({
+      id: "o1",
+      groupKey: "oportunidad|AW|AdOnTheGo",
+      createdAt: new Date("2026-06-01T10:00:00Z"),
+    });
+    const o2 = opp({
+      id: "o2",
+      groupKey: "oportunidad|AW|AdOnTheGo",
+      createdAt: new Date("2026-06-01T10:00:01Z"),
+    });
+    const o3 = opp({
+      id: "o3",
+      groupKey: "oportunidad|AW|AdOnTheGo",
+      createdAt: new Date("2026-06-02T10:00:00Z"),
+    });
+
+    const expectedCounts = new Map([["oportunidad|AW|AdOnTheGo", 2]]);
+    const plan = planSheetDedupe([], [o3, o2, o1], { expectedCounts });
+    expect(ids(plan.keepOpportunities)).toEqual(["o1", "o2"]);
+    expect(ids(plan.deleteOpportunities)).toEqual(["o3"]);
   });
 
   it("no borra copias con datos distintos", () => {

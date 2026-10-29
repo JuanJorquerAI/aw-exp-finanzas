@@ -257,7 +257,7 @@ async function importPayments(
 function countInvoices(
   ctx: ImportContext,
   inv: Invoice,
-  counterpartyId: string,
+  counterpartyIds: readonly string[],
   companyId: string,
 ): Promise<number> {
   const folio = normalizeFolio(inv.number);
@@ -267,7 +267,7 @@ function countInvoices(
         companyId,
         type: inv.type,
         number: folio,
-        counterpartyId,
+        counterpartyId: { in: [...counterpartyIds] },
       },
     });
   }
@@ -276,7 +276,7 @@ function countInvoices(
       companyId,
       type: inv.type,
       number: null,
-      counterpartyId,
+      counterpartyId: { in: [...counterpartyIds] },
       totalAmount: inv.total,
       transactionLinks: {
         some: {
@@ -298,10 +298,10 @@ async function importInvoices(
   let created = 0;
   let skipped = 0;
   for (const inv of invoices) {
-    const cp = await upsertCounterparty(ctx.tx, inv.rut, inv.counterparty);
+    const cp = await resolveCounterparty(ctx.tx, inv.rut, inv.counterparty);
     if (
       await alreadyImported(ctx, invoiceKey(inv), () =>
-        countInvoices(ctx, inv, cp.id, awCompanyId),
+        countInvoices(ctx, inv, cp.equivalentIds, awCompanyId),
       )
     ) {
       skipped++;
@@ -312,7 +312,7 @@ async function importInvoices(
     const doc = await ctx.tx.document.create({
       data: {
         companyId: awCompanyId,
-        counterpartyId: cp.id,
+        counterpartyId: cp.primary.id,
         type: inv.type,
         number: folio,
         netAmount: inv.net,
@@ -336,7 +336,7 @@ async function importInvoices(
         paidAt: inv.paidAt ? new Date(inv.paidAt) : null,
         description: `Factura ${folio ?? "S/N"} - ${inv.counterparty}`,
         companyId: awCompanyId,
-        counterpartyId: cp.id,
+        counterpartyId: cp.primary.id,
       },
     });
 
@@ -445,47 +445,85 @@ async function importOpportunities(
   return { created, skipped };
 }
 
-async function upsertCounterparty(
+export interface CounterpartyResolution {
+  readonly primary: Prisma.CounterpartyGetPayload<{}>;
+  readonly equivalentIds: readonly string[];
+}
+
+export async function resolveCounterparty(
   tx: Prisma.TransactionClient,
-  rut: string,
+  rut: string | null | undefined,
   name: string,
-) {
+): Promise<CounterpartyResolution> {
   const cleanRut = normalizeRut(rut);
   const targetCanonical = canonicalRut(rut);
   const cleanName = name.trim();
 
   if (targetCanonical) {
-    // 1. Coincidencia directa por variantes comunes (con puntos, normalizado o canónico)
-    const variants = [rut.trim(), cleanRut, targetCanonical].filter(
+    // 1. Coincidencia directa por variantes habituales (rápida por índice)
+    const variants = [rut?.trim(), cleanRut, targetCanonical].filter(
       (v): v is string => Boolean(v),
     );
-    let existing = await tx.counterparty.findFirst({
+    const directMatches = await tx.counterparty.findMany({
       where: { rut: { in: variants } },
+      orderBy: { createdAt: "asc" },
     });
-    if (existing) return existing;
 
-    // 2. Comparar en memoria contra todas las contrapartes con RUT normalizado en ambos lados
+    // 2. Coincidencias en memoria por canonicalRut para cubrir formatos con espacios o no contemplados
     const allWithRut = await tx.counterparty.findMany({
       where: { rut: { not: null } },
+      orderBy: { createdAt: "asc" },
     });
-    existing =
-      allWithRut.find((cp) => canonicalRut(cp.rut) === targetCanonical) ?? null;
-    if (existing) return existing;
+    const memoryMatches = allWithRut.filter(
+      (cp) => canonicalRut(cp.rut) === targetCanonical,
+    );
+
+    const map = new Map<string, Prisma.CounterpartyGetPayload<{}>>();
+    for (const cp of [...directMatches, ...memoryMatches]) {
+      map.set(cp.id, cp);
+    }
+    const matches = [...map.values()].sort(
+      (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+    );
+
+    if (matches.length > 0) {
+      return {
+        primary: matches[0],
+        equivalentIds: matches.map((m) => m.id),
+      };
+    }
 
     // 3. Si no existe por RUT ni variantes, crear nueva contraparte
-    return tx.counterparty.create({
+    const created = await tx.counterparty.create({
       data: {
         type: "CUSTOMER",
         name: cleanName,
         rut: cleanRut ?? targetCanonical,
       },
     });
+    return {
+      primary: created,
+      equivalentIds: [created.id],
+    };
   }
 
-  const existing = await tx.counterparty.findFirst({
+  // Sin RUT: buscar por nombre
+  const existing = await tx.counterparty.findMany({
     where: { name: cleanName },
+    orderBy: { createdAt: "asc" },
   });
-  if (existing) return existing;
+  if (existing.length > 0) {
+    return {
+      primary: existing[0],
+      equivalentIds: existing.map((e) => e.id),
+    };
+  }
 
-  return tx.counterparty.create({ data: { type: "CUSTOMER", name: cleanName } });
+  const created = await tx.counterparty.create({
+    data: { type: "CUSTOMER", name: cleanName },
+  });
+  return {
+    primary: created,
+    equivalentIds: [created.id],
+  };
 }

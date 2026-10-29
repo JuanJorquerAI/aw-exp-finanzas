@@ -32,9 +32,14 @@ describe("monthRange", () => {
 });
 
 describe("normalizeFolio", () => {
-  it("convierte vacío en null y recorta espacios", () => {
+  it("convierte vacío y variantes S/N en null y recorta espacios", () => {
     expect(normalizeFolio("")).toBeNull();
     expect(normalizeFolio("  ")).toBeNull();
+    expect(normalizeFolio("S/N")).toBeNull();
+    expect(normalizeFolio("s/n")).toBeNull();
+    expect(normalizeFolio("sn")).toBeNull();
+    expect(normalizeFolio("sin numero")).toBeNull();
+    expect(normalizeFolio("sin número")).toBeNull();
     expect(normalizeFolio(" 1190 ")).toBe("1190");
   });
 });
@@ -63,9 +68,33 @@ describe("invoiceKey", () => {
     total: 1196747,
   };
 
-  it("con folio usa tipo + folio + RUT y no depende del monto", () => {
-    expect(invoiceKey(base)).toBe("factura|AFECTA|1190|76026121-1");
+  it("con folio usa tipo + folio + RUT canónico y no depende del monto", () => {
+    expect(invoiceKey(base)).toBe("factura|AFECTA|1190|760261211");
     expect(invoiceKey({ ...base, total: 1 })).toBe(invoiceKey(base));
+  });
+
+  it("con folio genera la misma clave independiente del formato del RUT (con puntos o sin guion)", () => {
+    expect(invoiceKey({ ...base, rut: "760261211" })).toBe(
+      "factura|AFECTA|1190|760261211",
+    );
+    expect(invoiceKey({ ...base, rut: "76.026.121-1" })).toBe(
+      "factura|AFECTA|1190|760261211",
+    );
+    expect(invoiceKey({ ...base, rut: "76026121-1" })).toBe(
+      "factura|AFECTA|1190|760261211",
+    );
+  });
+
+  it("sin folio usa RUT canónico y monto", () => {
+    expect(
+      invoiceKey({
+        type: "AFECTA",
+        number: "",
+        rut: "76.026.121-1",
+        counterparty: "Lira",
+        total: 500000,
+      }),
+    ).toBe("factura|AFECTA|S/N|760261211|500000");
   });
 
   it("el mismo folio con distinto tipo es otra factura", () => {

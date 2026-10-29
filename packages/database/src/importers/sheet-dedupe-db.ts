@@ -7,6 +7,7 @@ import {
   planSheetDedupe,
 } from "./sheet-dedupe";
 import {
+  canonicalRut,
   expenseKey,
   invoiceKey,
   monthRange,
@@ -67,7 +68,7 @@ function transactionGroupKey(t: LoadedTransaction): string {
   if (!doc) return `ingreso|${t.description.trim()}`;
   const cp = doc.counterparty;
   const who =
-    normalizeRut(cp?.rut) ??
+    canonicalRut(cp?.rut) ??
     (cp?.name ? `nombre:${cp.name.trim().toLowerCase()}` : (doc.counterpartyId ?? ""));
   const folio = normalizeFolio(doc.number);
   return folio

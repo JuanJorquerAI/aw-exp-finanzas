@@ -544,4 +544,163 @@ describe("limpieza de duplicados antiguos", () => {
       await prisma.transaction.count({ where: { description: "ChatGPT Sub" } }),
     ).toBe(2);
   });
+
+  it("par de contrapartes banco + sheet con distinto formato de RUT no duplica facturas y dedupe S/N respeta expectedCounts", async () => {
+    const aw = await prisma.company.findUniqueOrThrow({
+      where: { shortCode: "AW" },
+    });
+
+    // 1. Par de contrapartes con el mismo RUT:
+    // cpSheet (antigua, con puntos) y cpBank (creada después por banco, sin guion)
+    const cpSheet = await prisma.counterparty.create({
+      data: {
+        name: "Empresa Dual Sheet",
+        rut: "76.543.210-K",
+        type: "CUSTOMER",
+        createdAt: new Date("2025-01-01T00:00:00.000Z"),
+      },
+    });
+    const cpBank = await prisma.counterparty.create({
+      data: {
+        name: "Empresa Dual Banco",
+        rut: "76543210K",
+        type: "CUSTOMER",
+        createdAt: new Date("2025-06-01T00:00:00.000Z"),
+      },
+    });
+
+    const cpCountBefore = await prisma.counterparty.count();
+
+    // Factura existente asociada a cpBank (la del banco sin guión)
+    const docExistente = await prisma.document.create({
+      data: {
+        companyId: aw.id,
+        counterpartyId: cpBank.id,
+        type: "AFECTA",
+        number: "2001",
+        netAmount: 200000,
+        totalAmount: 238000,
+        currency: "CLP",
+      },
+    });
+    await prisma.transaction.create({
+      data: {
+        type: "INCOME",
+        status: "PENDING",
+        source: "SHEET_IMPORT",
+        amount: 238000,
+        amountCLP: 238000,
+        currency: "CLP",
+        date: new Date("2026-08-01T04:00:00.000Z"),
+        description: "Factura 2001 - Empresa Dual",
+        companyId: aw.id,
+        counterpartyId: cpBank.id,
+        documents: { create: { documentId: docExistente.id } },
+      },
+    });
+
+    // Sheet contiene la factura existente (2001) y además dos facturas S/N legítimas iguales
+    const snInvoice = {
+      rut: "76543210-K", // formato normalizado con guión
+      counterparty: "Empresa Dual",
+      type: "EXENTA" as const,
+      number: "S/N",
+      service: "Cuota Mantencion",
+      net: 100000,
+      iva: 0,
+      total: 100000,
+      sent: true,
+      paidAt: null,
+    };
+
+    const sheet: SheetImportData = {
+      month: "2026-08",
+      payments: [],
+      invoices: [
+        {
+          rut: "76543210-K",
+          counterparty: "Empresa Dual",
+          type: "AFECTA",
+          number: "2001",
+          service: "Servicio Existente",
+          net: 200000,
+          iva: 38000,
+          total: 238000,
+          sent: true,
+          paidAt: null,
+        },
+        snInvoice,
+        snInvoice,
+      ],
+      visa: [],
+      opportunities: [],
+      exchangeRate: { USD_CLP: 950 },
+    };
+
+    // Reimportar:
+    // - Factura 2001 debe ser skipped (a pesar de estar vinculada a cpBank en la BD).
+    // - Las dos facturas S/N deben ser importadas y asociadas a la contraparte más antigua (cpSheet).
+    // - No debe crearse ninguna tercera contraparte en la BD.
+    const res = await importFromSheet(sheet, prisma);
+    expect(res.invoices).toBe(2);
+    expect(res.skipped.invoices).toBe(1);
+    expect(await prisma.counterparty.count()).toBe(cpCountBefore);
+
+    const snDocs = await prisma.document.findMany({
+      where: {
+        companyId: aw.id,
+        counterpartyId: cpSheet.id,
+        number: null,
+      },
+    });
+    expect(snDocs).toHaveLength(2);
+
+    // Ahora simulamos que un importador antiguo duplicó esas dos facturas S/N
+    const snTx = await prisma.transaction.findMany({
+      where: {
+        companyId: aw.id,
+        type: "INCOME",
+        counterpartyId: cpSheet.id,
+      },
+    });
+    expect(snTx).toHaveLength(2);
+
+    const copy1 = await cloneImported(snTx[0].id);
+    const copy2 = await cloneImported(snTx[1].id);
+    await age([snTx[0].id, snTx[1].id], 120);
+    await age([copy1, copy2], 60);
+
+    // Dedupe con sheetData:
+    // Las claves deben coincidir por canonicalRut y reconocer que se esperaban 2 copias legítimas.
+    // Solo deben borrarse copy1 y copy2, nunca las originales.
+    const plan = await buildDedupePlan(prisma, "2026-08", { sheetData: sheet });
+    expect(plan.conflicts).toEqual([]);
+    expect(
+      plan.keepTransactions.filter((t) => t.groupKey.includes("S/N")),
+    ).toHaveLength(2);
+    expect(plan.deleteTransactions).toHaveLength(2);
+    expect(plan.deleteTransactions.map((t) => t.id).sort()).toEqual(
+      [copy1, copy2].sort(),
+    );
+
+    await applyDedupePlan(prisma, plan, "2026-08");
+
+    // Comprobar que sobrevivieron exactamente las 2 facturas S/N y sus 2 documentos
+    const remainingTx = await prisma.transaction.findMany({
+      where: {
+        companyId: aw.id,
+        type: "INCOME",
+        counterpartyId: cpSheet.id,
+      },
+    });
+    expect(remainingTx).toHaveLength(2);
+    const remainingDocs = await prisma.document.findMany({
+      where: {
+        companyId: aw.id,
+        counterpartyId: cpSheet.id,
+        number: null,
+      },
+    });
+    expect(remainingDocs).toHaveLength(2);
+  });
 });

@@ -62,7 +62,10 @@ export function normalizeFolio(
   number: string | null | undefined,
 ): string | null {
   const folio = (number ?? "").trim();
-  return folio === "" ? null : folio;
+  if (folio === "" || /^(s\/n|sn|sin\s*n[uú]mero)$/i.test(folio)) {
+    return null;
+  }
+  return folio;
 }
 
 export function normalizeRut(rut: string | null | undefined): string | null {
@@ -75,12 +78,12 @@ export function canonicalRut(rut: string | null | undefined): string | null {
   return clean === "" ? null : clean;
 }
 
-// Con folio: tipo + folio + RUT del cliente (el sheet no dice qué empresa emite).
+// Con folio: tipo + folio + RUT canónico del cliente (el sheet no dice qué empresa emite).
 // Sin folio (factura aún no emitida): tipo + cliente + monto, dentro del mes.
 export function invoiceKey(inv: InvoiceKeyInput): string {
   const folio = normalizeFolio(inv.number);
   const who =
-    normalizeRut(inv.rut) ?? `nombre:${inv.counterparty.trim().toLowerCase()}`;
+    canonicalRut(inv.rut) ?? `nombre:${inv.counterparty.trim().toLowerCase()}`;
   return folio
     ? `factura|${inv.type}|${folio}|${who}`
     : `factura|${inv.type}|S/N|${who}|${inv.total}`;

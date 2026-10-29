@@ -229,14 +229,14 @@ describe("importFromSheet idempotente", () => {
     expect(second.skipped).toMatchObject({ payments: 1, visa: 1 });
   });
 
-  it("documento manual o de otra empresa con mismo folio no frena la factura del sheet", async () => {
+  it("documento manual de EXPRO con mismo folio no frena la factura AW del sheet", async () => {
     const expro = await prisma.company.findUniqueOrThrow({
       where: { shortCode: "EXPRO" },
     });
     const cp = await prisma.counterparty.create({
       data: { name: "Cliente Compartido", rut: "76996894-6", type: "CUSTOMER" },
     });
-    // Documento creado en EXPRO a mano (sin transaction link de SHEET_IMPORT)
+    // Documento creado en EXPRO a mano
     await prisma.document.create({
       data: {
         companyId: expro.id,
@@ -274,6 +274,192 @@ describe("importFromSheet idempotente", () => {
     const res = await importFromSheet(sheet, prisma);
     expect(res.invoices).toBe(1);
     expect(res.skipped.invoices).toBe(0);
+  });
+
+  it("factura AW ingresada a mano con mismo folio no se duplica al importar el sheet", async () => {
+    const aw = await prisma.company.findUniqueOrThrow({
+      where: { shortCode: "AW" },
+    });
+    const cp = await prisma.counterparty.create({
+      data: { name: "Cliente AW Manual", rut: "76111222-3", type: "CUSTOMER" },
+    });
+    // Documento creado en AW a mano (sin transaction link de SHEET_IMPORT)
+    const doc = await prisma.document.create({
+      data: {
+        companyId: aw.id,
+        counterpartyId: cp.id,
+        type: "AFECTA",
+        number: "888",
+        netAmount: 50000,
+        totalAmount: 59500,
+        currency: "CLP",
+      },
+    });
+    await prisma.transaction.create({
+      data: {
+        type: "INCOME",
+        status: "PENDING",
+        source: "MANUAL",
+        amount: 59500,
+        amountCLP: 59500,
+        currency: "CLP",
+        date: new Date("2026-07-01T04:00:00.000Z"),
+        description: "Factura 888 manual",
+        companyId: aw.id,
+        counterpartyId: cp.id,
+        documents: { create: { documentId: doc.id } },
+      },
+    });
+
+    const sheet: SheetImportData = {
+      month: "2026-07",
+      payments: [],
+      invoices: [
+        {
+          rut: "76.111.222-3",
+          counterparty: "Cliente AW Manual",
+          type: "AFECTA",
+          number: "888",
+          service: "Servicio Existente",
+          net: 50000,
+          iva: 9500,
+          total: 59500,
+          sent: true,
+          paidAt: null,
+        },
+      ],
+      visa: [],
+      opportunities: [],
+      exchangeRate: { USD_CLP: 950 },
+    };
+
+    const res = await importFromSheet(sheet, prisma);
+    expect(res.invoices).toBe(0);
+    expect(res.skipped.invoices).toBe(1);
+    expect(
+      await prisma.document.count({ where: { number: "888", companyId: aw.id } }),
+    ).toBe(1);
+  });
+
+  it("reimportar con RUT previo guardado con puntos o sin guion no duplica contraparte ni facturas", async () => {
+    const aw = await prisma.company.findUniqueOrThrow({
+      where: { shortCode: "AW" },
+    });
+    // Contraparte guardada con formato antiguo (con puntos)
+    const cpPuntos = await prisma.counterparty.create({
+      data: {
+        name: "Lira Distribuidora",
+        rut: "76.026.121-1",
+        type: "CUSTOMER",
+      },
+    });
+    const doc1 = await prisma.document.create({
+      data: {
+        companyId: aw.id,
+        counterpartyId: cpPuntos.id,
+        type: "AFECTA",
+        number: "1190",
+        netAmount: 1000000,
+        totalAmount: 1190000,
+        currency: "CLP",
+      },
+    });
+    await prisma.transaction.create({
+      data: {
+        type: "INCOME",
+        status: "PENDING",
+        source: "SHEET_IMPORT",
+        amount: 1190000,
+        amountCLP: 1190000,
+        currency: "CLP",
+        date: new Date("2026-05-01T04:00:00.000Z"),
+        description: "Factura 1190 - Lira Distribuidora",
+        companyId: aw.id,
+        counterpartyId: cpPuntos.id,
+        documents: { create: { documentId: doc1.id } },
+      },
+    });
+
+    // Contraparte guardada sin guion (ej. por bank-importer o script previo)
+    const cpSinGuion = await prisma.counterparty.create({
+      data: {
+        name: "Agencia Fiel",
+        rut: "769968946",
+        type: "CUSTOMER",
+      },
+    });
+    const doc2 = await prisma.document.create({
+      data: {
+        companyId: aw.id,
+        counterpartyId: cpSinGuion.id,
+        type: "AFECTA",
+        number: "1191",
+        netAmount: 500000,
+        totalAmount: 595000,
+        currency: "CLP",
+      },
+    });
+    await prisma.transaction.create({
+      data: {
+        type: "INCOME",
+        status: "PENDING",
+        source: "SHEET_IMPORT",
+        amount: 595000,
+        amountCLP: 595000,
+        currency: "CLP",
+        date: new Date("2026-05-01T04:00:00.000Z"),
+        description: "Factura 1191 - Agencia Fiel",
+        companyId: aw.id,
+        counterpartyId: cpSinGuion.id,
+        documents: { create: { documentId: doc2.id } },
+      },
+    });
+
+    const initialCpCount = await prisma.counterparty.count();
+
+    // Reimportar con RUTs en formatos variantes
+    const sheet: SheetImportData = {
+      month: "2026-05",
+      payments: [],
+      invoices: [
+        {
+          rut: "76026121-1", // sin puntos
+          counterparty: "Lira Distribuidora",
+          type: "AFECTA",
+          number: "1190",
+          service: "Web",
+          net: 1000000,
+          iva: 190000,
+          total: 1190000,
+          sent: true,
+          paidAt: null,
+        },
+        {
+          rut: "76.996.894-6", // con puntos y guion
+          counterparty: "Agencia Fiel",
+          type: "AFECTA",
+          number: "1191",
+          service: "Marketing",
+          net: 500000,
+          iva: 95000,
+          total: 595000,
+          sent: true,
+          paidAt: null,
+        },
+      ],
+      visa: [],
+      opportunities: [],
+      exchangeRate: { USD_CLP: 950 },
+    };
+
+    const res = await importFromSheet(sheet, prisma);
+    expect(res.invoices).toBe(0);
+    expect(res.skipped.invoices).toBe(2);
+    // No se crearon nuevas contrapartes
+    expect(await prisma.counterparty.count()).toBe(initialCpCount);
+    // No se duplicaron los documentos
+    expect(await prisma.document.count({ where: { number: "1190" } })).toBe(1);
+    expect(await prisma.document.count({ where: { number: "1191" } })).toBe(1);
   });
 });
 

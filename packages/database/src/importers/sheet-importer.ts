@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma, TransactionSource } from "@prisma/client";
 import { applyCategorizationRules } from "../categorization";
 import {
+  canonicalRut,
   createOccurrenceCounter,
   expenseKey,
   invoiceKey,
@@ -267,13 +268,6 @@ function countInvoices(
         type: inv.type,
         number: folio,
         counterpartyId,
-        transactionLinks: {
-          some: {
-            transaction: {
-              source: TransactionSource.SHEET_IMPORT,
-            },
-          },
-        },
       },
     });
   }
@@ -457,12 +451,34 @@ async function upsertCounterparty(
   name: string,
 ) {
   const cleanRut = normalizeRut(rut);
+  const targetCanonical = canonicalRut(rut);
   const cleanName = name.trim();
-  if (cleanRut) {
-    return tx.counterparty.upsert({
-      where: { rut: cleanRut },
-      update: {},
-      create: { type: "CUSTOMER", name: cleanName, rut: cleanRut },
+
+  if (targetCanonical) {
+    // 1. Coincidencia directa por variantes comunes (con puntos, normalizado o canónico)
+    const variants = [rut.trim(), cleanRut, targetCanonical].filter(
+      (v): v is string => Boolean(v),
+    );
+    let existing = await tx.counterparty.findFirst({
+      where: { rut: { in: variants } },
+    });
+    if (existing) return existing;
+
+    // 2. Comparar en memoria contra todas las contrapartes con RUT normalizado en ambos lados
+    const allWithRut = await tx.counterparty.findMany({
+      where: { rut: { not: null } },
+    });
+    existing =
+      allWithRut.find((cp) => canonicalRut(cp.rut) === targetCanonical) ?? null;
+    if (existing) return existing;
+
+    // 3. Si no existe por RUT ni variantes, crear nueva contraparte
+    return tx.counterparty.create({
+      data: {
+        type: "CUSTOMER",
+        name: cleanName,
+        rut: cleanRut ?? targetCanonical,
+      },
     });
   }
 

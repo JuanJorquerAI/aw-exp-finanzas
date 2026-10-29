@@ -1,4 +1,5 @@
 import {
+  canonicalRut,
   createOccurrenceCounter,
   expenseKey,
   invoiceKey,
@@ -9,10 +10,19 @@ import {
 } from "./sheet-import-keys";
 
 describe("monthRange", () => {
-  it("devuelve inicio y fin del mes en UTC fijado", () => {
+  it("devuelve inicio y fin del mes en America/Santiago", () => {
     const { start, end } = monthRange("2026-05");
-    expect(start.toISOString()).toBe("2026-05-01T00:00:00.000Z");
-    expect(end.toISOString()).toBe("2026-05-31T23:59:59.999Z");
+    expect(start.toISOString()).toBe("2026-05-01T04:00:00.000Z");
+    expect(end.toISOString()).toBe("2026-06-01T03:59:59.999Z");
+  });
+
+  it("un pago a las 23:59:59 hora de Chile cae dentro del mes", () => {
+    const { start, end } = monthRange("2026-05");
+    const endOfMonthChile = new Date("2026-06-01T03:59:59.999Z");
+    expect(endOfMonthChile >= start && endOfMonthChile <= end).toBe(true);
+
+    const startOfJune = monthRange("2026-06").start;
+    expect(endOfMonthChile < startOfJune).toBe(true);
   });
 
   it("rechaza meses mal formados", () => {
@@ -29,11 +39,18 @@ describe("normalizeFolio", () => {
   });
 });
 
-describe("normalizeRut", () => {
+describe("normalizeRut / canonicalRut", () => {
   it("quita puntos y espacios y pasa la K a mayúscula", () => {
     expect(normalizeRut("93.178.000-k")).toBe("93178000-K");
     expect(normalizeRut("76996894-6")).toBe("76996894-6");
     expect(normalizeRut("")).toBeNull();
+  });
+
+  it("canonicalRut quita además el guion", () => {
+    expect(canonicalRut("93.178.000-k")).toBe("93178000K");
+    expect(canonicalRut("76.996.894-6")).toBe("769968946");
+    expect(canonicalRut("769968946")).toBe("769968946");
+    expect(canonicalRut("")).toBeNull();
   });
 });
 

@@ -318,4 +318,44 @@ describe("limpieza de duplicados antiguos", () => {
     const again = await buildDedupePlan(prisma, "2026-05");
     expect(again.deleteTransactions).toEqual([]);
   });
+
+  it("limpieza respeta líneas iguales legítimas usando sheetData", async () => {
+    const line = {
+      item: "ChatGPT Sub",
+      amount: 20000,
+      paid: true,
+      comment: "",
+      company: "AW",
+    };
+    const sheet: SheetImportData = {
+      month: "2026-06",
+      payments: [line, line],
+      invoices: [],
+      visa: [],
+      opportunities: [],
+      exchangeRate: { USD_CLP: 950 },
+    };
+    await importFromSheet(sheet, prisma);
+    const existing = await prisma.transaction.findMany({
+      where: { description: "ChatGPT Sub" },
+    });
+    expect(existing).toHaveLength(2);
+    const copy1 = await cloneImported(existing[0].id);
+    const copy2 = await cloneImported(existing[1].id);
+    await age([existing[0].id, existing[1].id], 120);
+    await age([copy1, copy2], 60);
+
+    const plan = await buildDedupePlan(prisma, "2026-06", { sheetData: sheet });
+    expect(plan.conflicts).toEqual([]);
+    expect(plan.keepTransactions).toHaveLength(2);
+    expect(plan.deleteTransactions).toHaveLength(2);
+    expect(plan.deleteTransactions.map((t) => t.id).sort()).toEqual(
+      [copy1, copy2].sort(),
+    );
+
+    await applyDedupePlan(prisma, plan, "2026-06");
+    expect(
+      await prisma.transaction.count({ where: { description: "ChatGPT Sub" } }),
+    ).toBe(2);
+  });
 });

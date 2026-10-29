@@ -1,3 +1,5 @@
+import * as fs from "fs";
+import * as path from "path";
 import { PrismaClient } from "@prisma/client";
 import {
   DedupePlan,
@@ -10,21 +12,26 @@ import {
 
 // Limpia duplicados de importaciones antiguas del sheet.
 // Por defecto es MODO PRUEBA: solo muestra qué borraría.
-// Uso: pnpm db:dedupe-sheet --month 2026-05 [--apply]
+// Uso: pnpm db:dedupe-sheet --month 2026-05 [--apply] [--json <ruta>]
 
 interface CliArgs {
   readonly month: string;
   readonly apply: boolean;
+  readonly jsonPath?: string;
 }
 
 function parseArgs(argv: readonly string[]): CliArgs {
   const monthIndex = argv.indexOf("--month");
   const month = monthIndex >= 0 ? argv[monthIndex + 1] : undefined;
   if (!month) {
-    console.error("Uso: pnpm db:dedupe-sheet --month AAAA-MM [--apply]");
+    console.error(
+      "Uso: pnpm db:dedupe-sheet --month AAAA-MM [--apply] [--json <ruta>]",
+    );
     process.exit(1);
   }
-  return { month, apply: argv.includes("--apply") };
+  const jsonIndex = argv.indexOf("--json");
+  const jsonPath = jsonIndex >= 0 ? argv[jsonIndex + 1] : undefined;
+  return { month, apply: argv.includes("--apply"), jsonPath };
 }
 
 // Muestra a qué base apunta, sin usuario ni contraseña
@@ -88,7 +95,25 @@ async function main(): Promise<void> {
         ? "MODO APLICAR: se borrará lo listado."
         : "MODO PRUEBA: no se borra nada.",
     );
-    const plan = await buildDedupePlan(prisma, args.month);
+
+    let jsonPath = args.jsonPath;
+    if (!jsonPath) {
+      const defaultCandidates = [
+        path.resolve(process.cwd(), `data/sheet-${args.month}.json`),
+        path.resolve(__dirname, `../../../../data/sheet-${args.month}.json`),
+      ];
+      jsonPath = defaultCandidates.find((p) => fs.existsSync(p));
+    }
+
+    if (jsonPath && fs.existsSync(jsonPath)) {
+      console.log(`Usando datos del sheet: ${jsonPath}`);
+    } else {
+      console.log(
+        `Sin JSON del sheet para mes ${args.month} (se asume máximo 1 aparición por línea).`,
+      );
+    }
+
+    const plan = await buildDedupePlan(prisma, args.month, { jsonPath });
     printPlan(plan);
     if (!args.apply) {
       console.log(

@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import { Prisma, PrismaClient, TransactionSource } from "@prisma/client";
 import {
   DedupeOpportunityRecord,
@@ -5,7 +6,14 @@ import {
   DedupeTransactionRecord,
   planSheetDedupe,
 } from "./sheet-dedupe";
-import { monthRange } from "./sheet-import-keys";
+import {
+  expenseKey,
+  invoiceKey,
+  monthRange,
+  normalizeFolio,
+  normalizeRut,
+} from "./sheet-import-keys";
+import { SheetImportData } from "./sheet-importer";
 
 // Lectura y aplicación del plan de limpieza. La lectura no modifica nada;
 // applyDedupePlan es lo único que borra y corre en una sola transacción.
@@ -33,7 +41,12 @@ const transactionInclude = {
   documents: {
     orderBy: { linkedAt: "asc" },
     include: {
-      document: { include: { _count: { select: { transactionLinks: true } } } },
+      document: {
+        include: {
+          counterparty: { select: { rut: true, name: true } },
+          _count: { select: { transactionLinks: true } },
+        },
+      },
     },
   },
   _count: { select: { payments: true, notes: true } },
@@ -51,8 +64,14 @@ function transactionGroupKey(t: LoadedTransaction): string {
   if (t.type === "EXPENSE") return `gasto|${t.description.trim()}`;
   const doc = t.documents[0]?.document;
   if (!doc) return `ingreso|${t.description.trim()}`;
-  const folio = doc.number ?? `S/N|${doc.totalAmount.toString()}`;
-  return `factura|${doc.type}|${folio}|${doc.counterpartyId ?? ""}`;
+  const cp = doc.counterparty;
+  const who =
+    normalizeRut(cp?.rut) ??
+    (cp?.name ? `nombre:${cp.name.trim().toLowerCase()}` : (doc.counterpartyId ?? ""));
+  const folio = normalizeFolio(doc.number);
+  return folio
+    ? `factura|${doc.type}|${folio}|${who}`
+    : `factura|${doc.type}|S/N|${who}|${doc.totalAmount.toNumber()}`;
 }
 
 function toTransactionRecord(t: LoadedTransaction): DedupeTransactionRecord {
@@ -142,12 +161,49 @@ export async function loadDedupeRecords(
   };
 }
 
+export function countExpectedOccurrencesFromSheet(
+  sheet: SheetImportData,
+): Map<string, number> {
+  const counts = new Map<string, number>();
+  const add = (key: string) => {
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  };
+  for (const p of sheet.payments) {
+    add(expenseKey(p.item));
+  }
+  for (const v of sheet.visa) {
+    add(expenseKey(v.item));
+  }
+  for (const inv of sheet.invoices) {
+    add(invoiceKey(inv));
+  }
+  return counts;
+}
+
+export interface BuildDedupePlanOptions {
+  readonly sheetData?: SheetImportData;
+  readonly jsonPath?: string;
+  readonly expectedCounts?: ReadonlyMap<string, number>;
+}
+
 export async function buildDedupePlan(
   db: Db,
   month: string,
+  options?: BuildDedupePlanOptions,
 ): Promise<DedupePlan> {
+  let sheet = options?.sheetData;
+  if (!sheet && options?.jsonPath && fs.existsSync(options.jsonPath)) {
+    sheet = JSON.parse(
+      fs.readFileSync(options.jsonPath, "utf-8"),
+    ) as SheetImportData;
+  }
   const records = await loadDedupeRecords(db, month);
-  return planSheetDedupe(records.transactions, records.opportunities);
+  const expectedCounts =
+    options?.expectedCounts ??
+    (sheet ? countExpectedOccurrencesFromSheet(sheet) : undefined);
+  return planSheetDedupe(records.transactions, records.opportunities, {
+    expectedCounts,
+  });
 }
 
 export async function applyDedupePlan(

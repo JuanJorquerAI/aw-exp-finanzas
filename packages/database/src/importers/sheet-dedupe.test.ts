@@ -208,6 +208,44 @@ describe("planSheetDedupe — transacciones", () => {
     expect(plan.deleteTransactions).toEqual([]);
     expect(plan.conflicts[0].reason).toContain("montos distintos");
   });
+
+  it("dos líneas iguales legítimas en el sheet: con expectedCounts conserva 2 y borra los sobrantes", () => {
+    const t1 = tx({
+      id: "t1",
+      groupKey: "gasto|ChatGPT",
+      createdAt: new Date("2026-06-01T10:00:00Z"),
+    });
+    const t2 = tx({
+      id: "t2",
+      groupKey: "gasto|ChatGPT",
+      createdAt: new Date("2026-06-01T10:00:01Z"),
+    });
+    const t3 = tx({
+      id: "t3",
+      groupKey: "gasto|ChatGPT",
+      createdAt: new Date("2026-06-02T10:00:00Z"),
+    });
+    const t4 = tx({
+      id: "t4",
+      groupKey: "gasto|ChatGPT",
+      createdAt: new Date("2026-06-02T10:00:01Z"),
+    });
+
+    const expectedCounts = new Map([["gasto|ChatGPT", 2]]);
+    const plan = planSheetDedupe([t4, t3, t2, t1], [], { expectedCounts });
+    expect(ids(plan.keepTransactions)).toEqual(["t1", "t2"]);
+    expect(ids(plan.deleteTransactions)).toEqual(["t4", "t3"]);
+    expect(plan.conflicts).toEqual([]);
+  });
+
+  it("si las copias existentes son menores o iguales a las esperadas, no borra nada", () => {
+    const t1 = tx({ id: "t1", groupKey: "gasto|ChatGPT" });
+    const t2 = tx({ id: "t2", groupKey: "gasto|ChatGPT", createdAt: NEW });
+    const expectedCounts = new Map([["gasto|ChatGPT", 2]]);
+    const plan = planSheetDedupe([t1, t2], [], { expectedCounts });
+    expect(ids(plan.keepTransactions)).toEqual(["t1", "t2"]);
+    expect(plan.deleteTransactions).toEqual([]);
+  });
 });
 
 describe("planSheetDedupe — oportunidades", () => {

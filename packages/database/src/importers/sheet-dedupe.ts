@@ -38,6 +38,10 @@ export interface DedupeConflict {
   readonly reason: string;
 }
 
+export interface DedupePlanOptions {
+  readonly expectedCounts?: ReadonlyMap<string, number>;
+}
+
 export interface DedupePlan {
   readonly keepTransactions: readonly DedupeTransactionRecord[];
   readonly deleteTransactions: readonly DedupeTransactionRecord[];
@@ -73,15 +77,23 @@ function hasUserData(t: DedupeTransactionRecord): boolean {
   return t.payments > 0 || t.notes > 0 || t.extraDocuments > 0;
 }
 
+function keepN<T extends { id: string }>(
+  group: readonly T[],
+  survivors: readonly T[],
+): GroupDecision<T> {
+  const survivorIds = new Set(survivors.map((s) => s.id));
+  return {
+    keep: survivors,
+    remove: group.filter((g) => !survivorIds.has(g.id)),
+    conflicts: [],
+  };
+}
+
 function keepOne<T extends { id: string }>(
   group: readonly T[],
   survivor: T,
 ): GroupDecision<T> {
-  return {
-    keep: [survivor],
-    remove: group.filter((g) => g.id !== survivor.id),
-    conflicts: [],
-  };
+  return keepN(group, [survivor]);
 }
 
 function conflict<T extends { id: string; label: string }>(
@@ -101,8 +113,11 @@ function conflict<T extends { id: string; label: string }>(
 function decideTransactions(
   groupKey: string,
   group: readonly DedupeTransactionRecord[],
+  expectedKeepCount: number = 1,
 ): GroupDecision<DedupeTransactionRecord> {
-  if (group.length < 2) return { keep: group, remove: [], conflicts: [] };
+  if (group.length <= expectedKeepCount) {
+    return { keep: group, remove: [], conflicts: [] };
+  }
   if (new Set(group.map((t) => t.amount)).size > 1) {
     return conflict(groupKey, group, "montos distintos entre copias");
   }
@@ -119,7 +134,7 @@ function decideTransactions(
       "una copia anulada tiene abonos, notas o documentos agregados",
     );
   }
-  if (group.filter(hasUserData).length > 1) {
+  if (group.filter(hasUserData).length > expectedKeepCount) {
     return conflict(
       groupKey,
       group,
@@ -128,11 +143,11 @@ function decideTransactions(
   }
 
   if (active.length === 0) {
-    const survivor = [...group].sort(
+    const sorted = [...group].sort(
       (a, b) =>
         Number(hasUserData(b)) - Number(hasUserData(a)) || byOldest(a, b),
-    )[0];
-    return keepOne(group, survivor);
+    );
+    return keepN(group, sorted.slice(0, expectedKeepCount));
   }
 
   const edited = active.filter((t) => t.touched || hasUserData(t));
@@ -144,15 +159,19 @@ function decideTransactions(
         "una copia fue anulada y otra sigue intacta: ¿anulación real o limpieza manual?",
       );
     }
-    return keepOne(group, [...active].sort(byOldest)[0]);
+    const sorted = [...active].sort(byOldest);
+    return keepN(group, sorted.slice(0, expectedKeepCount));
   }
   if (new Set(edited.map((t) => t.signature)).size > 1) {
     return conflict(groupKey, group, "copias editadas de forma distinta");
   }
-  const survivor = [...edited].sort(
-    (a, b) => Number(hasUserData(b)) - Number(hasUserData(a)) || byOldest(a, b),
-  )[0];
-  return keepOne(group, survivor);
+  const ranked = [...active].sort(
+    (a, b) =>
+      Number(hasUserData(b)) - Number(hasUserData(a)) ||
+      Number(b.touched) - Number(a.touched) ||
+      byOldest(a, b),
+  );
+  return keepN(group, ranked.slice(0, expectedKeepCount));
 }
 
 function decideOpportunities(
@@ -168,10 +187,15 @@ function decideOpportunities(
 
 function decideAll<T extends { groupKey: string }>(
   items: readonly T[],
-  decide: (groupKey: string, group: readonly T[]) => GroupDecision<T>,
+  decide: (
+    groupKey: string,
+    group: readonly T[],
+    expectedCount: number,
+  ) => GroupDecision<T>,
+  expectedCounts?: ReadonlyMap<string, number>,
 ): GroupDecision<T> {
   const decisions = [...groupBy(items)].map(([key, group]) =>
-    decide(key, group),
+    decide(key, group, expectedCounts?.get(key) ?? 1),
   );
   return {
     keep: decisions.flatMap((d) => d.keep),
@@ -183,9 +207,16 @@ function decideAll<T extends { groupKey: string }>(
 export function planSheetDedupe(
   transactions: readonly DedupeTransactionRecord[],
   opportunities: readonly DedupeOpportunityRecord[],
+  options?: DedupePlanOptions,
 ): DedupePlan {
-  const txs = decideAll(transactions, decideTransactions);
-  const opps = decideAll(opportunities, decideOpportunities);
+  const txs = decideAll(
+    transactions,
+    decideTransactions,
+    options?.expectedCounts,
+  );
+  const opps = decideAll(opportunities, (key, group) =>
+    decideOpportunities(key, group),
+  );
   return {
     keepTransactions: txs.keep,
     deleteTransactions: txs.remove,
